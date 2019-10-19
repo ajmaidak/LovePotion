@@ -65,11 +65,11 @@ typedef struct
 {
     int x;
     int y;
-    int subWidth;
-    int subHeight;
-
     int width;
     int height;
+
+    int atlasWidth;
+    int atlasHeight;
 } Viewport;
 
 typedef struct

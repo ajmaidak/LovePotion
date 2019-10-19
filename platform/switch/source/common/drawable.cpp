@@ -28,23 +28,23 @@ void Drawable::Draw(SDL_Texture * texture, Viewport view, double x, double y, do
     int textureWidth, textureHeight;
     SDL_QueryTexture(texture, NULL, NULL, &textureWidth, &textureHeight);
 
-    xScaleFactor = (double)view.width / (double)textureWidth;
-    view.x *= (float)textureWidth / (float)view.width;
-    view.subWidth *= (float)textureWidth / (float)view.width;
+    xScaleFactor = (double)view.atlasWidth / (double)textureWidth;
+    view.x *= (float)textureWidth / (float)view.atlasWidth;
+    view.width *= (float)textureWidth / (float)view.atlasWidth;
 
-    yScaleFactor = (float)view.height / (float)textureHeight;
-    view.y *= (float)textureHeight / (float)view.height;
-    view.subHeight *= (float)textureHeight / (float)view.height;
+    yScaleFactor = (float)view.atlasHeight / (float)textureHeight;
+    view.y *= (float)textureHeight / (float)view.atlasHeight;
+    view.height *= (float)textureHeight / (float)view.atlasHeight;
 
-    double scaledWidth = view.subWidth * xScaleFactor * abs(scalarX);
-    double scaledHeight = view.subHeight * yScaleFactor * abs(scalarY);
+    double scaledWidth = view.width * xScaleFactor * abs(scalarX);
+    double scaledHeight = view.height * yScaleFactor * abs(scalarY);
 
     if (scalarX < 0)
         x-= scaledWidth;
     if (scalarY < 0)
         y -= scaledHeight;
 
-    SDL_Rect sourceRectangle = {view.x, view.y, view.subWidth, view.subHeight};
+    SDL_Rect sourceRectangle = {view.x, view.y, view.width, view.height};
 
     SDL_Rect destinationRectangle =
     {

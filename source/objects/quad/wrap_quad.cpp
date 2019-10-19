@@ -13,8 +13,14 @@ int quadNew(lua_State * L)
     int width = luaL_checknumber(L, 3);
     int height = luaL_checknumber(L, 4);
 
+    if (width <= 0) luaL_error(L, "Quad width must be greater than 0!");
+    if (height <= 0) luaL_error(L, "Quad height must be greater than 0!");
+
     int atlasWidth = luaL_checknumber(L, 5);
     int atlasHeight = luaL_checknumber(L, 6);
+
+    if (atlasWidth <= 0) luaL_error(L, "Texture width must be greater than 0!");
+    if (atlasHeight <= 0) luaL_error(L, "Texture height must be greater than 0!");
 
     void * raw_self = luaobj_newudata(L, sizeof(Quad));
 
@@ -25,6 +31,18 @@ int quadNew(lua_State * L)
     return 1;
 }
 
+int quadGetTextureDimensions(lua_State * L)
+{
+    Quad * self = (Quad *)luaobj_checkudata(L, 1, CLASS_TYPE);
+
+    Viewport view = self->GetViewport();
+
+    lua_pushnumber(L, view.atlasWidth);
+    lua_pushnumber(L, view.atlasHeight);
+
+    return 2;
+}
+
 int quadGetViewport(lua_State * L)
 {
     Quad * self = (Quad *)luaobj_checkudata(L, 1, CLASS_TYPE);
@@ -33,8 +51,8 @@ int quadGetViewport(lua_State * L)
 
     lua_pushnumber(L, view.x);
     lua_pushnumber(L, view.y);
-    lua_pushnumber(L, view.subWidth);
-    lua_pushnumber(L, view.subHeight);
+    lua_pushnumber(L, view.width);
+    lua_pushnumber(L, view.height);
 
     return 4;
 }
@@ -49,24 +67,23 @@ int quadSetViewport(lua_State * L)
     int width = luaL_checknumber(L, 4);
     int height = luaL_checknumber(L, 5);
 
-    self->SetViewport(x, y, width, height);
+    if (width <= 0) luaL_error(L, "Quad width must be greater than 0!");
+    if (height <= 0) luaL_error(L, "Quad height must be greater than 0!");
+
+    if (lua_isnoneornil(L, 6))
+        self->SetViewport(x, y, width, height);
+    else
+    {
+        int atlasWidth = luaL_checknumber(L, 5);
+        int atlasHeight = luaL_checknumber(L, 6);
+
+        if (atlasWidth <= 0) luaL_error(L, "Texture width must be greater than 0!");
+        if (atlasHeight <= 0) luaL_error(L, "Texture height must be greater than 0!");
+
+        self->SetViewport(x, y, width, height, atlasWidth, atlasHeight);
+    }
 
     return 0;
-}
-
-int quadGetTextureDimensions(lua_State * L)
-{
-    Quad * self = (Quad *)luaobj_checkudata(L, 1, CLASS_TYPE);
-
-    int width = 0;
-    int height = 0;
-
-    self->GetTextureDimensions(width, height);
-
-    lua_pushnumber(L, width);
-    lua_pushnumber(L, height);
-
-    return 2;
 }
 
 int quadToString(lua_State * L)
