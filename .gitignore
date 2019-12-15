@@ -1,1 +1,7 @@
 build
+*.3dsx
+*.elf
+*.smdh
+
+*.nro
+*.nso

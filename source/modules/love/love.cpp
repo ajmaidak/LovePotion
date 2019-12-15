@@ -11,9 +11,9 @@ int Love::Initialize(lua_State * L)
 {
     luaL_Reg reg[] =
     {
-        { "_nogame",       NULL       },
+        //{ "_nogame",       NULL       },
         { "getVersion",    GetVersion },
-        { "run",           NULL       },
+        //{ "run",           NULL       },
         { "quit",          Quit       },
         { 0, 0 }
     };
@@ -58,7 +58,10 @@ void Love::InitializeConstants(lua_State * L)
 }
 
 /*
-**
+** @func GetVersion
+** Return the version for the framework.
+** @arg [isLovePotion]
+** If passed `true` from Lua, return Love Potion's version.
 */
 int Love::GetVersion(lua_State * L)
 {
@@ -79,8 +82,9 @@ int Love::GetVersion(lua_State * L)
 
 /*
 ** @func IsRunning
-** Checks if the framework is running
-** @ret boolean is running
+** Checks if the framework is running.
+** @ret boolean
+** Is the framework running?
 */
 bool Love::IsRunning()
 {
@@ -188,4 +192,5 @@ void Love::RegObject(lua_State * L, int index, void * object)
 void Love::Exit(lua_State * L)
 {
     lua_close(L);
+    Logger::Exit();
 }

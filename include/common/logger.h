@@ -27,4 +27,5 @@ class Logger
 
 #define LOG(format, ...) \
     if (Logger::IsEnabled()) \
-        fprintf(Logger::GetFile(), "%s:%d:\n" format "\n\n", __PRETTY_FUNCTION__, __LINE__, ## __VA_ARGS__)
+        fprintf(Logger::GetFile(), "%s:%d:\n" format "\n\n", __PRETTY_FUNCTION__, __LINE__, ## __VA_ARGS__); \
+        fflush(Logger::GetFile());
