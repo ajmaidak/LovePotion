@@ -9,7 +9,7 @@ int main(int argc, char * argv[])
 
     luaL_openlibs(L);
 
-    // love_preload(L, luaopen_luautf8, "utf8");
+    Love::Preload(L, luaopen_luautf8, "utf8");
     // love_preload(L, LuaSocket::InitSocket, "socket");
     // love_preload(L, LuaSocket::InitHTTP,   "socket.http");
 
@@ -25,7 +25,13 @@ int main(int argc, char * argv[])
 
     // luaL_dobuffer(L, (char *)boot_lua, boot_lua_size, "boot");
 
-    while (appletMainLoop()) {}
+    while (appletMainLoop())
+    {
+        if (Love::IsRunning())
+            luaL_dostring(L, "xpcall(love.run, love.errhand");
+        else
+            break;
+    }
 
     // Love::Exit(L);
 

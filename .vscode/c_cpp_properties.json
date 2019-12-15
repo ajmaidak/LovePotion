@@ -25,7 +25,7 @@
             ],
             "defines": [
                 "_3DS",
-                "LOVE_POTION_OS='3DS'"
+                "LOVE_POTION_OS=\"3DS\""
             ],
             "compilerPath": "/opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
@@ -41,7 +41,7 @@
             ],
             "defines": [
                 "__SWITCH__",
-                "LOVE_POTION_OS='Switch'"
+                "LOVE_POTION_OS=\"Switch\""
             ],
             "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-gcc",
             "cStandard": "c11",

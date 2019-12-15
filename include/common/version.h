@@ -2,11 +2,12 @@
 
 namespace Version
 {
-    #define LOVE_POTION_VERSION "1.2.0"
+    static const char * LOVE_POTION = "1.2.0";
+    static const char * LOVE = "11.3.0";
 
-    static const int VERSION_MAJOR = 11;
-    static const int VERSION_MINOR = 3;
-    static const int VERSION_REVISION = 0;
+    static const int MAJOR = 11;
+    static const int MINOR = 3;
+    static const int REVISION = 0;
 
     static const char * CODENAME = "Mysterious Mysteries";
 }
