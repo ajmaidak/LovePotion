@@ -19,9 +19,9 @@ int main(int argc, char * argv[])
     Assets::Initialize(path);
 
     luaL_requiref(L, "love", Love::Initialize, true);
-    lua_pop(L, -1); // don't leave the love module on the stack
+    lua_pop(L, -1);
 
-    // Love::InitConstants(L);
+    Love::InitializeConstants(L);
 
     // luaL_dobuffer(L, (char *)boot_lua, boot_lua_size, "boot");
 
@@ -33,7 +33,7 @@ int main(int argc, char * argv[])
             break;
     }
 
-    // Love::Exit(L);
+    Love::Exit(L);
 
     Logger::Exit();
 

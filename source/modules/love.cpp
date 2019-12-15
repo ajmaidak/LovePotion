@@ -38,7 +38,7 @@ void Love::InitializeConstants(lua_State * L)
     lua_pushstring(L, "Horizon");
     lua_rawset(L, -3);
     lua_pushnumber(L, 2);
-    lua_pushstring(L, LOVE_POTION_OS);
+    lua_pushstring(L, LOVE_POTION_CONSOLE);
     lua_rawset(L, -3);
     lua_setfield(L, -2, "_os");
 
