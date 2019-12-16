@@ -1,6 +1,5 @@
 #include "common/runtime.h"
 #include "modules/graphics.h"
-#include "common/drawable.h"
 #include "objects/image/image.h"
 
 #include "screen_t3x.h"

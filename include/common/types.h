@@ -5,17 +5,17 @@
 
 #if defined (_3DS)
     #include <3ds.h>
-
-    typedef struct
-    {
-        float r;
-        float g;
-        float b;
-        float a;
-    } Color;
 #elif defined (__SWITCH__)
     #include <switch.h>
 #endif
+
+typedef struct
+{
+    float r;
+    float g;
+    float b;
+    float a;
+} Color;
 
 typedef struct
 {

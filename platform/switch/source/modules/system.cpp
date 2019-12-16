@@ -10,10 +10,10 @@ void System::Initialize()
     ** Region and language
     */
     setInitialize();
-    accountInitialize();
+    accountInitialize(AccountServiceType::AccountServiceType_Application);
     plInitialize();
     psmInitialize();
-    nifmInitialize();
+    nifmInitialize(NifmServiceType::NifmServiceType_User);
 }
 
 //Löve2D Functions
@@ -61,7 +61,7 @@ int System::GetRegion(lua_State * L)
 int System::GetLanguage(lua_State * L)
 {
     u64 languageString;
-    s32 languageID;
+    SetLanguage languageID;
 
     setGetSystemLanguage(&languageString);
     setMakeLanguage(languageString, &languageID);
@@ -102,7 +102,7 @@ int System::GetInternetStatus(lua_State * L)
 //love.system.getUsername
 int System::GetUsername(lua_State * L)
 {
-    u128 userID = 0;
+    AccountUid userID;
     AccountProfile profile;
     AccountUserData userdata;
     AccountProfileBase profilebase;
@@ -125,7 +125,7 @@ int System::GetUsername(lua_State * L)
             if (R_SUCCEEDED(resultCode))
             {
                 memset(username, 0, sizeof(username));
-                strncpy(username, profilebase.username, sizeof(username) - 1);
+                strncpy(username, profilebase.nickname, sizeof(username) - 1);
 
                 lua_pushstring(L, username);
 

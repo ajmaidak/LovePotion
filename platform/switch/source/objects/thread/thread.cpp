@@ -5,7 +5,7 @@ bool LuaThread::Start(const vector<Variant> & args)
 {
     this->args = args;
 
-    Result success = threadCreate(&this->thread, TestRun, this, 0x1000, 0x2C, -2);
+    Result success = threadCreate(&this->thread, TestRun, this, malloc(0x1000), 0x1000, 0x2C, -2);
 
     this->started = (success == 0);
 

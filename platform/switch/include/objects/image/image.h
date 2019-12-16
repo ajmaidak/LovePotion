@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common/drawable.h"
+
 class Image : public Drawable
 {
     public:

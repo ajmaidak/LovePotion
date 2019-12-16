@@ -1,3 +1,5 @@
+#pragma once
+
 class Drawable : public Object
 {
     public:
