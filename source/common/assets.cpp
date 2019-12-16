@@ -36,6 +36,9 @@ void Assets::Initialize(char * path)
 
 unsigned int Assets::GetLocation(char * path)
 {
+    if (!path)
+        return 0;
+
     const char * ext = strrchr(path, '.');
 
     if (strncmp(ext, ".lpx", 4) != 0)
@@ -48,5 +51,5 @@ unsigned int Assets::GetLocation(char * path)
         return 1;
     }
 
-    return 3;
+    return 2;
 }

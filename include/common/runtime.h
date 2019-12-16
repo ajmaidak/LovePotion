@@ -12,6 +12,10 @@ extern "C"
     #include <lutf8lib.h>
 }
 
+#include <SDL.h>
+#include <SDL_mixer.h>
+#include <curl/curl.h>
+
 #if defined (_3DS)
     #include "common/defines.h"
 #elif defined (__SWITCH__)
@@ -22,3 +26,14 @@ extern "C"
 
 // std stuff
 #include <string>
+#include <math.h>
+#include <array>
+
+#define LOVE_TIMER_STEP "if love.timer then love.timer.step() end"
+#define LOVE_UPDATE "if love.update then love.update(love.timer.getDelta()) end"
+
+typedef struct {
+    const char * name;
+    int (* reg)(lua_State * L);
+    void (* close)(void);
+} love_modules;

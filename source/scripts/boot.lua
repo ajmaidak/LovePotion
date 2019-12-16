@@ -33,7 +33,7 @@ local config =
 {
     identity = "SuperGame",
     appendidentity = false,
-    version = "1.1.0",
+    version = "2.0.0",
     console = false,
 
     modules =
@@ -58,7 +58,8 @@ local config =
         window = true
     },
 
-    -- Anything from here after in the config is only included for legacy purposes
+    -- Anything from here after in the config
+    -- is only included for legacy purposes
 
     accelerometerjoystick = true,
     externalstorage = false,
@@ -102,6 +103,21 @@ local config =
 
 function love.createhandlers()
     love.handlers = setmetatable({
+        load = function()
+            if love.load then
+                return love.load()
+            end
+        end,
+        update = function(dt)
+            if love.update then
+                return love.update(dt)
+            end
+        end,
+        draw = function()
+            if love.draw then
+                return love.draw()
+            end
+        end,
         keypressed = function (key)
             if love.keypressed then
                 return love.keypressed(key)
@@ -243,11 +259,14 @@ function love.errorhandler(message)
 
     local dateTime = os.date("%c")
     table.insert(copy, "\nDate and Time: " .. dateTime)
-    table.insert(copy, "\nA log has been saved to " .. love.filesystem.getSaveDirectory() .. "crash.txt")
+    -- table.insert(copy, "\nA log has been saved to " .. love.filesystem.getSaveDirectory() .. "crash.txt")
 
     -----------------------------------
 
     local fullError = table.concat(err, "\n")
+
+    fmt_err = string.format("\x1b[31m%s\x1b[0m\n", fullError)
+    print("\x1b[34m[Lua Error]\x1b[0m\n" .. fmt_err);
 end
 
 love.errhand = love.errorhandler
@@ -255,6 +274,12 @@ love.errhand = love.errorhandler
 --################--
 -- BOOT THE GAME! --
 --################--
+
+local file = io.open("log.txt", "w")
+local function log(text)
+    file:write(text)
+    file:flush()
+end
 
 function love.boot()
     -- We can't throw any errors just yet because we want to see if we can
@@ -278,17 +303,17 @@ function love.boot()
     {
         -- Try to load love.graphics, window, and event first in case we need
         -- to jump to errhand after it. (window is only required on Switch.)
-        "graphics",
-        "window",
-        "joystick",
-        "event",
+        --"graphics",
+        --"window",
+        --"joystick",
+        --"event",
         "timer",
-        "audio",
-        "keyboard",
-        "math",
-        "system",
-        "touch",
-        "thread"
+        --"audio",
+        --"keyboard",
+        --"math",
+        --"system",
+        --"touch",
+        --"thread"
     }
 
     -- Add any Switch exclusive modules.
@@ -297,11 +322,11 @@ function love.boot()
     end
 
     -- Load them all!
-    --[[for i, v in ipairs(modules) do
+    for i, v in ipairs(modules) do
         if config.modules[v] then
             love[v] = require("love." .. v)
         end
-    end]]
+    end
 
     if love.event then
         love.createhandlers()
@@ -309,14 +334,21 @@ function love.boot()
 
     -- Take our first step.
     if love.timer then
+        log("step")
         love.timer.step()
     end
 
     -- Now we can throw any errors from `conf.lua`.
     if not confok and conferr then
-        error(conferr)
+        --error(conferr)
     end
-
+    log("req main")
+    require("main")
+    if love.load then
+        log("load")
+        love.load()
+    end
+    log("done")
     --[[local __defaultFont = love.graphics.newFont()
     love.graphics.setFont(__defaultFont)
 
@@ -336,7 +368,9 @@ function love.boot()
 end
 
 -- Boot up the game!
+log("try boot")
 xpcall(love.boot, love.errhand)
+log("done")
 -- If something went wrong, the errhand redefines the love.update and love.draw
 -- functions which are managed by the love.run function.
 

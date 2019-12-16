@@ -8,6 +8,8 @@ class Love
         static int Initialize(lua_State * L);
         static void InitializeConstants(lua_State * L);
 
+        static int Run(lua_State * L);
+
         static bool IsRunning();
         static int Quit(lua_State * L);
 
@@ -30,4 +32,5 @@ class Love
 
     private:
         static inline bool quit = false;
+        static inline std::array<love_modules, 15> modules = { nullptr };
 };

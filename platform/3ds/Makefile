@@ -86,7 +86,7 @@ CXXFLAGS	:= $(CFLAGS) -Wno-psabi -fno-rtti -fno-exceptions -std=gnu++17
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= `curl-config --libs` `arm-none-eabi-pkg-config SDL_mixer` -lcitro2d -lcitro3d -lctru
+LIBS	:= `curl-config --libs` `arm-none-eabi-pkg-config SDL_mixer ` -lSDL -lcitro2d -lcitro3d -lctru
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

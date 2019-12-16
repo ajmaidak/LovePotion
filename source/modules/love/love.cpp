@@ -3,22 +3,39 @@
 #include "common/version.h"
 #include "modules/love.h"
 
+#include "modules/timer.h"
+
 /*
 ** @func Initialize
 ** Initializes the framework
 */
 int Love::Initialize(lua_State * L)
 {
+    modules =
+    {{
+        { "timer", Timer::Register, NULL },
+        { 0 }
+    }};
+
     luaL_Reg reg[] =
     {
-        //{ "_nogame",       NULL       },
+        //{ "_nogame",       NULL     },
         { "getVersion",    GetVersion },
-        //{ "run",           NULL       },
+        { "run",           Run        },
         { "quit",          Quit       },
         { 0, 0 }
     };
 
     luaL_newlib(L, reg);
+
+    // preload all the modules
+    char modname[30];
+    for (int i = 0; modules[i].name; i++)
+    {
+        strcpy(modname, "love.");
+        strcat(modname, modules[i].name);
+        Love::Preload(L, modules[i].reg, modname);
+    }
 
     return 1;
 }
@@ -55,6 +72,18 @@ void Love::InitializeConstants(lua_State * L)
     lua_setfield(L, -2, "_version_codename");
 
     lua_pop(L, 1);
+}
+
+int Love::Run(lua_State * L)
+{
+    luaL_dostring(L, LOVE_TIMER_STEP);
+
+    if (luaL_dostring(L, LOVE_UPDATE))
+        luaL_error(L, "%s", lua_tostring(L, -1));
+
+    Timer::Tick();
+
+    return 0;
 }
 
 /*

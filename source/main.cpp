@@ -12,6 +12,11 @@ int main(int argc, char * argv[])
 {
     Logger::Initialize();
 
+    gfxInitDefault();
+    consoleInit(GFX_TOP, NULL);
+
+    printf("Hello World!\n");
+
     lua_State * L = luaL_newstate();
     luaL_openlibs(L);
 
@@ -29,17 +34,17 @@ int main(int argc, char * argv[])
 
     luaL_dobuffer(L, (char *)boot_lua, boot_lua_size, "boot");
 
-    gfxInitDefault();
-    consoleInit(GFX_TOP, NULL);
-
-    printf("Hello World!\n");
-
     while (appletMainLoop())
     {
-        /*if (Love::IsRunning())
-            luaL_dostring(L, "xpcall(love.run, love.errhand");
+        if (Love::IsRunning())
+            luaL_dostring(L, "xpcall(love.run, love.errhand)");
         else
-            break;*/
+            break;
+
+        hidScanInput();
+
+        if (hidKeysDown() & KEY_START)
+            break;
 
         // Flush and swap framebuffers
         gfxFlushBuffers();
@@ -50,6 +55,8 @@ int main(int argc, char * argv[])
     }
 
     Love::Exit(L);
+
+    gfxExit();
 
     return 0;
 }
