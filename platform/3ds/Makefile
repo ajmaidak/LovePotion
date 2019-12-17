@@ -61,7 +61,7 @@ DATA			:=  ../../source/scripts \
 
 APP_TITLE		:= Löve Potion
 APP_DESCRIPTION	:= Löve for 3DS
-APP_AUTHOR		:= TurtleP
+APP_AUTHOR		:= TurtleP & NotQuiteApex
 ICON			:= icon.png
 
 #--------------------
