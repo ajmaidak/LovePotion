@@ -23,7 +23,7 @@ extern "C"
 #endif
 
 #include "common/logger.h"
-#include "common/aux.h"
+#include "common/laux.h"
 
 // std stuff
 #include <string>

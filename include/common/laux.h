@@ -1,6 +1,6 @@
 /*
 ** common/aux.h
-** @brief   : Auxillary Lua functions because reasons
+** @brief   : Auxillary Lua functions
 */
 
 namespace Aux
