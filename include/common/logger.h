@@ -1,12 +1,12 @@
 /*
 ** logger.h
-** @brief   : Logs shit when DEBUG is set to 1
+** @brief   : Logs shit when enabled
 */
 
 class Logger
 {
     public:
-        static void Initialize();
+        static void Initialize(bool enable);
 
         static void Exit();
 
@@ -16,6 +16,7 @@ class Logger
 
     private:
         static inline FILE * file = nullptr;
+        static inline bool enabled = false;
 };
 
 /*

@@ -8,13 +8,14 @@ class Love
         static int Initialize(lua_State * L);
         static void InitializeConstants(lua_State * L);
 
+        static int GetVersion(lua_State * L);
+
         static int Run(lua_State * L);
 
         static bool IsRunning();
         static int Quit(lua_State * L);
 
         // Various Utility Functions
-        static int GetVersion(lua_State * L);
         static void InitConstants(lua_State * L);
 
         static void GetField(lua_State * L, const char * field);

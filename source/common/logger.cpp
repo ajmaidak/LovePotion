@@ -1,18 +1,17 @@
 #include "common/runtime.h"
 
-#define DEBUG 1
-
-void Logger::Initialize()
+void Logger::Initialize(bool enable)
 {
-    if (!IsEnabled())
+    if (!enabled)
         return;
 
     file = freopen("love.log", "w", stderr);
+    enabled = enable;
 }
 
 bool Logger::IsEnabled()
 {
-    return DEBUG;
+    return enabled;
 }
 
 FILE * Logger::GetFile()

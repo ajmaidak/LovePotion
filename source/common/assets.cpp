@@ -22,9 +22,7 @@ void Assets::Initialize(char * path)
             break;
         }
         case 1:
-            #if defined (__SWITCH__)
-                romfsMountFromFsdev(path, 0, "romfs");
-            #endif
+            romfsMountFromFsdev(path, 0, "romfs");
 
             break;
         default:

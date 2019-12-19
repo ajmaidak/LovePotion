@@ -5,3 +5,5 @@ build
 
 *.nro
 *.nso
+*.nacp
+*.pfs0
