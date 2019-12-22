@@ -1,24 +1,11 @@
 {
     "configurations": [
         {
-            "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
-            "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c11",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64"
-        },
-        {
             "name": "3DS",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/libraries/**",
+                "${workspaceFolder}/platform/3ds/**",
                 "/opt/devkitpro/portlibs/3ds/include/**",
                 "/opt/devkitpro/libctru/include/**",
                 "/opt/devkitpro/devkitARM/include/**"
@@ -35,7 +22,9 @@
         {
             "name": "Switch",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/libraries/**",
+                "${workspaceFolder}/platform/switch/**",
                 "/opt/devkitpro/portlibs/switch/include/**",
                 "/opt/devkitpro/libnx/include/**"
             ],

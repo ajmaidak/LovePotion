@@ -1,0 +1,30 @@
+/*
+** display.h
+** Handles internal display information/rendering
+*/
+
+#define LOVE_DRAW "if love.draw then love.draw() end"
+
+class Display
+{
+    public:
+        Display() = delete;
+
+        static void Initialize();
+
+        static void Clear(Color * color);
+        static int Draw(lua_State * L);
+        static void Present();
+
+        static std::vector<std::pair<int, int>> GetWindowSizes();
+        static unsigned int GetDisplayCount();
+
+        static bool IsOpen();
+
+        static void Exit();
+
+    private:
+        static inline bool m_open = false;
+        static inline std::vector<Renderer *> m_targets = { nullptr };
+        static inline Frame * m_window = nullptr;
+};

@@ -32,43 +32,32 @@ include $(DEVKITARM)/3ds_rules
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
 EXT_LIBS	:= $(sort $(dir $(wildcard ../../libraries/*/)))
-INC_OBJS	:= $(sort $(dir $(wildcard include/objects/*/)))
-SRC_OBJS	:= $(sort $(dir $(wildcard source/objects/*/)))
 
-TARGET			:=	LovePotion
-BUILD			:=	build
-INCLUDES		:=	$(shell find ../../include -type d) \
-					include \
-					include/common \
-					include/modules \
-					$(INC_OBJS) \
-					$(EXT_LIBS) \
-					include/socket
+TARGET		:=	LovePotion
+BUILD		:=	build
+SOURCES		:=	../../source \
+				../../source/common \
+				../../source/modules \
+				$(EXT_LIBS) \
+				source
+DATA		:=	../../source/scripts \
+				source/scripts
+INCLUDES	:=	../../include \
+				../../include/common \
+				../../include/modules \
+				$(EXT_LIBS) \
+				include
 
-SOURCES			:=	$(shell find ../../source -type d) \
-					source \
-					source/common \
-					source/modules \
-					$(SRC_OBJS) \
-					$(EXT_LIBS) \
-					source/socket
 
-DATA			:=  ../../source/scripts \
-					source/scripts \
-					source/scripts/nogame
-
-#ROMFS			:=	game
+#GRAPHICS	:=	gfx
+#GFXBUILD	:=	$(BUILD)
+#ROMFS		:=	romfs
+#GFXBUILD	:=	$(ROMFS)/gfx
 
 APP_TITLE		:= Löve Potion
 APP_DESCRIPTION	:= Löve for 3DS
 APP_AUTHOR		:= TurtleP & NotQuiteApex
 ICON			:= icon.png
-
-#--------------------
-GFXBUILD	:=	$(BUILD)
-
-#GFXBUILD	:=	$(ROMFS)/gfx
-#--------------------
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -81,12 +70,12 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations `sdl-config --cflags` \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
-CXXFLAGS	:= $(CFLAGS) -Wno-psabi -fno-rtti -fno-exceptions -std=gnu++17
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++17
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= `curl-config --libs` `arm-none-eabi-pkg-config SDL_mixer ` -lSDL -lcitro2d -lcitro3d -lctru
+LIBS	:= `curl-config --libs` `arm-none-eabi-pkg-config SDL_mixer ` -lSDL -lcitro2d -lcitro3d -lctru -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -246,7 +235,6 @@ $(OUTPUT).elf	:	$(OFILES)
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
 	@$(bin2o)
-#---------------------------------------------------------------------------------
 .PRECIOUS	:	%.t3x
 #---------------------------------------------------------------------------------
 %.t3x.o	%_t3x.h :	%.t3x

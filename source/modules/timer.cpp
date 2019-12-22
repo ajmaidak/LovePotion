@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/timer.h"
 
+#include <SDL.h>
+
 //Löve2D Functions
 
 //love.timer.getFPS
@@ -83,7 +85,7 @@ int Timer::Register(lua_State * L)
         { "getTime",  GetTime  },
         { "sleep",    Sleep    },
         { "step",     Step     },
-        { 0, 0 }
+        { 0,          0        }
     };
 
     luaL_newlib(L, reg);

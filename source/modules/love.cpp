@@ -3,7 +3,13 @@
 #include "common/version.h"
 #include "modules/love.h"
 
+#include "common/display.h"
+
+#include "modules/event.h"
+#include "modules/filesystem.h"
+#include "modules/graphics.h"
 #include "modules/timer.h"
+#include "modules/window.h"
 
 /*
 ** @func Initialize
@@ -11,31 +17,35 @@
 */
 int Love::Initialize(lua_State * L)
 {
-    modules =
+    m_modules =
     {{
-        { "timer", Timer::Register, NULL },
+        { "event",      LoveEvent::Register,  NULL          },
+        { "graphics",   Graphics::Register,   NULL          },
+        { "filesystem", Filesystem::Register, NULL          },
+        { "timer",      Timer::Register,      NULL          },
+        { "window",     Window::Register,     Display::Exit },
         { 0 }
     }};
+
+    // preload all the modules
+    char modname[30];
+    for (int i = 0; m_modules[i].name; i++)
+    {
+        strcpy(modname, "love.");
+        strcat(modname, m_modules[i].name);
+        Love::Preload(L, m_modules[i].reg, modname);
+    }
 
     luaL_Reg reg[] =
     {
         //{ "_nogame",       NULL     },
-        { "getVersion",    GetVersion },
-        { "run",           Run        },
-        { "quit",          Quit       },
-        { 0, 0 }
+        { "getVersion",    GetVersion   },
+        { "run",           Run          },
+        { "quit",          Quit         },
+        { 0 }
     };
 
     luaL_newlib(L, reg);
-
-    // preload all the modules
-    char modname[30];
-    for (int i = 0; modules[i].name; i++)
-    {
-        strcpy(modname, "love.");
-        strcat(modname, modules[i].name);
-        Love::Preload(L, modules[i].reg, modname);
-    }
 
     return 1;
 }
@@ -49,36 +59,56 @@ void Love::InitializeConstants(lua_State * L)
 {
     lua_getglobal(L, "love");
 
-    //love._os
     lua_newtable(L);
-    lua_pushnumber(L, 1);
+
+    // love._os = "Horizon"
     lua_pushstring(L, "Horizon");
-    lua_rawset(L, -3);
-    lua_pushnumber(L, 2);
-    lua_pushstring(L, LOVE_POTION_CONSOLE);
-    lua_rawset(L, -3);
     lua_setfield(L, -2, "_os");
+
+    //love._console_name
+    lua_pushstring(L, LOVE_POTION_CONSOLE);
+    lua_setfield(L, -2, "_console_name");
+
+    //love._potion_version
+    lua_pushstring(L, Version::LOVE_POTION);
+    lua_setfield(L, -2, "_potion_version");
 
     // love._version
     lua_pushstring(L, Version::LOVE);
     lua_setfield(L, -2, "_version");
+
+    // love._(major, minor, revision, codename)
     lua_pushnumber(L, Version::MAJOR);
     lua_setfield(L, -2, "_version_major");
+
     lua_pushnumber(L, Version::MINOR);
     lua_setfield(L, -2, "_version_minor");
+
     lua_pushnumber(L, Version::REVISION);
     lua_setfield(L, -2, "_version_revision");
+
     lua_pushstring(L, Version::CODENAME);
     lua_setfield(L, -2, "_version_codename");
 
     lua_pop(L, 1);
 }
 
+/*
+** @func Run
+** Runs the framework's main loop
+** Timer step, update, draw
+**
+** TO DO: commonize display drawing
+** how? who knows, it'll be hard
+*/
 int Love::Run(lua_State * L)
 {
     luaL_dostring(L, LOVE_TIMER_STEP);
 
     if (luaL_dostring(L, LOVE_UPDATE))
+        luaL_error(L, "%s", lua_tostring(L, -1));
+
+    if (Display::Draw(L))
         luaL_error(L, "%s", lua_tostring(L, -1));
 
     Timer::Tick();
@@ -89,18 +119,9 @@ int Love::Run(lua_State * L)
 /*
 ** @func GetVersion
 ** Return the version for the framework.
-** @arg [isLovePotion]
-** If passed `true` from Lua, return Love Potion's version.
 */
 int Love::GetVersion(lua_State * L)
 {
-    if (lua_isboolean(L, 1) && lua_toboolean(L, 1))
-    {
-        lua_pushstring(L, Version::LOVE_POTION);
-
-        return 1;
-    }
-
     lua_pushnumber(L, Version::MAJOR);
     lua_pushnumber(L, Version::MINOR);
     lua_pushnumber(L, Version::REVISION);
@@ -117,7 +138,7 @@ int Love::GetVersion(lua_State * L)
 */
 bool Love::IsRunning()
 {
-    return quit == false;
+    return m_quit == false;
 }
 
 /*
@@ -126,7 +147,7 @@ bool Love::IsRunning()
 */
 int Love::Quit(lua_State * L)
 {
-    quit = true;
+    m_quit = true;
 
     return 0;
 }
@@ -220,6 +241,13 @@ void Love::RegObject(lua_State * L, int index, void * object)
 */
 void Love::Exit(lua_State * L)
 {
+    for (int i = 0; m_modules[i].name; i++)
+    {
+        if (m_modules[i].close)
+            m_modules[i].close();
+    }
+
     lua_close(L);
+
     Logger::Exit();
 }

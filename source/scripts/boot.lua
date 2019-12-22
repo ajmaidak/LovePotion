@@ -29,6 +29,9 @@
 package.path = "./?.lua;./?/init.lua"
 package.cpath = "./?.lua;./?/init.lua"
 
+-- Load the LOVE filesystem module, its absolutely needed
+require("love.filesystem")
+
 local config =
 {
     identity = "SuperGame",
@@ -222,16 +225,12 @@ function love.createhandlers()
     })
 end
 
-love.createhandlers()
-
 function love.errorhandler(message)
     message = tostring(message)
 
     message = message:gsub("^(./)", "")
 
     local err = {}
-
-    local major, minor, rev = love.getVersion()
 
     table.insert(err, message .. "\n")
 
@@ -255,18 +254,24 @@ function love.errorhandler(message)
     -- MAKE A COPY FOR THE CRASH LOG --
 
     local copy = err
-    table.insert(copy, "\nLove Potion " .. love.getVersion(true) .. " (API " .. major .. "." .. minor .. "." .. rev .. ")")
+    table.insert(copy, "\nLove Potion " .. love._potion_version .. " (API " .. love._version .. ")")
 
     local dateTime = os.date("%c")
     table.insert(copy, "\nDate and Time: " .. dateTime)
-    -- table.insert(copy, "\nA log has been saved to " .. love.filesystem.getSaveDirectory() .. "crash.txt")
+    table.insert(copy, "\nA log has been saved to " .. love.filesystem.getSaveDirectory() .. "crash.txt")
 
     -----------------------------------
 
     local fullError = table.concat(err, "\n")
 
-    fmt_err = string.format("\x1b[31m%s\x1b[0m\n", fullError)
-    print("\x1b[34m[Lua Error]\x1b[0m\n" .. fmt_err);
+    love.filesystem.write("crash.txt", fullError)
+
+    if not love.window.isOpen()
+        return
+    end
+
+    love.graphics.setBackgroundColor(0.35, 0.62, 0.86)
+    love.graphics.clear(love.graphics.getBackgroundColor())
 end
 
 love.errhand = love.errorhandler
@@ -275,51 +280,28 @@ love.errhand = love.errorhandler
 -- BOOT THE GAME! --
 --################--
 
-local file = io.open("log.txt", "w")
-local function log(text)
-    file:write(text)
-    file:flush()
-end
-
 function love.boot()
     -- We can't throw any errors just yet because we want to see if we can
     -- load and use conf.lua in case the user doesn't want to use certain
     -- modules, but we also can't error because graphics haven't been loaded.
     local confok, conferr
 
-    --[[if love.filesystem.getInfo("conf.lua", "file") then
+    if love.filesystem.getInfo("conf.lua", "file") then
         confok, conferr = pcall(require, "conf")
 
         if confok and love.conf then
             confok, conferr = pcall(love.conf, config)
         end
-    end]]
+    end
 
     -- Set the game identity for saving.
-    -- love.filesystem.setIdentity(config.identity)
+    love.filesystem.setIdentity(config.identity)
 
-    -- Load the modules.
+    -- Modules to load
     local modules =
     {
-        -- Try to load love.graphics, window, and event first in case we need
-        -- to jump to errhand after it. (window is only required on Switch.)
-        --"graphics",
-        --"window",
-        --"joystick",
-        --"event",
-        "timer",
-        --"audio",
-        --"keyboard",
-        --"math",
-        --"system",
-        --"touch",
-        --"thread"
+        "window", "event", "timer", "graphics"
     }
-
-    -- Add any Switch exclusive modules.
-    if love._console_name == "Switch" then
-        table.insert(modules, "image")
-    end
 
     -- Load them all!
     for i, v in ipairs(modules) do
@@ -334,23 +316,16 @@ function love.boot()
 
     -- Take our first step.
     if love.timer then
-        log("step")
         love.timer.step()
     end
 
     -- Now we can throw any errors from `conf.lua`.
     if not confok and conferr then
-        --error(conferr)
+        error(conferr)
     end
-    log("req main")
-    require("main")
-    if love.load then
-        log("load")
-        love.load()
-    end
-    log("done")
+
     --[[local __defaultFont = love.graphics.newFont()
-    love.graphics.setFont(__defaultFont)
+    love.graphics.setFont(__defaultFont)]]
 
     if love.filesystem.getInfo("main.lua", "file") then
         -- Try to load `main.lua`.
@@ -361,16 +336,16 @@ function love.boot()
             love.load()
         end
     else
+        error("No game was found.")
         -- If there's no game to load then we'll just load up something on the
         -- screen to tell the user that there's NO GAME!
-        love._nogame()
-    end]]
+        --love._nogame()
+    end
 end
 
 -- Boot up the game!
-log("try boot")
 xpcall(love.boot, love.errhand)
-log("done")
+
 -- If something went wrong, the errhand redefines the love.update and love.draw
 -- functions which are managed by the love.run function.
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#define LOVE_TIMER_STEP "if love.timer then love.timer.step() end"
+#define LOVE_UPDATE     "if love.update then love.update(love.timer.getDelta()) end"
+
 class Love
 {
     public:
@@ -31,7 +34,13 @@ class Love
         static void Register();
         static void Exit(lua_State * L);
 
+        typedef struct {
+            const char * name;
+            int (* reg)(lua_State * L);
+            void (* close)(void);
+        } Module;
+
     private:
-        static inline bool quit = false;
-        static inline std::array<love_modules, 15> modules = { nullptr };
+        static inline bool m_quit = false;
+        static inline std::array<Love::Module, 15> m_modules = { nullptr };
 };

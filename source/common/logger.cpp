@@ -6,6 +6,13 @@ void Logger::Initialize(bool enable)
         return;
 
     file = freopen("love.log", "w", stderr);
+
+    if (!file)
+    {
+        enabled = false;
+        return;
+    }
+
     enabled = enable;
 }
 

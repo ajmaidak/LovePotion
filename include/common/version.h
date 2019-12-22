@@ -2,7 +2,7 @@
 
 namespace Version
 {
-    static const char * LOVE_POTION = "1.2.0";
+    static const char * LOVE_POTION = "2.0.0";
     static const char * LOVE = "11.3.0";
 
     static const int MAJOR = 11;

@@ -2,6 +2,7 @@
 #include "common/assets.h"
 
 #include "modules/love.h"
+#include "common/display.h"
 
 #include "boot_lua.h"
 
@@ -24,12 +25,13 @@ int main(int argc, char * argv[])
 
     Love::InitializeConstants(L);
 
-    Aux::DoBuffer(L, (char *)boot_lua, boot_lua_size, "boot");
+    Display::Initialize();
+    Aux::DoBuffer(L, (char *)boot_lua, boot_lua_size, "boot.lua");
 
     while (appletMainLoop())
     {
         if (Love::IsRunning())
-            luaL_dostring(L, "xpcall(love.run, love.errhand)");
+           luaL_dostring(L, "xpcall(love.run, love.errorhandler)");
         else
             break;
     }
