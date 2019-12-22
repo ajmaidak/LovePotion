@@ -1,29 +1,26 @@
 #include "common/runtime.h"
 
-void Logger::Initialize(bool enable)
+void Logger::Initialize(bool active)
 {
-    if (!enabled)
+    if (!active)
         return;
 
-    file = freopen("love.log", "w", stderr);
+    m_file = freopen("love.log", "w", stderr);
 
-    if (!file)
-    {
-        enabled = false;
+    if (!m_file)
         return;
-    }
 
-    enabled = enable;
+    m_enabled = active;
 }
 
 bool Logger::IsEnabled()
 {
-    return enabled;
+    return m_enabled;
 }
 
 FILE * Logger::GetFile()
 {
-    return file;
+    return m_file;
 }
 
 void Logger::Exit()
@@ -31,5 +28,5 @@ void Logger::Exit()
     if (!IsEnabled())
         return;
 
-    fclose(file);
+    fclose(m_file);
 }

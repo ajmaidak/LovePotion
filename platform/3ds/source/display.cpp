@@ -10,8 +10,12 @@ void Display::Initialize()
 
     gfxInitDefault();
 
-    C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
-    C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
+    if (!C3D_Init(C3D_DEFAULT_CMDBUF_SIZE))
+        svcBreak(USERBREAK_PANIC);
+
+    if (!C2D_Init(C2D_DEFAULT_MAX_OBJECTS))
+        svcBreak(USERBREAK_PANIC);
+
     C2D_Prepare();
 
     m_targets = {
@@ -36,6 +40,9 @@ void Display::Clear(Color * color)
 
 int Display::Draw(lua_State * L)
 {
+    if (!m_open)
+        return 0;
+
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 
     Color color = Graphics::GetBackgroundColor();
@@ -50,7 +57,7 @@ int Display::Draw(lua_State * L)
 
         //int display = std::clamp((int)index + 1, 1, 2);
         if (luaL_dostring(L, LOVE_DRAW))
-            return 1;
+            return luaL_error(L, lua_tostring(L, -1));
     }
 
     C3D_FrameEnd(0);

@@ -4,8 +4,6 @@
 #include "modules/love.h"
 #include "common/display.h"
 
-#include "boot_lua.h"
-
 int main(int argc, char * argv[])
 {
     Logger::Initialize(1);
@@ -13,20 +11,20 @@ int main(int argc, char * argv[])
     lua_State * L = luaL_newstate();
     luaL_openlibs(L);
 
-    Love::Preload(L, luaopen_luautf8, "utf8");
-    // love_preload(L, LuaSocket::InitSocket, "socket");
-    // love_preload(L, LuaSocket::InitHTTP,   "socket.http");
+    Love::Preload(L, Love::Initialize, "love");
 
     char * path = (argc == 2) ? argv[1] : argv[0];
     Assets::Initialize(path);
 
-    luaL_requiref(L, "love", Love::Initialize, true);
-    lua_pop(L, -1);
-
-    Love::InitializeConstants(L);
-
     Display::Initialize();
-    Aux::DoBuffer(L, (char *)boot_lua, boot_lua_size, "boot.lua");
+
+	// require "love"
+	lua_getglobal(L, "require");
+	lua_pushstring(L, "love");
+	lua_call(L, 1, 1);
+    lua_pop(L, 1);
+
+    Love::Boot(L);
 
     while (appletMainLoop())
     {

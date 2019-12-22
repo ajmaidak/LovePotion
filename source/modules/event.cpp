@@ -4,6 +4,7 @@
 #include "modules/love.h"
 
 //Löve2D Functions
+
 int LoveEvent::Pump(lua_State * L)
 {
     return 0;
@@ -34,7 +35,9 @@ int LoveEvent::Register(lua_State * L)
         { 0,      0    }
     };
 
-    luaL_newlib(L, reg);
+    WrappedModule module;
+    module.name = "event";
+    module.functions = reg;
 
-    return 1;
+    return Luax::RegisterModule(L, module);
 }

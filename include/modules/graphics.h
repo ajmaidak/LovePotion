@@ -19,5 +19,5 @@ class Graphics
 
     private:
         static inline float m_depth = 0.0f;
-        static inline Color m_background = { 1, 1, 1, 1 };
+        static inline Color m_background = { 0, 0, 0, 1 };
 };

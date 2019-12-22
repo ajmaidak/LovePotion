@@ -6,7 +6,7 @@
 class Logger
 {
     public:
-        static void Initialize(bool enable);
+        static void Initialize(bool active = 0);
 
         static void Exit();
 
@@ -15,8 +15,8 @@ class Logger
         static FILE * GetFile();
 
     private:
-        static inline FILE * file = nullptr;
-        static inline bool enabled = false;
+        static inline FILE * m_file = nullptr;
+        static inline bool m_enabled = false;
 };
 
 /*

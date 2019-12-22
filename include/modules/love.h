@@ -9,7 +9,7 @@ class Love
         Love() = delete;
 
         static int Initialize(lua_State * L);
-        static void InitializeConstants(lua_State * L);
+        static int Boot(lua_State * L);
 
         static int GetVersion(lua_State * L);
 

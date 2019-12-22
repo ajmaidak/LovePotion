@@ -29,8 +29,8 @@
 package.path = "./?.lua;./?/init.lua"
 package.cpath = "./?.lua;./?/init.lua"
 
--- Load the LOVE filesystem module, its absolutely needed
-require("love.filesystem")
+-- make sure love exists
+local love = require("love")
 
 local config =
 {
@@ -106,21 +106,6 @@ local config =
 
 function love.createhandlers()
     love.handlers = setmetatable({
-        load = function()
-            if love.load then
-                return love.load()
-            end
-        end,
-        update = function(dt)
-            if love.update then
-                return love.update(dt)
-            end
-        end,
-        draw = function()
-            if love.draw then
-                return love.draw()
-            end
-        end,
         keypressed = function (key)
             if love.keypressed then
                 return love.keypressed(key)
@@ -254,7 +239,7 @@ function love.errorhandler(message)
     -- MAKE A COPY FOR THE CRASH LOG --
 
     local copy = err
-    table.insert(copy, "\nLove Potion " .. love._potion_version .. " (API " .. love._version .. ")")
+    table.insert(copy, "\nLöve Potion " .. love._potion_version .. " (API " .. love._version .. ")")
 
     local dateTime = os.date("%c")
     table.insert(copy, "\nDate and Time: " .. dateTime)
@@ -266,7 +251,7 @@ function love.errorhandler(message)
 
     love.filesystem.write("crash.txt", fullError)
 
-    if not love.window.isOpen()
+    if not love.window.isOpen() then
         return
     end
 
@@ -281,12 +266,15 @@ love.errhand = love.errorhandler
 --################--
 
 function love.boot()
+    -- Load the LOVE filesystem module, its absolutely needed
+    require("love.filesystem")
+
     -- We can't throw any errors just yet because we want to see if we can
     -- load and use conf.lua in case the user doesn't want to use certain
     -- modules, but we also can't error because graphics haven't been loaded.
     local confok, conferr
 
-    if love.filesystem.getInfo("conf.lua", "file") then
+    if love.filesystem.getInfo("conf.lua") then
         confok, conferr = pcall(require, "conf")
 
         if confok and love.conf then
@@ -306,7 +294,7 @@ function love.boot()
     -- Load them all!
     for i, v in ipairs(modules) do
         if config.modules[v] then
-            love[v] = require("love." .. v)
+            require("love." .. v)
         end
     end
 
@@ -327,7 +315,7 @@ function love.boot()
     --[[local __defaultFont = love.graphics.newFont()
     love.graphics.setFont(__defaultFont)]]
 
-    if love.filesystem.getInfo("main.lua", "file") then
+    if love.filesystem.getInfo("main.lua") then
         -- Try to load `main.lua`.
         require("main")
 
@@ -336,7 +324,6 @@ function love.boot()
             love.load()
         end
     else
-        error("No game was found.")
         -- If there's no game to load then we'll just load up something on the
         -- screen to tell the user that there's NO GAME!
         --love._nogame()
@@ -344,7 +331,7 @@ function love.boot()
 end
 
 -- Boot up the game!
-xpcall(love.boot, love.errhand)
+error, ret = xpcall(love.boot, love.errhand)
 
 -- If something went wrong, the errhand redefines the love.update and love.draw
 -- functions which are managed by the love.run function.

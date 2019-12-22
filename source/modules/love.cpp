@@ -11,55 +11,17 @@
 #include "modules/timer.h"
 #include "modules/window.h"
 
+#include "boot_lua.h"
+
 /*
 ** @func Initialize
 ** Initializes the framework
 */
 int Love::Initialize(lua_State * L)
 {
-    m_modules =
-    {{
-        { "event",      LoveEvent::Register,  NULL          },
-        { "graphics",   Graphics::Register,   NULL          },
-        { "filesystem", Filesystem::Register, NULL          },
-        { "timer",      Timer::Register,      NULL          },
-        { "window",     Window::Register,     Display::Exit },
-        { 0 }
-    }};
+    Luax::InsistGlobal(L, "love");
 
-    // preload all the modules
-    char modname[30];
-    for (int i = 0; m_modules[i].name; i++)
-    {
-        strcpy(modname, "love.");
-        strcat(modname, m_modules[i].name);
-        Love::Preload(L, m_modules[i].reg, modname);
-    }
-
-    luaL_Reg reg[] =
-    {
-        //{ "_nogame",       NULL     },
-        { "getVersion",    GetVersion   },
-        { "run",           Run          },
-        { "quit",          Quit         },
-        { 0 }
-    };
-
-    luaL_newlib(L, reg);
-
-    return 1;
-}
-
-/*
-** @func InitializeConstants
-** Initialize various constants.
-** Mostly for compatability purposes.
-*/
-void Love::InitializeConstants(lua_State * L)
-{
-    lua_getglobal(L, "love");
-
-    lua_newtable(L);
+    //--------------CONSTANTS----------------//
 
     // love._os = "Horizon"
     lua_pushstring(L, "Horizon");
@@ -90,7 +52,45 @@ void Love::InitializeConstants(lua_State * L)
     lua_pushstring(L, Version::CODENAME);
     lua_setfield(L, -2, "_version_codename");
 
-    lua_pop(L, 1);
+    lua_pushcfunction(L, GetVersion);
+    lua_setfield(L, -2, "getVersion");
+
+    lua_pushcfunction(L, Run);
+    lua_setfield(L, -2, "run");
+
+    //---------------------------------------//
+
+    m_modules =
+    {{
+        { "love.event",      LoveEvent::Register,  NULL          },
+        { "love.graphics",   Graphics::Register,   NULL          },
+        { "love.filesystem", Filesystem::Register, NULL          },
+        { "love.timer",      Timer::Register,      NULL          },
+        { "love.window",     Window::Register,     Display::Exit },
+        { 0 }
+    }};
+
+    // preload all the modules
+    for (int i = 0; m_modules[i].name  != nullptr; i++)
+        Love::Preload(L, m_modules[i].reg, m_modules[i].name);
+
+    Love::Preload(L, luaopen_luautf8, "utf8");
+    // love_preload(L, LuaSocket::InitSocket, "socket");
+    // love_preload(L, LuaSocket::InitHTTP,   "socket.http");
+
+    return 1;
+}
+
+/*
+** @func Boot
+** Boots LOVE
+*/
+int Love::Boot(lua_State * L)
+{
+    if (Luax::DoBuffer(L, (char *)boot_lua, boot_lua_size, "boot.lua"))
+        LOG("boot.lua error: %s", lua_tostring(L, -1));
+
+    return 0;
 }
 
 /*
@@ -108,8 +108,7 @@ int Love::Run(lua_State * L)
     if (luaL_dostring(L, LOVE_UPDATE))
         luaL_error(L, "%s", lua_tostring(L, -1));
 
-    if (Display::Draw(L))
-        luaL_error(L, "%s", lua_tostring(L, -1));
+    Display::Draw(L);
 
     Timer::Tick();
 
@@ -241,9 +240,9 @@ void Love::RegObject(lua_State * L, int index, void * object)
 */
 void Love::Exit(lua_State * L)
 {
-    for (int i = 0; m_modules[i].name; i++)
+    for (int i = 0; m_modules[i].name != nullptr; i++)
     {
-        if (m_modules[i].close)
+        if (m_modules[i].close != nullptr)
             m_modules[i].close();
     }
 

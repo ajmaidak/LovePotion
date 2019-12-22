@@ -261,7 +261,9 @@ int Filesystem::Register(lua_State * L)
         { 0,                        0                 }
     };
 
-    luaL_newlib(L, reg);
+    WrappedModule module;
+    module.name = "filesystem";
+    module.functions = reg;
 
-    return 1;
+    return Luax::RegisterModule(L, module);
 }

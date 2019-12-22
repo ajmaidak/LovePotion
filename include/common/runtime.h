@@ -12,10 +12,16 @@ extern "C"
     #include <lutf8lib.h>
 }
 
+struct WrappedModule
+{
+    const char * name;
+    const luaL_reg * functions;
+};
+
 #include "common/defines.h"
 
 #include "common/logger.h"
-#include "common/laux.h"
+#include "common/luax.h"
 
 // std stuff
 #include <string>
