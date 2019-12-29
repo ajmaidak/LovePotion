@@ -2,6 +2,7 @@
 #include "modules/graphics.h"
 
 #include "common/display.h"
+#include "modules/love.h"
 
 void Display::Initialize()
 {
@@ -19,9 +20,9 @@ void Display::Initialize()
     C2D_Prepare();
 
     m_targets = {
-        C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT),
+        C2D_CreateScreenTarget(GFX_TOP,    GFX_LEFT),
         C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT),
-        C2D_CreateScreenTarget(GFX_TOP, GFX_RIGHT)
+        C2D_CreateScreenTarget(GFX_TOP,    GFX_RIGHT)
     };
 
     m_open = true;
@@ -55,9 +56,17 @@ int Display::Draw(lua_State * L)
         C2D_TargetClear(m_targets[index], C2D_Color32f(color.r, color.g, color.b, 1.0));
         C2D_SceneBegin(m_targets[index]);
 
-        //int display = std::clamp((int)index + 1, 1, 2);
-        if (luaL_dostring(L, LOVE_DRAW))
-            return luaL_error(L, lua_tostring(L, -1));
+        int display = std::clamp((int)index + 1, 1, 2);
+
+        Love::GetField(L, "draw");
+        if (!lua_isnoneornil(L, -1))
+        {
+            lua_pushstring(L, (display == 1) ? "top" : "bottom");
+            int error = lua_pcall(L, 1, 0, 0);
+
+            if (error != 0)
+                return lua_error(L);
+        }
     }
 
     C3D_FrameEnd(0);
