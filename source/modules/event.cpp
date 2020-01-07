@@ -35,7 +35,7 @@ int LoveEvent::Register(lua_State * L)
         { 0,      0    }
     };
 
-    WrappedModule module;
+    Module module;
     module.name = "event";
     module.functions = reg;
 

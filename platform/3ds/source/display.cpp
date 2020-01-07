@@ -28,12 +28,18 @@ void Display::Initialize()
     m_open = true;
 }
 
+Renderer * Display::GetRenderer()
+{
+    // nop or something idk
+    return nullptr;
+}
+
 void Display::Clear(Color * color)
 {
     for (size_t index = 0; index < m_targets.size(); index++)
     {
         if (!color)
-            *color = { 0, 0, 0, 1 };
+            (*color) = { 0, 0, 0, 1 };
 
         C2D_TargetClear(m_targets[index], C2D_Color32f(color->r, color->g, color->b, 1.0));
     }

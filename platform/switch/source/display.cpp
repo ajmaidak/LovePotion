@@ -29,9 +29,17 @@ void Display::Initialize()
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 }
 
+Renderer * Display::GetRenderer()
+{
+    return m_targets[0];
+}
+
 void Display::Clear(Color * color)
 {
+    //SDL_SetRenderDrawColor(Display::GetRenderer(), color->r, color->g, color->b, color->a);
+    //SDL_RenderClear(Display::GetRenderer());
 
+    //SDL_SetRenderDrawColor(Display::GetRenderer(), drawColor.r, drawColor.g, drawColor.b, drawColor.a);
 }
 
 int Display::Draw(lua_State * L)

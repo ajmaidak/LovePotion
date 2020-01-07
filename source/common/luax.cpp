@@ -34,7 +34,7 @@ int Luax::InsistGlobal(lua_State * L, const char * field)
 ** Registers @module as a proper table to LOVE
 ** See https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L375
 */
-int Luax::RegisterModule(lua_State * L, const WrappedModule & module)
+int Luax::RegisterModule(lua_State * L, const Module & module)
 {
     Luax::InsistGlobal(L, "love");
 

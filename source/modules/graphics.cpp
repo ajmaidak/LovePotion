@@ -61,7 +61,7 @@ int Graphics::Register(lua_State * L)
         { 0,                    0                  }
     };
 
-    WrappedModule module;
+    Module module;
     module.name = "graphics";
     module.functions = reg;
 

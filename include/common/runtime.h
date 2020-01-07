@@ -12,7 +12,8 @@ extern "C"
     #include <lutf8lib.h>
 }
 
-struct WrappedModule
+// custom structs
+struct Module
 {
     const char * name;
     const luaL_reg * functions;

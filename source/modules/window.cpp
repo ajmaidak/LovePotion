@@ -63,7 +63,7 @@ int Window::Register(lua_State * L)
         { 0,                    0                  }
     };
 
-    WrappedModule module;
+    Module module;
     module.name = "window";
     module.functions = reg;
 

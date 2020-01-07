@@ -88,7 +88,7 @@ int Timer::Register(lua_State * L)
         { 0,          0        }
     };
 
-    WrappedModule module;
+    Module module;
     module.name = "timer";
     module.functions = reg;
 

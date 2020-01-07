@@ -9,15 +9,12 @@
 
 typedef C3D_RenderTarget Renderer;
 
-typedef struct
-{
-    int open;
-} Frame;
+typedef struct _Frame Frame;
 
-typedef struct
+struct Color
 {
     float r;
     float g;
     float b;
     float a = 1.0f;
-} Color;
+};

@@ -261,7 +261,7 @@ int Filesystem::Register(lua_State * L)
         { 0,                        0                 }
     };
 
-    WrappedModule module;
+    Module module;
     module.name = "filesystem";
     module.functions = reg;
 

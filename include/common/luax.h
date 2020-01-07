@@ -9,7 +9,7 @@ namespace Luax
 
     int InsistGlobal(lua_State * L, const char * field);
 
-    int RegisterModule(lua_State * L, const WrappedModule & module);
+    int RegisterModule(lua_State * L, const Module & module);
 
     int Traceback(lua_State * L);
 };

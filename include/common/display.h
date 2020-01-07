@@ -19,6 +19,8 @@ class Display
         static std::vector<std::pair<int, int>> GetWindowSizes();
         static unsigned int GetDisplayCount();
 
+        static Renderer * GetRenderer();
+
         static bool IsOpen();
 
         static void Exit();
