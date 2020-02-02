@@ -27,6 +27,9 @@ int main(int argc, char * argv[])
     // boot!
     Love::Boot(L);
 
+    if (!Love::EnsureApplicationType(L))
+        return 1;
+
     while (appletMainLoop())
     {
         if (Love::IsRunning())

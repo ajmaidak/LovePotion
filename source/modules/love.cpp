@@ -112,9 +112,6 @@ int Love::Run(lua_State * L)
 
     Timer::Tick();
 
-    if (m_appletType != AppletType_Application && m_appletType != AppletType_SystemApplication)
-        luaL_error(L, "%s", "Please run Löve Potion under Atmosphère title takeover.");
-
     return 0;
 }
 
@@ -155,6 +152,35 @@ int Love::Quit(lua_State * L)
 }
 
 //------------------------------//
+
+/*
+** @func CheckForTitleTakeover
+** Checks for Title Takeover on atmosphère
+** Does absolutely nothing on 3DS. Ran at boot once.
+*/
+bool Love::EnsureApplicationType(lua_State * L)
+{
+    #if defined(__SWITCH__)
+        AppletType type = appletGetAppletType();
+
+        bool isApplicationType = type != AppletType_Application &&
+                                 type != AppletType_SystemApplication;
+
+        if (isApplicationType)
+            return true;
+
+        Love::GetField(L, "errorhandler");
+        if (!lua_isnoneornil(L, -1))
+        {
+            lua_pushstring(L, TITLE_TAKEOVER_ERROR);
+            lua_pcall(L, 1, 0, 0);
+        }
+
+        return false;
+    #endif
+
+    return true;
+}
 
 /*
 ** @func GetField

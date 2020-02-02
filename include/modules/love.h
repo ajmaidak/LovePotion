@@ -3,6 +3,8 @@
 #define LOVE_TIMER_STEP "if love.timer then love.timer.step() end"
 #define LOVE_UPDATE     "if love.update then love.update(love.timer.getDelta()) end"
 
+#define TITLE_TAKEOVER_ERROR "Please run Löve Potion under Atmosphère title takeover."
+
 class Love
 {
     public:
@@ -20,6 +22,8 @@ class Love
 
         // Various Utility Functions
         static void InitConstants(lua_State * L);
+
+        static bool EnsureApplicationType(lua_State * L);
 
         static void GetField(lua_State * L, const char * field);
         static int Preload(lua_State * L, lua_CFunction func, const char * name);
@@ -43,5 +47,4 @@ class Love
     private:
         static inline bool m_quit = false;
         static inline std::array<Love::Module, 15> m_modules = { nullptr };
-        static inline AppletType m_appletType = appletGetAppletType();
 };

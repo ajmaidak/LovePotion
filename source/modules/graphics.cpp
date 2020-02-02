@@ -117,6 +117,7 @@ int Graphics::Register(lua_State * L)
         { "setColor",           SetColor           },
         { "getBackgroundColor", GetBackgroundColor },
         { "getColor",           GetColor           },
+        { "present",            Display::Present   },
         { 0,                    0                  }
     };
 

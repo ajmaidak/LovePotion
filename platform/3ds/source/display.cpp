@@ -45,6 +45,11 @@ void Display::Clear(Color * color)
     }
 }
 
+int Display::Present(lua_State * L)
+{
+    return 0;
+}
+
 int Display::Draw(lua_State * L)
 {
     if (!m_open)

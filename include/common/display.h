@@ -14,7 +14,7 @@ class Display
 
         static void Clear(Color * color);
         static int Draw(lua_State * L);
-        static void Present();
+        static int Present(lua_State * L);
 
         static inline void SetBlendColor(Color * color) {
             m_blendColor = {color->r, color->g, color->b, color->a};

@@ -62,14 +62,16 @@ int Display::Draw(lua_State * L)
     if (luaL_dostring(L, LOVE_DRAW))
         luaL_error(L, "%s", lua_tostring(L, -1));
 
-    Display::Present();
+    Display::Present(L);
 
     return 0;
 }
 
-void Display::Present()
+int Display::Present(lua_State * L)
 {
     SDL_RenderPresent(Display::GetRenderer());
+
+    return 0;
 }
 
 std::vector<std::pair<int, int>> Display::GetWindowSizes()
