@@ -24,6 +24,7 @@ int main(int argc, char * argv[])
 	lua_call(L, 1, 1);
     lua_pop(L, 1);
 
+    // boot!
     Love::Boot(L);
 
     while (appletMainLoop())

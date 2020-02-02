@@ -1,5 +1,8 @@
 #include "common/runtime.h"
+#include "modules/graphics.h"
+
 #include "common/display.h"
+#include "modules/love.h"
 
 #include <SDL.h>
 
@@ -27,6 +30,8 @@ void Display::Initialize()
     SDL_SetRenderDrawBlendMode(m_targets[0], SDL_BLENDMODE_BLEND);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+
+    m_open = true;
 }
 
 Renderer * Display::GetRenderer()
@@ -36,20 +41,35 @@ Renderer * Display::GetRenderer()
 
 void Display::Clear(Color * color)
 {
-    //SDL_SetRenderDrawColor(Display::GetRenderer(), color->r, color->g, color->b, color->a);
-    //SDL_RenderClear(Display::GetRenderer());
+    // clear the background to the specified color
+    SDL_SetRenderDrawColor(Display::GetRenderer(), color->r, color->g, color->b, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(Display::GetRenderer());
 
-    //SDL_SetRenderDrawColor(Display::GetRenderer(), drawColor.r, drawColor.g, drawColor.b, drawColor.a);
+    // set the blending color for textures n stuff
+    SDL_SetRenderDrawColor(Display::GetRenderer(), m_blendColor.r, m_blendColor.g, m_blendColor.b, m_blendColor.a);
 }
 
 int Display::Draw(lua_State * L)
 {
+    if (!m_open)
+        return 0;
+
+    Color color = Graphics::GetBackgroundColor();
+    LOG("rgb(%d, %d, %d)", color.r, color.g, color.b);
+
+    Display::Clear(&color);
+
+    if (luaL_dostring(L, LOVE_DRAW))
+        luaL_error(L, "%s", lua_tostring(L, -1));
+
+    Display::Present();
+
     return 0;
 }
 
 void Display::Present()
 {
-
+    SDL_RenderPresent(Display::GetRenderer());
 }
 
 std::vector<std::pair<int, int>> Display::GetWindowSizes()
@@ -78,4 +98,6 @@ void Display::Exit()
         SDL_DestroyWindow(m_window);
 
     SDL_Quit();
+
+    m_open = false;
 }

@@ -255,8 +255,10 @@ function love.errorhandler(message)
         return
     end
 
-    love.graphics.setBackgroundColor(0.35, 0.62, 0.86)
-    love.graphics.clear(love.graphics.getBackgroundColor())
+    -- love.graphics.setBackgroundColor(0.35, 0.62, 0.86)
+    --love.graphics.clear(love.graphics.getBackgroundColor())
+
+    --love.graphics.present()
 end
 
 love.errhand = love.errorhandler

@@ -112,6 +112,9 @@ int Love::Run(lua_State * L)
 
     Timer::Tick();
 
+    if (m_appletType != AppletType_Application && m_appletType != AppletType_SystemApplication)
+        luaL_error(L, "%s", "Please run Löve Potion under Atmosphère title takeover.");
+
     return 0;
 }
 

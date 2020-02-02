@@ -16,6 +16,10 @@ class Display
         static int Draw(lua_State * L);
         static void Present();
 
+        static inline void SetBlendColor(Color * color) {
+            m_blendColor = {color->r, color->g, color->b, color->a};
+        }
+
         static std::vector<std::pair<int, int>> GetWindowSizes();
         static unsigned int GetDisplayCount();
 
@@ -29,4 +33,6 @@ class Display
         static inline bool m_open = false;
         static inline std::vector<Renderer *> m_targets = { nullptr };
         static inline Frame * m_window = nullptr;
+
+        static inline Color m_blendColor = { 1, 1, 1, 1 };
 };

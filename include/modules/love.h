@@ -43,4 +43,5 @@ class Love
     private:
         static inline bool m_quit = false;
         static inline std::array<Love::Module, 15> m_modules = { nullptr };
+        static inline AppletType m_appletType = appletGetAppletType();
 };

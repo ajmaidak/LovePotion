@@ -13,6 +13,9 @@ class Graphics
         static int SetBackgroundColor(lua_State * L);
         static int GetBackgroundColor(lua_State * L);
 
+        static int SetColor(lua_State * L);
+        static int GetColor(lua_State * L);
+
         static Color GetBackgroundColor();
 
         static int Register(lua_State * L);
