@@ -51,7 +51,9 @@ int Display::SetScreen(lua_State * L)
 {
     int index = luaL_checkinteger(L, 1);
 
-    C2D_SceneBegin(m_targets[index]);
+    int display = std::clamp((int)index - 1, 0, 1);
+
+    C2D_SceneBegin(m_targets[display]);
 
     return 0;
 }
