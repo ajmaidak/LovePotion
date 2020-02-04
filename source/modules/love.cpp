@@ -55,9 +55,6 @@ int Love::Initialize(lua_State * L)
     lua_pushcfunction(L, GetVersion);
     lua_setfield(L, -2, "getVersion");
 
-    lua_pushcfunction(L, Run);
-    lua_setfield(L, -2, "run");
-
     //---------------------------------------//
 
     m_modules =
@@ -75,6 +72,7 @@ int Love::Initialize(lua_State * L)
         Love::Preload(L, m_modules[i].reg, m_modules[i].name);
 
     Love::Preload(L, luaopen_luautf8, "utf8");
+    Love::Preload(L, Boot, "love.boot");
     // love_preload(L, LuaSocket::InitSocket, "socket");
     // love_preload(L, LuaSocket::InitHTTP,   "socket.http");
 
@@ -90,7 +88,7 @@ int Love::Boot(lua_State * L)
     if (Luax::DoBuffer(L, (char *)boot_lua, boot_lua_size, "boot.lua"))
         LOG("boot.lua error: %s", lua_tostring(L, -1));
 
-    return 0;
+    return 1;
 }
 
 /*
@@ -101,19 +99,19 @@ int Love::Boot(lua_State * L)
 ** TO DO: commonize display drawing
 ** how? who knows, it'll be hard
 */
-int Love::Run(lua_State * L)
-{
-    luaL_dostring(L, LOVE_TIMER_STEP);
+// int Love::Run(lua_State * L)
+// {
+//     luaL_dostring(L, LOVE_TIMER_STEP);
 
-    if (luaL_dostring(L, LOVE_UPDATE))
-        luaL_error(L, "%s", lua_tostring(L, -1));
+//     if (luaL_dostring(L, LOVE_UPDATE))
+//         luaL_error(L, "%s", lua_tostring(L, -1));
 
-    Display::Draw(L);
+//     Display::Draw(L);
 
-    Timer::Tick();
+//     Timer::Tick();
 
-    return 0;
-}
+//     return 0;
+// }
 
 /*
 ** @func GetVersion

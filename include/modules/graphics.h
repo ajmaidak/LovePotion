@@ -16,8 +16,6 @@ class Graphics
         static int SetColor(lua_State * L);
         static int GetColor(lua_State * L);
 
-        static Color GetBackgroundColor();
-
         static int Register(lua_State * L);
 
     private:
@@ -25,4 +23,6 @@ class Graphics
 
         static inline Color m_background = { 0, 0, 0, 1 };
         static inline Color m_foreground = { 1, 1, 1, 1 };
+
+        static void AdjustColor(const Color & in, Color * out);
 };

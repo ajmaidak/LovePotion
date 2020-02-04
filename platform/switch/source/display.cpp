@@ -49,24 +49,6 @@ void Display::Clear(Color * color)
     SDL_SetRenderDrawColor(Display::GetRenderer(), m_blendColor.r, m_blendColor.g, m_blendColor.b, m_blendColor.a);
 }
 
-int Display::Draw(lua_State * L)
-{
-    if (!m_open)
-        return 0;
-
-    Color color = Graphics::GetBackgroundColor();
-    LOG("rgb(%d, %d, %d)", color.r, color.g, color.b);
-
-    Display::Clear(&color);
-
-    if (luaL_dostring(L, LOVE_DRAW))
-        luaL_error(L, "%s", lua_tostring(L, -1));
-
-    Display::Present(L);
-
-    return 0;
-}
-
 int Display::Present(lua_State * L)
 {
     SDL_RenderPresent(Display::GetRenderer());

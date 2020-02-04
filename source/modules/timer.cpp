@@ -8,7 +8,7 @@
 //love.timer.getFPS
 int Timer::GetFPS(lua_State * L)
 {
-    lua_pushnumber(L, round(totalFrames));
+    lua_pushnumber(L, round(m_totalFrames));
 
     return 1;
 }
@@ -25,7 +25,7 @@ int Timer::GetTime(lua_State * L)
 //love.timer.getDelta
 int Timer::GetDelta(lua_State * L)
 {
-    lua_pushnumber(L, deltatime);
+    lua_pushnumber(L, m_deltatime);
 
     return 1;
 }
@@ -33,14 +33,27 @@ int Timer::GetDelta(lua_State * L)
 //love.timer.step
 int Timer::Step(lua_State * L)
 {
-    lastTime = currentTime;
+    m_frames++;
 
-    currentTime = SDL_GetTicks();
+    m_lastTime = m_currentTime;
 
-    deltatime = (currentTime - lastTime) * 0.001f;
+    m_currentTime = SDL_GetTicks();
 
-    if (deltatime < 0)
-        deltatime = 0;
+    m_deltatime = (m_currentTime - m_lastTime) * 0.001f;
+
+    if (m_deltatime < 0)
+        m_deltatime = 0;
+
+    // FPS CALCULATION
+
+    float delta = SDL_GetTicks() - m_lastCountTime;
+
+    if (delta >= 1000.0f)
+    {
+        m_totalFrames = (m_frames / delta) * 1000.0f;
+        m_frames = 0;
+        m_lastCountTime = SDL_GetTicks();
+    }
 
     return 0;
 }
@@ -51,7 +64,8 @@ int Timer::Sleep(lua_State * L)
     float duration = luaL_checknumber(L, 1);
     u32 sleepDuration = (duration * 1000.0f);
 
-    svcSleepThread(1000000ULL * sleepDuration);
+    //svcSleepThread(1000000ULL * sleepDuration);
+    SDL_Delay(sleepDuration);
 
     return 0;
 }
@@ -60,20 +74,7 @@ int Timer::Sleep(lua_State * L)
 
 float Timer::GetDelta()
 {
-    return deltatime;
-}
-
-void Timer::Tick()
-{
-    frames++;
-    float delta = SDL_GetTicks() - lastCountTime;
-
-    if (delta >= 1000.0f)
-    {
-        totalFrames = (frames / delta) * 1000.0f;
-        frames = 0;
-        lastCountTime = SDL_GetTicks();
-    }
+    return m_deltatime;
 }
 
 int Timer::Register(lua_State * L)

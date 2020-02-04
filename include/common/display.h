@@ -20,6 +20,8 @@ class Display
             m_blendColor = {color->r, color->g, color->b, color->a};
         }
 
+        static int SetScreen(lua_State * L);
+
         static std::vector<std::pair<int, int>> GetWindowSizes();
         static unsigned int GetDisplayCount();
 

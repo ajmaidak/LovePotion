@@ -210,6 +210,45 @@ function love.createhandlers()
     })
 end
 
+local screens = {
+    ["Switch"] = {nil},
+    ["3DS"] = {"top", "bottom"}
+}
+
+function love.run()
+    local delta = 0
+
+    return function()
+        if love.timer then
+            delta = love.timer.step()
+        end
+
+        if love.update then
+            love.update(delta)
+        end
+
+        if love.graphics then
+            local r, g, b = love.graphics.getBackgroundColor()
+            love.graphics.clear(r, g, b)
+
+            for display = 1, love.window.getDisplayCount() do
+                love.graphics.setScreen(display)
+
+                if love.draw then
+                    local screen = screens[love._console_name][display]
+                    love.draw(screen)
+                end
+            end
+
+            love.graphics.present()
+        end
+
+        if love.timer then
+            love.timer.sleep(0.001)
+        end
+    end
+end
+
 function love.errorhandler(message)
     message = tostring(message)
 
@@ -269,6 +308,15 @@ love.errhand = love.errorhandler
 --################--
 -- BOOT THE GAME! --
 --################--
+local function error_printer(msg, layer)
+    trace = debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1))
+    trace = trace:gsub("\n[^\n]+$", "")
+
+    file = io.open("crash.txt", "w")
+    file:write(trace)
+    file:flush()
+    file:close()
+end
 
 function love.boot()
     -- Load the LOVE filesystem module, its absolutely needed
@@ -335,9 +383,46 @@ function love.boot()
     end
 end
 
--- Boot up the game!
-error, ret = xpcall(love.boot, love.errhand)
+return function()
+    local func
+    local inerror = false
 
+    local function deferErrhand(...)
+        local errhand = love.errhandler or love.errhand
+        local handler = (not inerror and errhand) or error_printer
+
+        inerror = true
+        func = handler(...)
+    end
+
+    local function earlyInit()
+        local result = xpcall(love.boot, error_printer)
+
+        if not result then
+            return 1
+        end
+
+        local main
+        result, main = xpcall(love.run, deferErrhand)
+        if result then
+            func = main
+        end
+    end
+
+    func = earlyInit
+
+    while func do
+        local _, retval = xpcall(func, deferErrhand)
+
+        if retval then
+            return retval
+        end
+
+        coroutine.yield()
+    end
+
+    return 1
+end
 -- If something went wrong, the errhand redefines the love.update and love.draw
 -- functions which are managed by the love.run function.
 

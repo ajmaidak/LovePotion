@@ -36,6 +36,8 @@ Renderer * Display::GetRenderer()
 
 void Display::Clear(Color * color)
 {
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+
     for (size_t index = 0; index < m_targets.size(); index++)
     {
         if (!color)
@@ -45,41 +47,17 @@ void Display::Clear(Color * color)
     }
 }
 
-int Display::Present(lua_State * L)
+int Display::SetScreen(lua_State * L)
 {
+    int index = luaL_checkinteger(L, 1);
+
+    C2D_SceneBegin(m_targets[index]);
+
     return 0;
 }
 
-int Display::Draw(lua_State * L)
+int Display::Present(lua_State * L)
 {
-    if (!m_open)
-        return 0;
-
-    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-
-    Color color = Graphics::GetBackgroundColor();
-
-    for (size_t index = 0; index < m_targets.size(); index++)
-    {
-        if (!gfxIs3D() && index == 2)
-            continue;
-
-        C2D_TargetClear(m_targets[index], C2D_Color32f(color.r, color.g, color.b, 1.0));
-        C2D_SceneBegin(m_targets[index]);
-
-        int display = std::clamp((int)index + 1, 1, 2);
-
-        Love::GetField(L, "draw");
-        if (!lua_isnoneornil(L, -1))
-        {
-            lua_pushstring(L, (display == 1) ? "top" : "bottom");
-            int error = lua_pcall(L, 1, 0, 0);
-
-            if (error != 0)
-                return lua_error(L);
-        }
-    }
-
     C3D_FrameEnd(0);
 
     return 0;
