@@ -7,6 +7,8 @@ typedef SDL_Renderer Renderer;
 
 typedef SDL_Window Frame;
 
+typedef JoystickPosition StickPosition;
+
 typedef struct
 {
     float r;

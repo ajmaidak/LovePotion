@@ -18,6 +18,7 @@ class LoveEvent
 
     private:
         static inline bool m_touchDown = false;
+        static inline LOVE_Event m_event;
 
         //Löve2D Functions
 

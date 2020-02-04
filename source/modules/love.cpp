@@ -4,6 +4,7 @@
 #include "modules/love.h"
 
 #include "common/display.h"
+#include "common/input.h"
 
 #include "modules/event.h"
 #include "modules/filesystem.h"

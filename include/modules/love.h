@@ -1,8 +1,5 @@
 #pragma once
 
-#define LOVE_TIMER_STEP "if love.timer then love.timer.step() end"
-#define LOVE_UPDATE     "if love.update then love.update(love.timer.getDelta()) end"
-
 #define TITLE_TAKEOVER_ERROR "Please run Löve Potion under Atmosphère title takeover."
 
 class Love

@@ -7,6 +7,8 @@
 
 #define romfsMountFromFsdev(path, offset, name)
 
+typedef circlePosition StickPosition;
+
 typedef C3D_RenderTarget Renderer;
 
 typedef struct _Frame Frame;
