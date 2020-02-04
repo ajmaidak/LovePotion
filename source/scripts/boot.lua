@@ -216,6 +216,10 @@ local screens = {
 }
 
 function love.run()
+    if love.load then
+        love.load()
+    end
+
     local delta = 0
 
     return function()
@@ -228,8 +232,7 @@ function love.run()
         end
 
         if love.graphics then
-            local r, g, b = love.graphics.getBackgroundColor()
-            love.graphics.clear(r, g, b)
+            love.graphics.clear(love.graphics.getBackgroundColor())
 
             for display = 1, love.window.getDisplayCount() do
                 love.graphics.setScreen(display)
@@ -294,12 +297,35 @@ function love.errorhandler(message)
         return
     end
 
-    while true do
+    local function draw()
         love.graphics.clear(0.35, 0.62, 0.86)
 
-        love.graphics.present()
+        for display = 1, love.window.getDisplayCount() do
+            love.graphics.setScreen(display) --just to clear it
 
-        love.timer.sleep(0.1)
+            if display == 1 then
+                -- render our error message
+                -- love.graphics.print(msg, 10, 10)
+            end
+        end
+
+        love.graphics.present()
+    end
+
+    return function()
+        -- love.event.pump()
+
+        -- for event, a, b, c in love.event.poll() do
+        --     if event == "gamepadpressed" and a == "start" then
+        --         love.event.quit()
+        --     end
+        -- end
+
+        draw()
+
+        if love.timer then
+            love.timer.sleep(0.1)
+        end
     end
 end
 
@@ -371,11 +397,6 @@ function love.boot()
     if love.filesystem.getInfo("main.lua") then
         -- Try to load `main.lua`.
         require("main")
-
-        -- See if loading exists and works.
-        if love.load then
-            love.load()
-        end
     else
         -- If there's no game to load then we'll just load up something on the
         -- screen to tell the user that there's NO GAME!
