@@ -7,4 +7,10 @@ typedef SDL_Renderer Renderer;
 
 typedef SDL_Window Frame;
 
-typedef SDL_Color Color;
+typedef struct
+{
+    float r;
+    float g;
+    float b;
+    float a;
+} Color;

@@ -39,6 +39,11 @@ Renderer * Display::GetRenderer()
     return m_targets[0];
 }
 
+int Display::SetScreen(lua_State * L)
+{
+    return 0;
+}
+
 void Display::Clear(Color * color)
 {
     // clear the background to the specified color
