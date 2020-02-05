@@ -7,7 +7,7 @@
 
 struct GamePadButton
 {
-    const char * name;
+    std::string name;
     int id;
 };
 
@@ -43,4 +43,8 @@ class Input
 
     private:
         static inline StickPosition m_lastPosition[2] = {};
+
+        static inline bool IsValid(const std::string & name) {
+            return !name.empty() && name != "touch";
+        }
 };

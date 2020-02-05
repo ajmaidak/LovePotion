@@ -19,15 +19,18 @@ struct Module
     const luaL_reg * functions;
 };
 
+// std stuff
+#include <algorithm>
+#include <array>
+#include <math.h>
+#include <queue>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "common/defines.h"
 
 #include "common/logger.h"
 #include "common/luax.h"
-
-// std stuff
-#include <string>
-#include <math.h>
-#include <array>
-#include <vector>
-#include <utility>
-#include <algorithm>
+#include "common/variant.h"
+#include "common/message.h"

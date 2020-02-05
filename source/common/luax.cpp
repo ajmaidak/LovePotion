@@ -1,4 +1,5 @@
 #include "common/runtime.h"
+#include "modules/love.h"
 
 /*
 ** @func DoBuffer
@@ -52,6 +53,18 @@ int Luax::RegisterModule(lua_State * L, const Module & module)
     lua_remove(L, -2);
 
 	return 1;
+}
+
+void Luax::PushObject(lua_State * L, void * object)
+{
+    if (!object)
+        return;
+
+    Love::GetRegistry(L, 0);
+
+    lua_pushlightuserdata(L, object);
+    lua_gettable(L, -2);
+    lua_remove(L, -2);
 }
 
 /*

@@ -35,13 +35,16 @@ EXT_LIBS	:= $(sort $(dir $(wildcard ../../libraries/*/)))
 
 TARGET		:=	LovePotion
 BUILD		:=	build
+
 SOURCES		:=	../../source \
 				../../source/common \
 				../../source/modules \
 				$(EXT_LIBS) \
 				source
+
 DATA		:=	../../source/scripts \
-				source/scripts
+				source/scripts \
+
 INCLUDES	:=	../../include \
 				../../include/common \
 				../../include/modules \

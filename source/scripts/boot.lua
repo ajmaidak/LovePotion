@@ -192,9 +192,7 @@ function love.createhandlers()
             end
         end,
         quit = function ()
-            if love.quit then
-                return love.quit()
-            end
+            return
         end,
         threaderror = function (t, err)
             if love.threaderror then return love.threaderror(t, err) end
@@ -226,14 +224,14 @@ function love.run()
         if love.event then
             love.event.pump()
 
-            -- for name, a, b, c, d, e, f in love.event.poll() do
-            --     if name == "quit" then
-            --         if not love.quit or not love.quit() then
-            --             return a or 0
-            --         end
-            --     end
-            --     love.handlers[name](a, b, c, d, e, f)
-            -- end
+            for name, a, b, c, d, e, f in love.event.poll() do
+                if name == "quit" then
+                    if not love.quit or not love.quit() then
+                        return a or 0
+                    end
+                end
+                love.handlers[name](a, b, c, d, e, f)
+            end
         end
 
         if love.timer then
@@ -326,13 +324,13 @@ function love.errorhandler(message)
     end
 
     return function()
-        -- love.event.pump()
+        love.event.pump()
 
-        -- for event, a, b, c in love.event.poll() do
-        --     if event == "gamepadpressed" and a == "start" then
-        --         love.event.quit()
-        --     end
-        -- end
+        for event, a, b, c in love.event.poll() do
+            if event == "gamepadpressed" and a == "start" then
+                love.event.quit()
+            end
+        end
 
         draw()
 
