@@ -3,8 +3,8 @@
 #include "common/version.h"
 #include "modules/love.h"
 
-#include "common/display.h"
-#include "common/input.h"
+#include "common/backend/display.h"
+#include "common/backend/input.h"
 
 #include "modules/event.h"
 #include "modules/filesystem.h"

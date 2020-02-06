@@ -1,5 +1,5 @@
 #include "common/runtime.h"
-#include "common/input.h"
+#include "common/backend/input.h"
 
 std::vector<std::string> buttons = {
     "a", "b", "back", "start",

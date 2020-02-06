@@ -1,7 +1,7 @@
 #include "common/runtime.h"
 #include "modules/window.h"
 
-#include "common/display.h"
+#include "common/backend/display.h"
 
 // love.window.getFullscreenModes
 int Window::GetFullscreenModes(lua_State * L)

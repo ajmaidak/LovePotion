@@ -2,7 +2,7 @@
 #include "common/assets.h"
 
 #include "modules/love.h"
-#include "common/display.h"
+#include "common/backend/display.h"
 
 DoneAction Run_Love_Potion(lua_State * L, int & retval)
 {

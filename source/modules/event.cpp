@@ -1,5 +1,5 @@
 #include "common/runtime.h"
-#include "common/input.h"
+#include "common/backend/input.h"
 
 #include "modules/event.h"
 #include "modules/love.h"
@@ -24,8 +24,9 @@ int LoveEvent::Pump(lua_State * L)
                 std::string field = (m_event.type == LOVE_GAMEPADDOWN) ?
                         "gamepadpressed" : "gamepadreleased";
 
-                vargs.emplace_back(Variant("System", strlen("System")));
-                vargs.emplace_back(Variant(m_event.button.name));
+                vargs.emplace_back("System"s);
+                vargs.emplace_back(m_event.button.name);
+                //vargs[1].emplace<Variant::Type::STRING>();
 
                 message = new Message(field, vargs);
 
@@ -41,11 +42,11 @@ int LoveEvent::Pump(lua_State * L)
                 const char * field = (m_event.type == LOVE_TOUCHPRESS) ?
                          "touchpressed" : "touchreleased";
 
-                // args.push_back(Variant(1.0f));
-                // args.push_back(Variant((float)m_event.touch.x));
-                // args.push_back(Variant((float)m_event.touch.y));
+                args.emplace_back(1.0f);
+                args.emplace_back((float)m_event.touch.x);
+                args.emplace_back((float)m_event.touch.y);
 
-                // m_queue.push(new Message(field, args));
+                m_queue.push(new Message(field, args));
 
                 break;
             }

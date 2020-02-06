@@ -1,85 +1,37 @@
 #include "common/runtime.h"
-#include "common/variant.h"
 
-Variant::Variant()
+std::string Variant::GetTypeString() const
 {
-    this->type = Type::NIL;
+    Type type = (Type)this->index();
+
+    if (type == Type::BOOLEAN)
+        return "boolean";
+    else if (type == Type::NIL)
+        return "nil";
+    else if (type == Type::NUMBER)
+        return "number";
+    else if (type == Type::STRING)
+        return "string";
+    else if (type == Type::LOVE_OBJECT)
+        return "object";
+
+    return "unknown";
 }
 
-Variant::Variant(const char * string, size_t length)
+Variant::Type Variant::GetType() const
 {
-    if (length <= MAX_SMALL_STR_LENGTH)
-    {
-        this->type = Type::SMALL_STRING;
-        memcpy(data.smallString.string, string, length);
-        data.smallString.length = (u8)length;
-    }
-    else
-    {
-        this->type = Type::STRING;
+    Type retval = (Type)this->index();
 
-        char * str = new char[length + 1];
-        str[length] = '\0';
-
-        memcpy(str, this->data.string, length);
-    }
-}
-
-Variant::Variant(float number)
-{
-    this->type = Type::NUMBER;
-    this->data.number = number;
-}
-
-Variant::Variant(bool boolean)
-{
-    this->type = Type::BOOLEAN;
-    this->data.boolean = boolean;
-}
-
-Variant::Variant(void * lightuserdata_key)
-{
-    this->type = Type::LOVE_OBJECT;
-    this->data.loveObject = lightuserdata_key;
-}
-
-Variant::Variant(const std::string & string) : Variant(string.c_str(), string.length())
-{
-}
-
-Variant::Variant(Variant && v) : type(std::move(v.type)), data(std::move(v.data))
-{
-    v.type = Type::NIL;
-}
-
-Variant::Variant(const Variant & v) : type(v.type), data(v.data)
-{
-}
-
-Variant & Variant::operator = (const Variant & v)
-{
-    if (this->type == Type::STRING)
-        delete[] this->data.string;
-
-    this->type = v.type;
-    this->data = v.data;
-
-    return *this;
-}
-
-Variant::~Variant()
-{
-    if (this->type == Type::STRING)
-        delete[] this->data.string;
-
+    return retval;
 }
 
 Variant Variant::FromLua(lua_State * L, int n)
 {
-    size_t length;
-    const char * string;
+    std::string string;
     bool boolean;
     float number;
+
+    Variant retval;
 
     if (n < 0)
         n += lua_gettop(L) + 1;
@@ -87,44 +39,52 @@ Variant Variant::FromLua(lua_State * L, int n)
     switch (lua_type(L, n))
     {
         case LUA_TSTRING:
-            string = lua_tolstring(L, n, &length);
-            return Variant(string, length);
+            string = lua_tostring(L, n);
+            retval.emplace<Type::STRING>(string);
+            return retval;
         case LUA_TNIL:
-            return Variant();
+            retval.emplace<Type::NIL>(Nil());
+            return retval;
         case LUA_TBOOLEAN:
             boolean = lua_toboolean(L, n);
-            return Variant(boolean);
+            retval.emplace<Type::BOOLEAN>(boolean);
+            return retval;
         case LUA_TNUMBER:
             number = lua_tonumber(L, n);
-            return Variant(number);
+            retval.emplace<Type::NUMBER>(number);
+            return retval;
 
         break;
     }
 
-    Variant var;
-    var.type = Type::UNKNOWN;
-
-    return var;
+    retval.emplace<Type::UNKNOWN>(std::monostate {});
+    return retval;
 }
 
 void Variant::ToLua(lua_State * L) const
 {
-    switch (this->type)
+    std::string string;
+    void * love_object;
+    bool boolean;
+    float number;
+
+    switch (this->GetType())
     {
-        case Type::SMALL_STRING:
-            lua_pushlstring(L, data.smallString.string, data.smallString.length);
-            break;
         case Type::STRING:
-            lua_pushlstring(L, data.string, strlen(data.string));
+            string = std::get<(size_t)Type::STRING>(*this);
+            lua_pushlstring(L, string.c_str(), string.length());
             break;
         case Type::LOVE_OBJECT:
-            Luax::PushObject(L, data.loveObject);
+            love_object = std::get<(size_t)Type::LOVE_OBJECT>(*this);
+            Luax::PushObject(L, love_object);
             break;
         case Type::BOOLEAN:
-            lua_pushboolean(L, data.boolean);
+            boolean = std::get<(size_t)Type::BOOLEAN>(*this);
+            lua_pushboolean(L, boolean);
             break;
         case Type::NUMBER:
-            lua_pushnumber(L, data.number);
+            number = std::get<(size_t)Type::NUMBER>(*this);
+            lua_pushnumber(L, number);
             break;
         case Type::NIL:
         default:

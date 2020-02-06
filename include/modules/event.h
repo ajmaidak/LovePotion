@@ -23,14 +23,13 @@ class LoveEvent
     private:
         static inline bool m_touchDown = false;
         static inline LOVE_Event m_event;
+        static inline std::queue<Message *> m_queue = {};
 
         //Löve2D Functions
 
         static int Quit(lua_State * L);
 
         static bool Poll(Message *& message);
-
-        static inline std::queue<Message *> m_queue = {};
 
         //End Löve2D Functions
 };

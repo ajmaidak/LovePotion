@@ -338,18 +338,13 @@ function love.errorhandler(message)
         love.graphics.present()
     end
 
-    file = io.open("out.txt", "w")
-
     return function()
         love.event.pump()
 
         for name, a, b, c, d, e, f in love.event.poll() do
-            file:write(name .. ": " .. tostring(a) .. " " .. tostring(b))
-            file:flush()
-
             if name == "quit" then
                 return 1
-            elseif name == "gamepadpressed" and a == "start" then
+            elseif name == "gamepadpressed" and b == "start" then
                 return 1
             end
         end

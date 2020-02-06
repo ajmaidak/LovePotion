@@ -1,7 +1,7 @@
 #include "common/runtime.h"
 #include "modules/graphics.h"
 
-#include "common/display.h"
+#include "common/backend/display.h"
 
 int Graphics::Clear(lua_State * L)
 {
