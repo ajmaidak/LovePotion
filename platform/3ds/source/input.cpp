@@ -17,31 +17,63 @@ bool Input::PollEvent(LOVE_Event * event)
     hidScanInput();
 
     u32 keyDown = hidKeysDown();
-    for (int index = 0; index < 32; index++)
+
+    touchPosition touch;
+    hidTouchRead(&touch);
+
+    for (unsigned int index = 0; index < buttons.size(); index++)
     {
-        if (keyDown & BIT(index) && Input::IsValid(buttons[index]))
+        if (keyDown & BIT(index))
         {
-            event->type = LOVE_GAMEPADDOWN;
+            if (Input::IsValid(buttons[index]))
+            {
+                event->type = LOVE_GAMEPADDOWN;
 
-            event->button.id = index;
-            event->button.name = buttons[index];
+                event->button.id = index;
+                event->button.name = buttons[index];
 
-            return true;
+                return true;
+            }
+            else if (buttons[index] == "touch")
+            {
+                event->type = LOVE_TOUCHPRESS;
+
+                event->touch.id = 1;
+                event->touch.x = touch.px;
+                event->touch.y = touch.py;
+
+                m_lastTouch = { touch.px, touch.py };
+
+                return true;
+            }
         }
     }
 
 
     u32 keyUp = hidKeysUp();
-    for (int index = 0; index < 32; index++)
+    for (unsigned int index = 0; index < buttons.size(); index++)
     {
-        if (keyUp & BIT(index) && Input::IsValid(buttons[index]))
+        if (keyUp & BIT(index))
         {
-            event->type = LOVE_GAMEPADUP;
+            if (Input::IsValid(buttons[index]))
+            {
+                event->type = LOVE_GAMEPADUP;
 
-            event->button.id = keyDown;
-            event->button.name = buttons[index];
+                event->button.id = index;
+                event->button.name = buttons[index];
 
-            return true;
+                return true;
+            }
+            else
+            {
+                event->type = LOVE_TOUCHRELEASE;
+
+                event->touch.id = 1;
+                event->touch.x = m_lastTouch[0];
+                event->touch.y = m_lastTouch[1];
+
+                return true;
+            }
         }
     }
 

@@ -19,6 +19,11 @@ struct Module
     const luaL_reg * functions;
 };
 
+enum DoneAction
+{
+    DONE_QUIT
+};
+
 // std stuff
 #include <algorithm>
 #include <array>

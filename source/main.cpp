@@ -3,21 +3,41 @@
 
 #include "modules/love.h"
 #include "common/display.h"
-#include "modules/timer.h"
 
-enum DoneAction
+DoneAction Run_Love_Potion(lua_State * L, int & retval)
 {
-    RESTART = 0,
-    QUIT
-};
+    // preload love
+    Love::Preload(L, Love::Initialize, "love");
 
-DoneAction Run_Love_Potion(lua_State * L, int retval)
-{
+    // require "love"
+    lua_getglobal(L, "require");
+    lua_pushstring(L, "love");
+    lua_call(L, 1, 1);
+    lua_pop(L, 1);
+
+    // boot!
+    lua_getglobal(L, "require");
+    lua_pushstring(L, "love.boot");
+    lua_call(L, 1, 1);
+
+    // put this on a new lua thread
+    lua_newthread(L);
+    lua_pushvalue(L, -2);
+
+    /*
+    ** get what's on the stack
+    ** this will keep running until "quit"
+    */
     int stackpos = lua_gettop(L);
     while (lua_resume(L, nullptr, 0) == LUA_YIELD)
             lua_pop(L, lua_gettop(L) - stackpos);
 
-    return DoneAction::QUIT;
+    // custom quit value
+    if (lua_isnumber(L, -1))
+        retval = (int)lua_tonumber(L, -1);
+
+    // actually return quit
+    return DoneAction::DONE_QUIT;
 }
 
 int main(int argc, char * argv[])
@@ -33,36 +53,17 @@ int main(int argc, char * argv[])
     lua_State * L = luaL_newstate();
     luaL_openlibs(L);
 
-    // preload love
-    Love::Preload(L, Love::Initialize, "love");
-
-    // require "love"
-    lua_getglobal(L, "require");
-    lua_pushstring(L, "love");
-    lua_call(L, 1, 1);
-    lua_pop(L, 1);
-
-    // boot!
-    lua_getglobal(L, "require");
-    lua_pushstring(L, "love.boot");
-    lua_call(L, 1, 1);
-
-    lua_newthread(L);
-    lua_pushvalue(L, -2);
-
-    if (!Love::EnsureApplicationType(L))
-        return 1;
-
-    DoneAction done = DoneAction::QUIT;
+    DoneAction done = DoneAction::DONE_QUIT;
+    int retval = 0;
 
     while (appletMainLoop())
     {
-        done = Run_Love_Potion(L, 0);
-        if (done == DoneAction::QUIT)
+        done = Run_Love_Potion(L, retval);
+        if (done == DoneAction::DONE_QUIT)
             break;
     }
 
     Love::Exit(L);
 
-    return 0;
+    return retval;
 }

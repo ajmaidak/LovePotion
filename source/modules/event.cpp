@@ -7,12 +7,15 @@
 //Löve2D Functions
 #include "wrap_Event_lua.h"
 
-std::vector<Variant> args;
-
 int LoveEvent::Pump(lua_State * L)
 {
     while (Input::PollEvent(&m_event))
     {
+        Message * message = nullptr;
+
+        std::vector<Variant> vargs;
+        vargs.reserve(4);
+
         switch (m_event.type)
         {
             case LOVE_GAMEPADUP:
@@ -21,10 +24,10 @@ int LoveEvent::Pump(lua_State * L)
                 std::string field = (m_event.type == LOVE_GAMEPADDOWN) ?
                         "gamepadpressed" : "gamepadreleased";
 
-                args.push_back(Variant("System"));
-                args.push_back(Variant(m_event.button.name));
+                vargs.emplace_back(Variant("System", strlen("System")));
+                vargs.emplace_back(Variant(m_event.button.name));
 
-                m_queue.push(new Message(field, args));
+                message = new Message(field, vargs);
 
                 break;
             }
@@ -35,8 +38,14 @@ int LoveEvent::Pump(lua_State * L)
             case LOVE_TOUCHPRESS:
             case LOVE_TOUCHRELEASE:
             {
-                // const char * field = (m_event.type == LOVE_TOUCHPRESS) ?
-                //         "touchpressed" : "touchreleased";
+                const char * field = (m_event.type == LOVE_TOUCHPRESS) ?
+                         "touchpressed" : "touchreleased";
+
+                // args.push_back(Variant(1.0f));
+                // args.push_back(Variant((float)m_event.touch.x));
+                // args.push_back(Variant((float)m_event.touch.y));
+
+                // m_queue.push(new Message(field, args));
 
                 break;
             }
@@ -44,12 +53,25 @@ int LoveEvent::Pump(lua_State * L)
             default:
                 break;
         }
-    }
 
-    args.clear();
+        if (message)
+            m_queue.push(message);
+
+    }
 
     return 0;
 }
+
+bool LoveEvent::Poll(Message *& message)
+{
+    if (m_queue.empty())
+        return false;
+
+    message = m_queue.front();
+    m_queue.pop();
+
+    return true;
+};
 
 int LoveEvent::Poll_I(lua_State * L)
 {
@@ -89,9 +111,9 @@ int LoveEvent::Register(lua_State * L)
     luaL_Reg reg[] =
     {
         { "poll_i", Poll_I },
-        { "pump", Pump },
-        { "quit", Quit },
-        { 0,      0    }
+        { "pump",   Pump   },
+        { "quit",   Quit   },
+        { 0,        0      }
     };
 
     Module module;
@@ -101,9 +123,9 @@ int LoveEvent::Register(lua_State * L)
     int ret = Luax::RegisterModule(L, module);
 
     if (luaL_loadbuffer(L, (const char *)wrap_event_lua, wrap_event_lua_size, "wrap_Event.lua") == 0)
-		lua_call(L, 0, 0);
-	else
-		lua_error(L);
+        lua_call(L, 0, 0);
+    else
+        lua_error(L);
 
-	return ret;
+    return ret;
 }

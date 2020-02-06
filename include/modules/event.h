@@ -16,6 +16,8 @@ class LoveEvent
 
         static int Poll_I(lua_State * L);
 
+        static int Poll(lua_State * L);
+
         static int Register(lua_State * L);
 
     private:
@@ -26,15 +28,7 @@ class LoveEvent
 
         static int Quit(lua_State * L);
 
-        static inline bool Poll(Message *& message) {
-            if (m_queue.empty())
-                return false;
-
-            message = m_queue.front();
-            m_queue.pop();
-
-            return true;
-        };
+        static bool Poll(Message *& message);
 
         static inline std::queue<Message *> m_queue = {};
 

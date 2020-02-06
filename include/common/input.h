@@ -17,6 +17,13 @@ struct GamePadAxis
     float value;
 };
 
+struct Touch
+{
+    int id;
+    int x;
+    int y;
+};
+
 struct LOVE_Event
 {
     int type;
@@ -24,6 +31,7 @@ struct LOVE_Event
 
     GamePadButton button;
     GamePadAxis axis;
+    Touch touch;
 };
 
 enum LOVE_EventType
@@ -43,6 +51,7 @@ class Input
 
     private:
         static inline StickPosition m_lastPosition[2] = {};
+        static inline std::array<int, 2> m_lastTouch = { 0 };
 
         static inline bool IsValid(const std::string & name) {
             return !name.empty() && name != "touch";

@@ -58,6 +58,9 @@ Variant::Variant(const Variant & v) : type(v.type), data(v.data)
 
 Variant & Variant::operator = (const Variant & v)
 {
+    if (this->type == Type::STRING)
+        delete[] this->data.string;
+
     this->type = v.type;
     this->data = v.data;
 
@@ -75,6 +78,8 @@ Variant Variant::FromLua(lua_State * L, int n)
 {
     size_t length;
     const char * string;
+    bool boolean;
+    float number;
 
     if (n < 0)
         n += lua_gettop(L) + 1;
@@ -86,6 +91,12 @@ Variant Variant::FromLua(lua_State * L, int n)
             return Variant(string, length);
         case LUA_TNIL:
             return Variant();
+        case LUA_TBOOLEAN:
+            boolean = lua_toboolean(L, n);
+            return Variant(boolean);
+        case LUA_TNUMBER:
+            number = lua_tonumber(L, n);
+            return Variant(number);
 
         break;
     }

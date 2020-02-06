@@ -181,6 +181,21 @@ function love.createhandlers()
                 return love.textinput(text)
             end
         end,
+        touchpressed = function(id, x, y, pressure)
+            if love.touchpressed then
+                return love.touchpressed(id, x, y, pressure)
+            end
+        end,
+        touchreleased = function(id, x, y, pressure)
+            if love.touchreleased then
+                return love.touchreleased(id, x, y, pressure)
+            end
+        end,
+        touchmoved = function(id, x, y, pressure)
+            if love.touchmoved then
+                return love.touchmoved(id, x, y, pressure)
+            end
+        end,
         focus = function (focus)
             if love.focus then
                 return love.focus(focus)
@@ -323,12 +338,19 @@ function love.errorhandler(message)
         love.graphics.present()
     end
 
+    file = io.open("out.txt", "w")
+
     return function()
         love.event.pump()
 
-        for event, a, b, c in love.event.poll() do
-            if event == "gamepadpressed" and a == "start" then
-                love.event.quit()
+        for name, a, b, c, d, e, f in love.event.poll() do
+            file:write(name .. ": " .. tostring(a) .. " " .. tostring(b))
+            file:flush()
+
+            if name == "quit" then
+                return 1
+            elseif name == "gamepadpressed" and a == "start" then
+                return 1
             end
         end
 
@@ -436,6 +458,7 @@ return function()
 
         local main
         result, main = xpcall(love.run, deferErrhand)
+
         if result then
             func = main
         end
@@ -455,7 +478,3 @@ return function()
 
     return 1
 end
--- If something went wrong, the errhand redefines the love.update and love.draw
--- functions which are managed by the love.run function.
-
--- love.run is handled in `main.cpp`.

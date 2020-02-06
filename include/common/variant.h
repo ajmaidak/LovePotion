@@ -1,38 +1,25 @@
 #pragma once
 
-enum Type
-{
-    UNKNOWN = 0,
-    BOOLEAN,
-    LOVE_OBJECT,
-    NIL,
-    NUMBER,
-    SMALL_STRING,
-    STRING
-};
-
-#define MAX_SMALL_STR_LENGTH 15
+// TODO: extend via std::variant<const std::string &, float, void *>
+// this will allow use of stdlib variant that does the same stuff
+// thanks @piepie
 
 class Variant
 {
     public:
-        Variant();
-        Variant(const char * string, size_t length);
-        Variant(const std::string & string);
-        Variant(void * userdata);
-        Variant(bool boolean);
-        Variant(float number);
+        static const int MAX_SMALL_STR_LENGTH = 15;
 
-        Variant(Variant &&);
-        Variant(const Variant & v);
-        Variant & operator = (const Variant & v);
+        enum Type
+        {
+            UNKNOWN = 0,
+            BOOLEAN,
+            LOVE_OBJECT,
+            NIL,
+            NUMBER,
+            SMALL_STRING,
+            STRING
+        };
 
-        ~Variant();
-
-        static Variant FromLua(lua_State * L, int n);
-        void ToLua(lua_State * L) const;
-
-    private:
         union Data
         {
             bool boolean;
@@ -49,6 +36,26 @@ class Variant
             void * loveObject;
         };
 
+        Variant();
+        Variant(bool boolean);
+        Variant(float number);
+        Variant(const char * string, size_t length);
+        Variant(const std::string & string);
+        Variant(void * lightuserdata);
+
+        Variant(const Variant & v);
+        Variant(Variant &&);
+        ~Variant();
+
+        Variant & operator = (const Variant & v);
+
+        Type GetType() const { return type; }
+        const Data & GetData() const { return data; }
+
+        static Variant FromLua(lua_State * L, int n);
+        void ToLua(lua_State * L) const;
+
+    private:
         Type type;
         Data data;
 };
