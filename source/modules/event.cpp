@@ -42,11 +42,11 @@ int LoveEvent::Pump(lua_State * L)
                 const char * field = (m_event.type == LOVE_TOUCHPRESS) ?
                          "touchpressed" : "touchreleased";
 
-                args.emplace_back(1.0f);
-                args.emplace_back((float)m_event.touch.x);
-                args.emplace_back((float)m_event.touch.y);
+                vargs.emplace_back(1.0f);
+                vargs.emplace_back((float)m_event.touch.x);
+                vargs.emplace_back((float)m_event.touch.y);
 
-                m_queue.push(new Message(field, args));
+                m_queue.push(new Message(field, vargs));
 
                 break;
             }

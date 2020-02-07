@@ -1,16 +1,20 @@
 #include "common/runtime.h"
 #include "common/backend/input.h"
 
-std::vector<std::string> buttons = {
-    "a", "b", "back", "start",
-    "dpright", "dpleft", "dpup", "dpdown",
-    "rightshoulder", "leftshoulder", "x", "y",
-    "", "", "zl", "zr",
-    "", "", "", "",
-    "touch", "", "", "",
-    "", "", "", "",
-    "", "", "", ""
-};
+std::vector<std::string> Input::GetButtons()
+{
+    return
+    {
+        "a", "b", "back", "start",
+        "dpright", "dpleft", "dpup", "dpdown",
+        "rightshoulder", "leftshoulder", "x", "y",
+        "", "", "zl", "zr",
+        "", "", "", "",
+        "touch", "", "", "",
+        "", "", "", "",
+        "", "", "", ""
+    };
+}
 
 bool Input::PollEvent(LOVE_Event * event)
 {
@@ -20,6 +24,8 @@ bool Input::PollEvent(LOVE_Event * event)
 
     touchPosition touch;
     hidTouchRead(&touch);
+
+    auto buttons = Input::GetButtons();
 
     for (unsigned int index = 0; index < buttons.size(); index++)
     {

@@ -48,6 +48,7 @@ class Input
 {
     public:
         static bool PollEvent(LOVE_Event * event);
+        static std::vector<std::string> GetButtons();
 
     private:
         static inline StickPosition m_lastPosition[2] = {};

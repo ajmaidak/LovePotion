@@ -1,5 +1,5 @@
 #include "common/runtime.h"
-#include "common/object.h"
+#include "objects/object.h"
 
 Object::Object(const std::string & type)
 {
