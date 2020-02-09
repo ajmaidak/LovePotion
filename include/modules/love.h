@@ -12,9 +12,6 @@ class Love
 
         static int GetVersion(lua_State * L);
 
-        static int Run(lua_State * L);
-
-        static bool IsRunning();
         static int Quit(lua_State * L);
 
         // Various Utility Functions
@@ -26,7 +23,6 @@ class Love
         static int Preload(lua_State * L, lua_CFunction func, const char * name);
 
         static int GetRegistry(lua_State * L, int registry);
-        static void RegObject(lua_State * L, int index, void * object);
         static void DeRegObject(lua_State * L, void * object);
 
         static void PushObject(lua_State * L, void * object);
@@ -41,7 +37,11 @@ class Love
             void (* close)(void);
         } Module;
 
+        typedef struct {
+            int (* reg)(lua_State * L);
+        } Class;
+
     private:
-        static inline bool m_quit = false;
         static inline std::array<Love::Module, 15> m_modules = { nullptr };
+        static inline std::array<Love::Class, 8> m_classes = { nullptr };
 };

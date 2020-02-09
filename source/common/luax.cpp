@@ -55,6 +55,22 @@ int Luax::RegisterModule(lua_State * L, const Module & module)
 	return 1;
 }
 
+/*
+** @func RegObject
+** Register a pointer to <object> in the Registry
+** given the index of it on the stack and its light userdata key.
+*/
+void Luax::RegisterObject(lua_State * L, int index, void * object)
+{
+    Love::GetRegistry(L, 0);
+
+    lua_pushlightuserdata(L, object);
+    lua_pushvalue(L, index);
+    lua_settable(L, -3);
+
+    lua_setfield(L, LUA_REGISTRYINDEX, "_loveobjects");
+}
+
 void Luax::PushObject(lua_State * L, void * object)
 {
     if (!object)

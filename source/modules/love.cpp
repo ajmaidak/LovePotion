@@ -12,6 +12,8 @@
 #include "modules/timer.h"
 #include "modules/window.h"
 
+#include "objects/gamepad/wrap_gamepad.h"
+
 #include "boot_lua.h"
 
 /*
@@ -68,14 +70,27 @@ int Love::Initialize(lua_State * L)
         { 0 }
     }};
 
+    m_classes =
+    {{
+        { Wrap_Gamepad::Register },
+        { 0 }
+    }};
+
     // preload all the modules
     for (int i = 0; m_modules[i].name  != nullptr; i++)
         Love::Preload(L, m_modules[i].reg, m_modules[i].name);
 
     Love::Preload(L, luaopen_luautf8, "utf8");
+
     Love::Preload(L, Boot, "love.boot");
     // love_preload(L, LuaSocket::InitSocket, "socket");
     // love_preload(L, LuaSocket::InitHTTP,   "socket.http");
+
+    for (int i = 0; m_classes[i].reg; i++)
+    {
+        m_classes[i].reg(L);
+        lua_pop(L, 1);
+    }
 
     return 1;
 }
@@ -93,28 +108,6 @@ int Love::Boot(lua_State * L)
 }
 
 /*
-** @func Run
-** Runs the framework's main loop
-** Timer step, update, draw
-**
-** TO DO: commonize display drawing
-** how? who knows, it'll be hard
-*/
-// int Love::Run(lua_State * L)
-// {
-//     luaL_dostring(L, LOVE_TIMER_STEP);
-
-//     if (luaL_dostring(L, LOVE_UPDATE))
-//         luaL_error(L, "%s", lua_tostring(L, -1));
-
-//     Display::Draw(L);
-
-//     Timer::Tick();
-
-//     return 0;
-// }
-
-/*
 ** @func GetVersion
 ** Return the version for the framework.
 */
@@ -126,28 +119,6 @@ int Love::GetVersion(lua_State * L)
     lua_pushstring(L, Version::CODENAME);
 
     return 4;
-}
-
-/*
-** @func IsRunning
-** Checks if the framework is running.
-** @ret boolean
-** Is the framework running?
-*/
-bool Love::IsRunning()
-{
-    return m_quit == false;
-}
-
-/*
-** @func Quit
-** Quits the framework
-*/
-int Love::Quit(lua_State * L)
-{
-    m_quit = true;
-
-    return 0;
 }
 
 //------------------------------//
@@ -238,22 +209,6 @@ void Love::DeRegObject(lua_State * L, void * object)
 
     lua_pushlightuserdata(L, object);
     lua_pushnil(L);
-    lua_settable(L, -3);
-
-    lua_setfield(L, LUA_REGISTRYINDEX, "_loveobjects");
-}
-
-/*
-** @func RegObject
-** Register a pointer to <object> in the Registry
-** given the index of it on the stack and its light userdata key.
-*/
-void Love::RegObject(lua_State * L, int index, void * object)
-{
-    Love::GetRegistry(L, 0);
-
-    lua_pushlightuserdata(L, object);
-    lua_pushvalue(L, index);
     lua_settable(L, -3);
 
     lua_setfield(L, LUA_REGISTRYINDEX, "_loveobjects");

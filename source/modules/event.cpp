@@ -26,7 +26,6 @@ int LoveEvent::Pump(lua_State * L)
 
                 vargs.emplace_back("System"s);
                 vargs.emplace_back(m_event.button.name);
-                //vargs[1].emplace<Variant::Type::STRING>();
 
                 message = new Message(field, vargs);
 

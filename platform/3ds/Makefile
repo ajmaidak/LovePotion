@@ -31,26 +31,18 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-EXT_LIBS	:= $(sort $(dir $(wildcard ../../libraries/*/)))
-
 TARGET		:=	LovePotion
 BUILD		:=	build
 
-SOURCES		:=	../../source \
-				../../source/common \
-				../../source/modules \
-				../../source/objects/gamepad \
-				$(EXT_LIBS) \
+SOURCES		?=	${LOVE_SOURCES} \
+				${LOVE_LIBRARIES} \
 				source
 
 DATA		:=	../../source/scripts \
 				source/scripts \
 
-INCLUDES	:=	../../include \
-				../../include/common \
-				../../include/modules \
-				../../include/objects/gamepad \
-				$(EXT_LIBS) \
+INCLUDES	?=	${LOVE_INCLUDES} \
+				${LOVE_LIBRARIES} \
 				include
 
 

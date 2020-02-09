@@ -1,9 +1,11 @@
 #pragma once
 
+#include "objects/object.h"
+
 class Gamepad : public Object
 {
     public:
-        Gamepad(size_t id);
+        Gamepad(size_t id = 0);
 
         std::string GetName();
 
