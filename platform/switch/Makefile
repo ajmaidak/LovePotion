@@ -33,28 +33,16 @@ include $(DEVKITPRO)/libnx/switch_rules
 TARGET		:=    LovePotion
 BUILD		:=    build
 
-EXT_LIBS	:= $(sort $(dir $(wildcard ../../libraries/*/)))
-INC_OBJS	:= $(sort $(dir $(wildcard include/objects/*/)))
-SRC_OBJS	:= $(sort $(dir $(wildcard source/objects/*/)))
+SOURCES		?=	${LOVE_SOURCES} \
+				${LOVE_LIBRARIES} \
+				source
 
-SOURCES			:=	$(shell find ../../source -type d) \
-					source \
-					source/common \
-					source/modules \
-					$(SRC_OBJS) \
-					$(EXT_LIBS) \
-					source/socket
+DATA		:=	../../source/scripts \
+				source/scripts \
 
-DATA			:=  ../../source/scripts \
-					source/scripts/nogame
-
-INCLUDES		:=	$(shell find ../../include -type d) \
-					include \
-					include/common \
-					include/modules \
-					$(INC_OBJS) \
-					$(EXT_LIBS) \
-					include/socket
+INCLUDES	?=	${LOVE_INCLUDES} \
+				${LOVE_LIBRARIES} \
+				include
 
 EXEFS_SRC    := exefs_src
 #ROMFS        := game

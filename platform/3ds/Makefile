@@ -45,7 +45,6 @@ INCLUDES	?=	${LOVE_INCLUDES} \
 				${LOVE_LIBRARIES} \
 				include
 
-
 #GRAPHICS	:=	gfx
 #GFXBUILD	:=	$(BUILD)
 #ROMFS		:=	romfs

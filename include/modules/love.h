@@ -17,12 +17,13 @@ class Love
         // Various Utility Functions
         static void InitConstants(lua_State * L);
 
-        static bool EnsureApplicationType(lua_State * L);
+        static int EnsureApplicationType(lua_State * L);
 
         static void GetField(lua_State * L, const char * field);
         static int Preload(lua_State * L, lua_CFunction func, const char * name);
 
-        static int GetRegistry(lua_State * L, int registry);
+        static int InsistRegistry(lua_State * L, Registry registry);
+        static int GetRegistry(lua_State * L, Registry registry);
         static void DeRegObject(lua_State * L, void * object);
 
         static void PushObject(lua_State * L, void * object);
@@ -37,11 +38,6 @@ class Love
             void (* close)(void);
         } Module;
 
-        typedef struct {
-            int (* reg)(lua_State * L);
-        } Class;
-
     private:
         static inline std::array<Love::Module, 15> m_modules = { nullptr };
-        static inline std::array<Love::Class, 8> m_classes = { nullptr };
 };

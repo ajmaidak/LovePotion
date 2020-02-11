@@ -66,6 +66,7 @@ int Window::Register(lua_State * L)
     Module module;
     module.name = "window";
     module.functions = reg;
+    module.types = 0;
 
     return Luax::RegisterModule(L, module);
 }

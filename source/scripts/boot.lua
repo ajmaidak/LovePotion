@@ -368,7 +368,6 @@ local function error_printer(msg, layer)
 
     file = io.open("crash.txt", "w")
     file:write(trace)
-    file:flush()
     file:close()
 end
 
@@ -395,7 +394,7 @@ function love.boot()
     -- Modules to load
     local modules =
     {
-        "window", "event", "timer", "graphics"
+        "window", "event", "joystick", "timer", "graphics"
     }
 
     -- Load them all!
@@ -447,8 +446,16 @@ return function()
     local function earlyInit()
         local result = xpcall(love.boot, error_printer)
 
+        -- quit immediately
         if not result then
             return 1
+        end
+
+        result = xpcall(love._ensureApplicationType, deferErrhand)
+
+        -- let errhand take over
+        if not result then
+            return
         end
 
         local main

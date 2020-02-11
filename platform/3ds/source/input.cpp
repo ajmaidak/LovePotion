@@ -8,11 +8,11 @@ std::vector<std::string> Input::GetButtons()
         "a", "b", "back", "start",
         "dpright", "dpleft", "dpup", "dpdown",
         "rightshoulder", "leftshoulder", "x", "y",
-        "", "", "zl", "zr",
+        "", "", "KEY_ZL", "KEY_ZR",
         "", "", "", "",
         "touch", "", "", "",
-        "", "", "", "",
-        "", "", "", ""
+        "KEY_CSTICK_RIGHT", "KEY_CSTICK_LEFT", "KEY_CSTICK_UP", "KEY_CSTICK_DOWN",
+        "KEY_CPAD_RIGHT", "KEY_CPAD_LEFT", "KEY_CPAD_UP", "KEY_CPAD_DOWN"
     };
 }
 
@@ -20,7 +20,7 @@ bool Input::PollEvent(LOVE_Event * event)
 {
     hidScanInput();
 
-    u32 keyDown = hidKeysDown();
+    m_keyDown = hidKeysDown();
 
     touchPosition touch;
     hidTouchRead(&touch);
@@ -29,12 +29,13 @@ bool Input::PollEvent(LOVE_Event * event)
 
     for (unsigned int index = 0; index < buttons.size(); index++)
     {
-        if (keyDown & BIT(index))
+        if (m_keyDown & BIT(index))
         {
             if (Input::IsValid(buttons[index]))
             {
                 event->type = LOVE_GAMEPADDOWN;
 
+                event->button.which = 0;
                 event->button.id = index;
                 event->button.name = buttons[index];
 
@@ -56,15 +57,16 @@ bool Input::PollEvent(LOVE_Event * event)
     }
 
 
-    u32 keyUp = hidKeysUp();
+    m_keyUp = hidKeysUp();
     for (unsigned int index = 0; index < buttons.size(); index++)
     {
-        if (keyUp & BIT(index))
+        if (m_keyUp & BIT(index))
         {
             if (Input::IsValid(buttons[index]))
             {
                 event->type = LOVE_GAMEPADUP;
 
+                event->button.which = 0;
                 event->button.id = index;
                 event->button.name = buttons[index];
 
@@ -82,6 +84,8 @@ bool Input::PollEvent(LOVE_Event * event)
             }
         }
     }
+
+    m_keyHeld = hidKeysHeld();
 
     // circlePosition position;
     // hidCircleRead(&position);

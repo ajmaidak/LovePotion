@@ -7,8 +7,6 @@ extern "C"
     #include <lauxlib.h>
 
     #include <compat-5.3.h>
-    #include <luaobj.h>
-
     #include <lutf8lib.h>
 }
 
@@ -17,6 +15,7 @@ struct Module
 {
     const char * name;
     const luaL_reg * functions;
+    const lua_CFunction * types;
 };
 
 struct Nil {};
@@ -31,6 +30,9 @@ enum DoneAction
 #include <array>
 #include <math.h>
 #include <queue>
+#include <map>
+#include <atomic>
+#include <bitset>
 
 #include <string>
 using namespace std::string_literals;
@@ -39,7 +41,10 @@ using namespace std::string_literals;
 #include <vector>
 #include <variant>
 
+#include "common/strongref.h"
+#include "common/type.h"
 #include "common/defines.h"
+#include "common/proxy.h"
 
 #include "common/logger.h"
 #include "common/luax.h"

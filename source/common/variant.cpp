@@ -1,5 +1,57 @@
 #include "common/runtime.h"
 
+Proxy * Variant::TryExtractProxy(lua_State * L, size_t index)
+{
+    Proxy * proxy = (Proxy *)lua_touserdata(L, index);
+
+    if (!proxy || !proxy->type)
+        return nullptr;
+
+    if (dynamic_cast<Object *>(proxy->object) != nullptr)
+        return proxy;
+
+    return nullptr;
+}
+
+Variant::~Variant()
+{
+    Type self = this->GetType();
+    Proxy selfProxy;
+
+    if (self == Type::LOVE_OBJECT)
+    {
+        selfProxy = std::get<(size_t)Type::LOVE_OBJECT>(*this);
+
+        if (selfProxy.object != nullptr)
+            selfProxy.object->Release();
+    }
+}
+
+Variant & Variant::operator=(const Variant & v)
+{
+    Type other = v.GetType();
+
+    Proxy otherProxy;
+    if (other == Type::LOVE_OBJECT)
+    {
+        otherProxy = std::get<(size_t)Type::LOVE_OBJECT>(*this);
+        otherProxy.object->Retain();
+    }
+
+    Type self = this->GetType();
+    Proxy selfProxy;
+
+    if (self == Type::LOVE_OBJECT)
+    {
+        selfProxy = std::get<(size_t)Type::LOVE_OBJECT>(*this);
+        selfProxy.object->Release();
+    }
+
+    std::variant<std::monostate, bool, Proxy, void *, Nil, float, std::string>::operator=(std::forward<const Variant &>(v));
+
+    return *this;
+}
+
 std::string Variant::GetTypeString() const
 {
     Type type = (Type)this->index();
@@ -14,6 +66,8 @@ std::string Variant::GetTypeString() const
         return "string";
     else if (type == Type::LOVE_OBJECT)
         return "object";
+    else if (type == Type::LUSERDATA)
+        return "light userdata";
 
     return "unknown";
 }
@@ -64,9 +118,10 @@ Variant Variant::FromLua(lua_State * L, int n)
 void Variant::ToLua(lua_State * L) const
 {
     std::string string;
-    void * love_object;
+    Proxy proxy;
     bool boolean;
     float number;
+    void * lightUserdata;
 
     switch (this->GetType())
     {
@@ -75,8 +130,8 @@ void Variant::ToLua(lua_State * L) const
             lua_pushlstring(L, string.c_str(), string.length());
             break;
         case Type::LOVE_OBJECT:
-            love_object = std::get<(size_t)Type::LOVE_OBJECT>(*this);
-            Luax::PushObject(L, love_object);
+            proxy = std::get<(size_t)Type::LOVE_OBJECT>(*this);
+            Luax::PushType(L, *proxy.type, proxy.object);
             break;
         case Type::BOOLEAN:
             boolean = std::get<(size_t)Type::BOOLEAN>(*this);
@@ -86,6 +141,9 @@ void Variant::ToLua(lua_State * L) const
             number = std::get<(size_t)Type::NUMBER>(*this);
             lua_pushnumber(L, number);
             break;
+        case Type::LUSERDATA:
+            lightUserdata = std::get<(size_t)Type::LUSERDATA>(*this);
+            lua_pushlightuserdata(L, lightUserdata);
         case Type::NIL:
         default:
             lua_pushnil(L);

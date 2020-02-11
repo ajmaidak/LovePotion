@@ -2,7 +2,6 @@
 #include "common/backend/input.h"
 
 #include "modules/event.h"
-#include "modules/love.h"
 
 //Löve2D Functions
 #include "wrap_Event_lua.h"
@@ -12,6 +11,9 @@ int LoveEvent::Pump(lua_State * L)
     while (Input::PollEvent(&m_event))
     {
         Message * message = nullptr;
+
+        Gamepad * gamepad = nullptr;
+        love::Type * joystickType = &Gamepad::type;
 
         std::vector<Variant> vargs;
         vargs.reserve(4);
@@ -24,7 +26,12 @@ int LoveEvent::Pump(lua_State * L)
                 std::string field = (m_event.type == LOVE_GAMEPADDOWN) ?
                         "gamepadpressed" : "gamepadreleased";
 
-                vargs.emplace_back("System"s);
+                gamepad = Joystick::GetJoystickFromID(m_event.button.which);
+
+                if (!gamepad)
+                    break;
+
+                vargs.emplace_back(Proxy { joystickType, gamepad });
                 vargs.emplace_back(m_event.button.name);
 
                 message = new Message(field, vargs);
@@ -56,7 +63,6 @@ int LoveEvent::Pump(lua_State * L)
 
         if (message)
             m_queue.push(message);
-
     }
 
     return 0;
@@ -119,6 +125,7 @@ int LoveEvent::Register(lua_State * L)
     Module module;
     module.name = "event";
     module.functions = reg;
+    module.types = 0;
 
     int ret = Luax::RegisterModule(L, module);
 

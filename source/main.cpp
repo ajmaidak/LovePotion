@@ -44,7 +44,10 @@ int main(int argc, char * argv[])
 {
     Logger::Initialize(1);
 
-    char * path = (argc == 2) ? argv[1] : argv[0];
+    std::string path;
+    if (argc > 0)
+        path = (argc == 2) ? argv[1] : argv[0];
+
     Assets::Initialize(path);
 
     Display::Initialize();

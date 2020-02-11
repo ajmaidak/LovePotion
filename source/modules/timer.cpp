@@ -92,6 +92,7 @@ int Timer::Register(lua_State * L)
     Module module;
     module.name = "timer";
     module.functions = reg;
+    module.types = 0;
 
     return Luax::RegisterModule(L, module);
 }

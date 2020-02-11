@@ -9,6 +9,7 @@
 #include "modules/event.h"
 #include "modules/filesystem.h"
 #include "modules/graphics.h"
+#include "modules/joystick.h"
 #include "modules/timer.h"
 #include "modules/window.h"
 
@@ -22,6 +23,8 @@
 */
 int Love::Initialize(lua_State * L)
 {
+    Luax::InsistPinnedThread(L);
+
     Luax::InsistGlobal(L, "love");
 
     //--------------CONSTANTS----------------//
@@ -55,8 +58,13 @@ int Love::Initialize(lua_State * L)
     lua_pushstring(L, Version::CODENAME);
     lua_setfield(L, -2, "_version_codename");
 
+    // End Constants -- namespace functions //
+
     lua_pushcfunction(L, GetVersion);
     lua_setfield(L, -2, "getVersion");
+
+    lua_pushcfunction(L, EnsureApplicationType);
+    lua_setfield(L, -2, "_ensureApplicationType");
 
     //---------------------------------------//
 
@@ -65,14 +73,9 @@ int Love::Initialize(lua_State * L)
         { "love.event",      LoveEvent::Register,  NULL          },
         { "love.graphics",   Graphics::Register,   NULL          },
         { "love.filesystem", Filesystem::Register, NULL          },
+        { "love.joystick",   Joystick::Register,   NULL          },
         { "love.timer",      Timer::Register,      NULL          },
         { "love.window",     Window::Register,     Display::Exit },
-        { 0 }
-    }};
-
-    m_classes =
-    {{
-        { Wrap_Gamepad::Register },
         { 0 }
     }};
 
@@ -85,12 +88,6 @@ int Love::Initialize(lua_State * L)
     Love::Preload(L, Boot, "love.boot");
     // love_preload(L, LuaSocket::InitSocket, "socket");
     // love_preload(L, LuaSocket::InitHTTP,   "socket.http");
-
-    for (int i = 0; m_classes[i].reg; i++)
-    {
-        m_classes[i].reg(L);
-        lua_pop(L, 1);
-    }
 
     return 1;
 }
@@ -128,28 +125,21 @@ int Love::GetVersion(lua_State * L)
 ** Checks for Title Takeover on atmosphère
 ** Does absolutely nothing on 3DS. Ran at boot once.
 */
-bool Love::EnsureApplicationType(lua_State * L)
+int Love::EnsureApplicationType(lua_State * L)
 {
     #if defined(__SWITCH__)
         AppletType type = appletGetAppletType();
 
-        bool isApplicationType = type != AppletType_Application &&
-                                 type != AppletType_SystemApplication;
+        bool isApplicationType = (type != AppletType_Application ||
+                                  type != AppletType_SystemApplication);
 
         if (isApplicationType)
-            return true;
+            return 0;
 
-        Love::GetField(L, "errorhandler");
-        if (!lua_isnoneornil(L, -1))
-        {
-            lua_pushstring(L, TITLE_TAKEOVER_ERROR);
-            lua_pcall(L, 1, 0, 0);
-        }
-
-        return false;
+        return luaL_error(L, TITLE_TAKEOVER_ERROR);
     #endif
 
-    return true;
+    return 0;
 }
 
 /*
@@ -182,17 +172,35 @@ int Love::Preload(lua_State * L, lua_CFunction func, const char * name)
 }
 
 /*
+** @func InsistRegistry
+** Creates the @registry if necessary, pushing it to the stack
+*/
+int Love::InsistRegistry(lua_State * L, Registry registry)
+{
+    switch (registry)
+    {
+        case Registry::OBJECTS:
+            Luax::Insist(L, LUA_REGISTRYINDEX, "_loveobjects");
+            return 1;
+        case Registry::UNKNOWN:
+        default:
+            return luaL_error(L, "Attempted to use invalid registry");
+    }
+}
+
+/*
 ** @func GetRegistry
 ** Gets the field for the Lua registry index <registry>.
 ** This is necessary to store userdata and push it later.
 */
-int Love::GetRegistry(lua_State * L, int registry)
+int Love::GetRegistry(lua_State * L, Registry registry)
 {
     switch (registry)
     {
-        case 0:
+        case Registry::OBJECTS:
             lua_getfield(L, LUA_REGISTRYINDEX, "_loveobjects");
             return 1;
+        case Registry::UNKNOWN:
         default:
             return luaL_error(L, "Attempted to use invalid registry");
     }
@@ -205,7 +213,7 @@ int Love::GetRegistry(lua_State * L, int registry)
 */
 void Love::DeRegObject(lua_State * L, void * object)
 {
-    Love::GetRegistry(L, 0);
+    Love::GetRegistry(L, Registry::OBJECTS);
 
     lua_pushlightuserdata(L, object);
     lua_pushnil(L);

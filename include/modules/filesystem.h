@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "objects/file/wrap_file.h"
+
 class Filesystem
 {
     public:

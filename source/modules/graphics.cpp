@@ -123,6 +123,7 @@ int Graphics::Register(lua_State * L)
     Module module;
     module.name = "graphics";
     module.functions = reg;
+    module.types = 0;
 
     return Luax::RegisterModule(L, module);
 }

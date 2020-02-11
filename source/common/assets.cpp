@@ -4,9 +4,9 @@
 #include <unistd.h>
 #include <dirent.h>
 
-void Assets::Initialize(char * path)
+void Assets::Initialize(const std::string & path)
 {
-    unsigned int gameAssets = Assets::GetLocation(path);
+    size_t gameAssets = Assets::GetLocation(path);
 
     switch(gameAssets)
     {
@@ -22,9 +22,12 @@ void Assets::Initialize(char * path)
             break;
         }
         case 1:
-            romfsMountFromFsdev(path, 0, "romfs");
+        {
+            const char * romfs_path = path.c_str();
+            romfsMountFromFsdev(romfs_path, 0, "romfs");
 
             break;
+        }
         default:
             break;
     }
@@ -32,14 +35,14 @@ void Assets::Initialize(char * path)
     chdir(location.c_str());
 }
 
-unsigned int Assets::GetLocation(char * path)
+size_t Assets::GetLocation(const std::string & path)
 {
-    if (!path)
+    if (path.empty())
         return 0;
 
-    const char * ext = strrchr(path, '.');
+    bool isROMFS = (path.substr(path.find_last_of(".")) == ".lpx");
 
-    if (strncmp(ext, ".lpx", 4) != 0)
+    if (isROMFS)
     {
         Result rc = romfsInit();
 

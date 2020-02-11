@@ -7,10 +7,10 @@ class Assets
 {
     public:
         Assets() = delete;
-        static void Initialize(char * path);
+        static void Initialize(const std::string & path);
 
     private:
         static inline std::string location = "romfs:/";
 
-        static unsigned int GetLocation(char * path);
+        static size_t GetLocation(const std::string & path);
 };

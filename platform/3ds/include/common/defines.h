@@ -7,6 +7,8 @@
 
 #define romfsMountFromFsdev(path, offset, name)
 
+#define MAX_GAMEPADS 1
+
 typedef circlePosition StickPosition;
 
 typedef C3D_RenderTarget Renderer;

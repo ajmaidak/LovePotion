@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/love.h"
 
+#include <cstddef>
+
 /*
 ** @func DoBuffer
 ** Runs a specified Lua Buffer
@@ -11,23 +13,65 @@ int Luax::DoBuffer(lua_State * L, const char * buffer, size_t size, const char *
 }
 
 /*
+** @func Insist
+** Make sure @index with @key exists
+*/
+int Luax::Insist(lua_State * L, int index, const char * key)
+{
+    if (index < 0 && index > LUA_REGISTRYINDEX)
+        index += lua_gettop(L) + 1;
+
+    lua_getfield(L, index, key);
+
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1);
+        lua_newtable(L);
+        lua_pushvalue(L, -1);
+        lua_setfield(L, index, key);
+    }
+
+    return 1;
+}
+
+static const char * MAIN_THREAD_KEY = "_love_mainthread";
+
+lua_State * Luax::InsistPinnedThread(lua_State * L)
+{
+    lua_getfield(L, LUA_REGISTRYINDEX, MAIN_THREAD_KEY);
+
+    if (lua_isnoneornil(L, -1))
+    {
+        lua_pop(L, 1);
+        lua_pushthread(L);
+        lua_pushvalue(L, -1);
+        lua_setfield(L, LUA_REGISTRYINDEX, MAIN_THREAD_KEY);
+    }
+
+    lua_State * thread = lua_tothread(L, -1);
+    lua_pop(L, 1);
+
+    return thread;
+}
+
+/*
 ** @func InsistGlobal
 ** Make sure @field is global
 ** See https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L748
 */
 int Luax::InsistGlobal(lua_State * L, const char * field)
 {
-	lua_getglobal(L, field);
+    lua_getglobal(L, field);
 
-	if (!lua_istable(L, -1))
-	{
-		lua_pop(L, 1); // Pop the non-table.
-		lua_newtable(L);
-		lua_pushvalue(L, -1);
-		lua_setglobal(L, field);
-	}
+    if (!lua_istable(L, -1))
+    {
+        lua_pop(L, 1); // Pop the non-table.
+        lua_newtable(L);
+        lua_pushvalue(L, -1);
+        lua_setglobal(L, field);
+    }
 
-	return 1;
+    return 1;
 }
 
 /*
@@ -41,46 +85,358 @@ int Luax::RegisterModule(lua_State * L, const Module & module)
 
     lua_newtable(L);
 
-	const luaL_reg * funcs = module.functions;
-    for (; funcs->name != nullptr; funcs++)
+    if (module.functions != nullptr)
+        Luax::SetFunctions(L, module.functions);
+
+    if (module.types != nullptr)
     {
-        lua_pushcfunction(L, funcs->func);
-        lua_setfield(L, -2, funcs->name);
+        for (const lua_CFunction * func = module.types; *func != nullptr; func++)
+            (*func)(L);
     }
 
     lua_pushvalue(L, -1);
     lua_setfield(L, -3, module.name);
     lua_remove(L, -2);
 
-	return 1;
+    return 1;
 }
 
 /*
-** @func RegObject
-** Register a pointer to <object> in the Registry
-** given the index of it on the stack and its light userdata key.
+** @func SetFunctions
+** Sets the functions for a module/object
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L355
 */
-void Luax::RegisterObject(lua_State * L, int index, void * object)
+void Luax::SetFunctions(lua_State * L, const luaL_reg * reg)
 {
-    Love::GetRegistry(L, 0);
-
-    lua_pushlightuserdata(L, object);
-    lua_pushvalue(L, index);
-    lua_settable(L, -3);
-
-    lua_setfield(L, LUA_REGISTRYINDEX, "_loveobjects");
-}
-
-void Luax::PushObject(lua_State * L, void * object)
-{
-    if (!object)
+    if (reg == nullptr)
         return;
 
-    Love::GetRegistry(L, 0);
+    for (; reg->name != nullptr; reg++)
+    {
+        lua_pushcfunction(L, reg->func);
+        lua_setfield(L, -2, reg->name);
+    }
+}
 
-    lua_pushlightuserdata(L, object);
+/*
+** @func GarbageCollect
+** Default __gc method for objects
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L52
+*/
+int Luax::GarbageCollect(lua_State * L)
+{
+    Proxy * proxy = (Proxy *)lua_touserdata(L, 1);
+
+    if (proxy != nullptr)
+    {
+        proxy->object->Release();
+        proxy->object = nullptr;
+    }
+
+    return 0;
+}
+
+/*
+** @func Type
+** Default type method for objects
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L71
+*/
+int Luax::Type(lua_State * L)
+{
+    lua_pushvalue(L, lua_upvalueindex(1));
+
+    return 1;
+}
+
+/*
+** @func ToString
+** Default __tostring method for objects
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L63
+*/
+int Luax::ToString(lua_State * L)
+{
+    Proxy * proxy = (Proxy *)lua_touserdata(L, 1);
+    const char * typeName = lua_tostring(L, lua_upvalueindex(1));
+
+    lua_pushfstring(L, "%s: %p", typeName, proxy->object);
+
+    return 1;
+}
+
+/*
+** @func Type
+** Helper function determining if the Lua value at @index is a specific type
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L961
+*/
+love::Type * Luax::Type(lua_State * L, int index)
+{
+    const char * name = luaL_checkstring(L, index);
+    return love::Type::ByName(name);
+}
+
+/*
+** @func TypeOf
+** Default typeOf method for objects
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L77
+*/
+int Luax::TypeOf(lua_State * L)
+{
+    Proxy * proxy = (Proxy *)lua_touserdata(L, 1);
+    love::Type * type = Luax::Type(L, 2);
+
+    if (!type)
+        lua_pushboolean(L, 0);
+    else
+        lua_pushboolean(L, proxy->type->IsA(*type));
+
+    return 1;
+}
+
+/*
+** @func Equal
+** Default __eq method for objects
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L63
+*/
+int Luax::Equal(lua_State * L)
+{
+    Proxy * a = (Proxy *)lua_touserdata(L, 1);
+    Proxy * b = (Proxy *)lua_touserdata(L, 2);
+
+    bool areEqual = (a->object == b->object) && a->object != nullptr;
+
+    lua_pushboolean(L, areEqual);
+
+    return 1;
+}
+
+/*
+** @func release
+** Default release method for objects
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L128
+*/
+int Luax::Release(lua_State * L)
+{
+    Proxy * proxy = (Proxy *)lua_touserdata(L, 1);
+    Object * object = proxy->object;
+
+    if (object != nullptr)
+    {
+        proxy->object = nullptr;
+        object->Release();
+
+        Love::GetRegistry(L, Registry::OBJECTS);
+
+        if (lua_istable(L, -1))
+        {
+            lua_Number key = Luax::ComputerObjectKey(L, object);
+            lua_pushnumber(L, key);
+            lua_pushnil(L);
+            lua_settable(L, -3);
+        }
+
+        lua_pop(L, 1);
+    }
+
+    lua_pushboolean(L, object != nullptr);
+
+    return 1;
+}
+
+/*
+** @func RegisterType
+** Register an object into registry._loveobjects
+** This also sets its default metatable stuff
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L433
+*/
+int Luax::RegisterType(lua_State * L, love::Type * type, ...)
+{
+    type->Init();
+
+    Love::GetRegistry(L, Registry::OBJECTS);
+
+    if (!lua_istable(L, -1))
+    {
+        lua_newtable(L);
+        lua_replace(L, -2);
+
+        lua_newtable(L);
+
+        lua_pushliteral(L, "v");
+        lua_setfield(L, -2, "__mode");
+
+        lua_setmetatable(L, -2);
+
+        lua_setfield(L, LUA_REGISTRYINDEX, "_loveobjects");
+    }
+    else
+        lua_pop(L, 1);
+
+    luaL_newmetatable(L, type->GetName());
+
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+
+    lua_pushcfunction(L, GarbageCollect);
+    lua_setfield(L, -2, "__gc");
+
+    lua_pushstring(L, type->GetName());
+    lua_pushcclosure(L, ToString, 1);
+    lua_setfield(L, -2, "__tostring");
+
+    lua_pushstring(L, type->GetName());
+    lua_pushcclosure(L, Type, 1);
+    lua_setfield(L, -2, "type");
+
+    lua_pushcfunction(L, TypeOf);
+    lua_setfield(L, -2, "typeOf");
+
+    lua_pushcfunction(L, Release);
+    lua_setfield(L, -2, "release");
+
+    va_list funcs;
+    va_start(funcs, type);
+
+    for (const luaL_Reg * f = va_arg(funcs, const luaL_Reg *); f; f = va_arg(funcs, const luaL_Reg *))
+        Luax::SetFunctions(L, f);
+
+    va_end(funcs);
+
+    lua_pop(L, 1);
+
+    return 0;
+}
+
+/*
+** @func RawNewType
+** Creates a new @object of @type for registry._loveobjects
+** This only happens if it's not in the registry yet or just doesn't exist
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L63
+**/
+void Luax::RawNewType(lua_State * L, love::Type & type, Object * object)
+{
+    Proxy * userdata = (Proxy *)lua_newuserdata(L, sizeof(Proxy));
+
+    object->Retain();
+
+    userdata->object = object;
+    userdata->type = &type;
+
+    const char * name = type.GetName();
+    luaL_newmetatable(L, name);
+
+    lua_getfield(L, -1, "__gc");
+    bool hasGC = !lua_isnoneornil(L, -1);
+
+    lua_pop(L, 1);
+
+    if (!hasGC)
+    {
+        lua_pushcfunction(L, GarbageCollect);
+        lua_setfield(L, -2, "__gc");
+    }
+
+    lua_setmetatable(L, -2);
+}
+
+/*
+** @func ComputerObjectKey
+** Computes a key for @object to put into registry._loveobjects
+** Ignore the typo, I really don't care
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L100
+*/
+lua_Number Luax::ComputerObjectKey(lua_State * L, Object * object)
+{
+    // Compute a key to store our userdata
+    const size_t minAlign = alignof(std::max_align_t);
+    uintptr_t key = (uintptr_t)object;
+
+    if ((key & (minAlign - 1)) != 0)
+        luaL_error(L, "Cannot push LOVE object. Unexpected alignment (%p should be %d).", object, minAlign);
+
+    static const size_t shift = (size_t)log2(alignof(std::max_align_t));
+    key >>= shift;
+
+    if (key > MAX_LUAOBJ_KEY)
+        luaL_error(L, "Cannot push LOVE object. Pointer value %p is too large.", object);
+
+    return (lua_Number)key;
+}
+
+/**
+ * @func PushType
+ * Pushes @object of @type onto the Lua stack
+ * See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L590
+**/
+void Luax::PushType(lua_State * L, love::Type & type, Object * object)
+{
+    if (object == nullptr)
+    {
+        lua_pushnil(L);
+        return;
+    }
+
+    Love::GetRegistry(L, Registry::OBJECTS);
+
+    // if it doesn't exist, make it exist
+    if (lua_isnoneornil(L, -1))
+    {
+        lua_pop(L, 1);
+        return Luax::RawNewType(L, type, object);
+    }
+
+    lua_Number key = Luax::ComputerObjectKey(L, object);
+
+    // push using that key
+    lua_pushnumber(L, key);
     lua_gettable(L, -2);
+
+    // if the proxy doesn't exist in registry, add it
+    if (lua_type(L, -1) != LUA_TUSERDATA)
+    {
+        lua_pop(L, 1);
+        Luax::RawNewType(L, type, object);
+
+        lua_pushnumber(L, key);
+        lua_pushvalue(L, -2);
+
+        lua_settable(L, -4);
+    }
+
+    // remove registry from the stack
     lua_remove(L, -2);
+}
+
+/*
+** @func TypeError
+** Checks if a value is of type @name
+** If not, it throws a lua_error
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L872
+*/
+int Luax::TypeErrror(lua_State * L, int narg, const char * name)
+{
+    int argtype = lua_type(L, narg);
+    const char * typeName = nullptr;
+
+    // We want to use the love type name for userdata, if possible.
+    if (argtype == LUA_TUSERDATA && luaL_getmetafield(L, narg, "type") != 0)
+    {
+        lua_pushvalue(L, narg);
+        if (lua_pcall(L, 1, 1, 0) == 0 && lua_type(L, -1) == LUA_TSTRING)
+        {
+            typeName = lua_tostring(L, -1);
+
+            // Non-love userdata might have a type metamethod which doesn't
+            // describe its type properly, so we only use it for love types.
+            if (!love::Type::ByName(typeName))
+                typeName = nullptr;
+        }
+    }
+
+    if (typeName == nullptr)
+        typeName = lua_typename(L, argtype);
+
+    const char * msg = lua_pushfstring(L, "%s expected, got %s", name, typeName);
+    return luaL_argerror(L, narg, msg);
 }
 
 /*

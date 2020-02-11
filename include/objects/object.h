@@ -3,11 +3,18 @@
 class Object
 {
     public:
-        Object(const std::string & type);
+        Object(const Object & other);
+        Object();
 
-        std::string ToString();
+        virtual ~Object() = 0;
+
+        void Retain();
+        void Release();
+
+        int GetReferenceCount() const;
+
+        static love::Type type;
 
     private:
-        std::string type;
-
+        std::atomic<int> count;
 };

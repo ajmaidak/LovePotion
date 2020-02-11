@@ -1,5 +1,5 @@
 #include "common/runtime.h"
-#include "common/input.h"
+#include "common/backend/input.h"
 
 bool Input::PollEvent(LOVE_Event * event)
 {

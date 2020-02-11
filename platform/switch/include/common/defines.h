@@ -3,6 +3,8 @@
 #include <SDL.h>
 #include <switch.h>
 
+#define MAX_GAMEPADS 8
+
 typedef SDL_Renderer Renderer;
 
 typedef SDL_Window Frame;

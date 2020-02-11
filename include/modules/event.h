@@ -5,6 +5,9 @@
 
 #pragma once
 
+#include "modules/love.h"
+#include "modules/joystick.h"
+
 class LoveEvent
 {
     public:

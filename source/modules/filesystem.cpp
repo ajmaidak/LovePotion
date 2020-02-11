@@ -254,6 +254,7 @@ int Filesystem::Register(lua_State * L)
         { "getInfo",                GetInfo           },
         { "getSaveDirectory",       GetSaveDirectory  },
         { "load",                   Load              },
+        { "newFile",                Wrap_File::New    },
         { "read",                   Read              },
         { "remove",                 Remove            },
         { "setIdentity",            SetIdentity       },
@@ -261,9 +262,16 @@ int Filesystem::Register(lua_State * L)
         { 0,                        0                 }
     };
 
+    lua_CFunction types[] =
+    {
+        Wrap_File::Register,
+        0
+    };
+
     Module module;
     module.name = "filesystem";
     module.functions = reg;
+    module.types = types;
 
     return Luax::RegisterModule(L, module);
 }
