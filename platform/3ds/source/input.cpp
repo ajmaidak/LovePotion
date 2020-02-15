@@ -1,18 +1,14 @@
 #include "common/runtime.h"
 #include "common/backend/input.h"
 
-std::vector<std::string> Input::GetButtons()
+std::map<std::string, int> Input::GetButtons()
 {
     return
     {
-        "a", "b", "back", "start",
-        "dpright", "dpleft", "dpup", "dpdown",
-        "rightshoulder", "leftshoulder", "x", "y",
-        "", "", "KEY_ZL", "KEY_ZR",
-        "", "", "", "",
-        "touch", "", "", "",
-        "KEY_CSTICK_RIGHT", "KEY_CSTICK_LEFT", "KEY_CSTICK_UP", "KEY_CSTICK_DOWN",
-        "KEY_CPAD_RIGHT", "KEY_CPAD_LEFT", "KEY_CPAD_UP", "KEY_CPAD_DOWN"
+        { "a", KEY_A}, { "b", KEY_B }, { "x", KEY_X }, { "y", KEY_Y },
+        { "dpright", KEY_DRIGHT}, { "dpleft", KEY_DLEFT },
+        { "dpup", KEY_DUP }, { "dpdown", KEY_DDOWN }, { "rightshoulder", KEY_R },
+        { "leftshoulder", KEY_L }, { "back", KEY_SELECT }, { "start", KEY_START}
     };
 }
 
@@ -20,98 +16,95 @@ bool Input::PollEvent(LOVE_Event * event)
 {
     hidScanInput();
 
-    m_keyDown = hidKeysDown();
-
     touchPosition touch;
     hidTouchRead(&touch);
 
     auto buttons = Input::GetButtons();
 
-    for (unsigned int index = 0; index < buttons.size(); index++)
+    m_keyDown = hidKeysDown();
+    for (auto it = buttons.begin(); it != buttons.end(); it++)
     {
-        if (m_keyDown & BIT(index))
+        if (Input::GetKeyDown<u32>() & it->second)
         {
-            if (Input::IsValid(buttons[index]))
-            {
-                event->type = LOVE_GAMEPADDOWN;
+            event->type = LOVE_GAMEPADDOWN;
 
-                event->button.which = 0;
-                event->button.id = index;
-                event->button.name = buttons[index];
+            event->button.name = it->first;
+            event->button.which = 0;
 
-                return true;
-            }
-            else if (buttons[index] == "touch")
-            {
-                event->type = LOVE_TOUCHPRESS;
-
-                event->touch.id = 1;
-                event->touch.x = touch.px;
-                event->touch.y = touch.py;
-
-                m_lastTouch = { touch.px, touch.py };
-
-                return true;
-            }
+            return true;
         }
+    }
+
+    if (Input::GetKeyUp<u32>() & KEY_TOUCH)
+    {
+        event->type = LOVE_TOUCHPRESS;
+
+        event->touch.id = 1;
+
+        event->touch.x = touch.px;
+        event->touch.y = touch.py;
+
+        m_lastTouch[0] = touch.px;
+        m_lastTouch[1] = touch.py;
+
+        return true;
     }
 
 
     m_keyUp = hidKeysUp();
-    for (unsigned int index = 0; index < buttons.size(); index++)
+    for (auto it = buttons.begin(); it != buttons.end(); it++)
     {
-        if (m_keyUp & BIT(index))
+        if (Input::GetKeyUp<u32>() & it->second)
         {
-            if (Input::IsValid(buttons[index]))
-            {
-                event->type = LOVE_GAMEPADUP;
+            event->type = LOVE_GAMEPADUP;
 
-                event->button.which = 0;
-                event->button.id = index;
-                event->button.name = buttons[index];
+            event->button.name = it->first;
+            event->button.which = 0;
 
-                return true;
-            }
-            else
-            {
-                event->type = LOVE_TOUCHRELEASE;
-
-                event->touch.id = 1;
-                event->touch.x = m_lastTouch[0];
-                event->touch.y = m_lastTouch[1];
-
-                return true;
-            }
+            return true;
         }
+    }
+
+    if (Input::GetKeyUp<u32>() & KEY_TOUCH)
+    {
+        event->type = LOVE_TOUCHRELEASE;
+
+        event->touch.id = 1;
+        event->touch.x = m_lastTouch[0];
+        event->touch.y = m_lastTouch[1];
+
+        return true;
     }
 
     m_keyHeld = hidKeysHeld();
 
-    // circlePosition position;
-    // hidCircleRead(&position);
+    circlePosition position;
+    hidCircleRead(&position);
 
-    // // clearly not a good way to do this..
-    // if (position.dx != m_lastPosition[0].dx)
-    // {
-    //     event->type = LOVE_GAMEPADAXIS;
-    //     event->axis.axis = "leftx";
-    //     event->axis.value = position.dx;
+    // clearly not a good way to do this..
+    if (position.dx != m_lastPosition[0].dx)
+    {
+        event->type = LOVE_GAMEPADAXIS;
 
-    //     m_lastPosition[0].dx = position.dx;
+        event->axis.axis = "leftx";
+        event->axis.which = 0;
 
-    //     return true;
-    // }
+        m_lastPosition[0].dx = position.dx;
 
-    // if (position.dy != m_lastPosition[0].dy)
-    // {
-    //     event->type = LOVE_GAMEPADAXIS;
-    //     event->axis.axis = "lefty";
-    //     event->axis.value = position.dy;
+        return true;
+    }
 
-    //     m_lastPosition[0].dy = position.dy;
+    if (position.dy != m_lastPosition[0].dy)
+    {
+        event->type = LOVE_GAMEPADAXIS;
 
-    //     return true;
-    // }
+        event->axis.axis = "lefty";
+        event->axis.which = 0;
+
+        m_lastPosition[0].dy = position.dy;
+
+        return true;
+    }
 
     return false;
 }

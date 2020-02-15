@@ -12,21 +12,21 @@ float Gamepad::GetAxis(size_t axis)
 
     if (axis == 1 || axis == 2)
     {
-        hidCircleRead(&stick);
+        // hidCircleRead(&stick);
 
-        if (axis == 1)
-            value = stick.dx;
-        else if (axis == 2)
-            value = stick.dy;
+        // if (axis == 1)
+        //     value = stick.dx;
+        // else if (axis == 2)
+        //     value = stick.dy;
     }
     else if (axis == 3 || axis == 4)
     {
-        irrstCstickRead(&stick);
+        // irrstCstickRead(&stick);
 
-        if (axis == 1)
-            value = stick.dx;
-        else if (axis == 2)
-            value = stick.dy;
+        // if (axis == 1)
+        //     value = stick.dx;
+        // else if (axis == 2)
+        //     value = stick.dy;
     }
 
     value = value / 156.0f;
@@ -37,12 +37,6 @@ float Gamepad::GetAxis(size_t axis)
 // TODO: expose accelerometer, etc as joystick stuff
 size_t Gamepad::GetAxisCount()
 {
-    bool isN3DS = false;
-    APT_CheckNew3DS(&isN3DS);
-
-    if (!isN3DS)
-        return 2;
-
     return 4;
 }
 
@@ -59,21 +53,21 @@ float Gamepad::GetGamepadAxis(const std::string & axis)
 
     if (axis.substr(0, 4) == "left")
     {
-        hidCircleRead(&stick);
+        // hidCircleRead(&stick);
 
-        if (axis == "leftx")
-            value = stick.dx;
-        else if (axis == "lefty")
-            value = stick.dy;
+        // if (axis == "leftx")
+        //     value = stick.dx;
+        // else if (axis == "lefty")
+        //     value = stick.dy;
     }
     else if (axis.substr(0, 5) == "right")
     {
-        irrstCstickRead(&stick);
+        // irrstCstickRead(&stick);
 
-        if (axis == "rightx")
-            value = stick.dx;
-        else if (axis == "righty")
-            value = stick.dy;
+        // if (axis == "rightx")
+        //     value = stick.dx;
+        // else if (axis == "righty")
+        //     value = stick.dy;
     }
 
     value = value / 156.0f;
@@ -83,7 +77,30 @@ float Gamepad::GetGamepadAxis(const std::string & axis)
 
 std::string Gamepad::GetName()
 {
-    return "Nintendo 3DS";
+    std::string ret = "Joycon";
+    HidControllerType type;
+
+    type = hidGetControllerType(CONTROLLER_P1_AUTO);
+
+    switch (type)
+    {
+        case TYPE_PROCONTROLLER:
+            ret = "Pro Controller";
+            break;
+        case TYPE_HANDHELD:
+            ret = "Handheld";
+            break;
+        case TYPE_JOYCON_LEFT:
+            ret = "Joycon Left";
+            break;
+        case TYPE_JOYCON_RIGHT:
+            ret = "Joycon Right";
+            break;
+        default:
+            break;
+    }
+
+    return ret;
 }
 
 float Gamepad::GetVibration()
@@ -104,8 +121,8 @@ bool Gamepad::IsDown(size_t button)
     {
         if (it->second & Input::GetKeyHeld<u32>())
         {
-            // this is wrong?
             size_t index = std::distance(it, buttons.begin()) - 1;
+
             if (button == index)
                 return true;
         }
@@ -125,7 +142,7 @@ bool Gamepad::IsGamepadDown(const std::string & button)
 
     for (auto it = buttons.begin(); it != buttons.end(); it++)
     {
-        if (it->second & Input::GetKeyHeld<u32>())
+        if (it->second & Input::GetKeyHeld<u64>())
         {
             if (button == it->first)
                 return true;
@@ -137,11 +154,13 @@ bool Gamepad::IsGamepadDown(const std::string & button)
 
 bool Gamepad::IsVibrationSupported()
 {
-    return false;
+    return true;
 }
 
 bool Gamepad::SetVibration(float left, float right, float duration)
 {
-    // do nothing and return false
-    return false;
+    /*
+    ** TODO: implement
+    */
+   return false;
 }

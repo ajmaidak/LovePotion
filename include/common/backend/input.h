@@ -14,8 +14,9 @@ struct GamePadButton
 
 struct GamePadAxis
 {
-    const char * axis;
+    std::string axis;
     float value;
+    int which;
 };
 
 struct Touch
@@ -49,29 +50,28 @@ class Input
 {
     public:
         static bool PollEvent(LOVE_Event * event);
-        static std::vector<std::string> GetButtons();
+        static std::map<std::string, int> GetButtons();
 
-        static inline bool IsValid(const std::string & name) {
-            return !name.empty() && name != "touch";
+        template <typename T>
+        static inline T GetKeyDown() {
+            return std::get<T>(m_keyDown);
         }
 
-        static inline u32 Input::GetKeyDown() {
-            return m_keyDown;
+        template <typename T>
+        static inline T GetKeyUp() {
+            return std::get<T>(m_keyUp);
         }
 
-        static inline u32 Input::GetKeyUp() {
-            return m_keyUp;
-        }
-
-        static inline u32 Input::GetKeyHeld() {
-            return m_keyHeld;
+        template <typename T>
+        static inline T GetKeyHeld() {
+            return std::get<T>(m_keyHeld);
         }
 
     private:
-        static inline StickPosition m_lastPosition[2] = {};
-        static inline std::array<int, 2> m_lastTouch = { 0 };
+        static inline StickPosition m_lastPosition[2] = { { 0, 0 } };
+        static inline std::array<int, 2> m_lastTouch = { 0, 0 };
 
-        static inline u32 m_keyDown = 0;
-        static inline u32 m_keyUp = 0;
-        static inline u32 m_keyHeld = 0;
+        static inline std::variant<u32, u64> m_keyDown = (u32)0;
+        static inline std::variant<u32, u64> m_keyUp = (u32)0;
+        static inline std::variant<u32, u64> m_keyHeld = (u32)0;
 };

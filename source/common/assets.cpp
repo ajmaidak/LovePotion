@@ -23,8 +23,7 @@ void Assets::Initialize(const std::string & path)
         }
         case 1:
         {
-            const char * romfs_path = path.c_str();
-            romfsMountFromFsdev(romfs_path, 0, "romfs");
+            romfsMountFromFsdev(path.c_str(), 0, "romfs");
 
             break;
         }

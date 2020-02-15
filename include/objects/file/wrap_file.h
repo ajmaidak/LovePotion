@@ -21,5 +21,7 @@ namespace Wrap_File
 
     int Close(lua_State * L);
 
+    File * CheckFile(lua_State * L, int index);
+
     int Register(lua_State * L);
 }
