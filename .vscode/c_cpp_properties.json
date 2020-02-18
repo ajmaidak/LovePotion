@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/include/**",
                 "${workspaceFolder}/libraries/**",
-                "${workspaceFolder}/platform/3ds/**",
+                "${workspaceFolder}/platform/3ds/include",
                 "/opt/devkitpro/portlibs/3ds/include/**",
                 "/opt/devkitpro/libctru/include/**",
                 "/opt/devkitpro/devkitARM/include/**"
@@ -24,7 +24,7 @@
             "includePath": [
                 "${workspaceFolder}/include/**",
                 "${workspaceFolder}/libraries/**",
-                "${workspaceFolder}/platform/switch/**",
+                "${workspaceFolder}/platform/switch/include",
                 "/opt/devkitpro/portlibs/switch/include/**",
                 "/opt/devkitpro/libnx/include/**"
             ],
@@ -35,16 +35,7 @@
             "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x64",
-            "compilerArgs": [],
-            "browse": {
-                "path": [
-                    "${workspaceFolder}/**",
-                    "/opt/devkitpro/portlibs/switch/include/**",
-                    "/opt/devkitpro/libnx/include/**"
-                ],
-                "limitSymbolsToIncludedHeaders": true
-            }
+            "intelliSenseMode": "gcc-x64"
         }
     ],
     "version": 4

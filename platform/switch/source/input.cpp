@@ -16,7 +16,7 @@ bool Input::PollEvent(LOVE_Event * event)
 {
     hidScanInput();
 
-    touchPosition touch;
+    // touchPosition touch;
 
     auto buttons = Input::GetButtons();
 
@@ -35,21 +35,21 @@ bool Input::PollEvent(LOVE_Event * event)
     }
 
     // TODO: handle multiple touches
-    if (Input::GetKeyDown<u64>() & KEY_TOUCH)
-    {
-        hidTouchRead(&touch, 0);
+    // if (Input::GetKeyDown<u64>() & KEY_TOUCH)
+    // {
+    //     hidTouchRead(&touch, 0);
 
-        event->type = LOVE_TOUCHPRESS;
-        event->touch.id = 0;
+    //     event->type = LOVE_TOUCHPRESS;
+    //     event->touch.id = 0;
 
-        event->touch.x = touch.px;
-        event->touch.y = touch.py;
+    //     event->touch.x = touch.px;
+    //     event->touch.y = touch.py;
 
-        m_lastTouch[0] = touch.px;
-        m_lastTouch[1] = touch.py;
+    //     m_lastTouch[0] = touch.px;
+    //     m_lastTouch[1] = touch.py;
 
-        return true;
-    }
+    //     return true;
+    // }
 
     m_keyUp = hidKeysUp(CONTROLLER_P1_AUTO);
     for (auto it = buttons.begin(); it != buttons.end(); it++)
@@ -66,16 +66,16 @@ bool Input::PollEvent(LOVE_Event * event)
     }
 
     // TODO: handle multiple touches
-    if (Input::GetKeyUp<u64>() & KEY_TOUCH)
-    {
-        event->type = LOVE_TOUCHPRESS;
-        event->touch.id = 0;
+    // if (Input::GetKeyUp<u64>() & KEY_TOUCH)
+    // {
+    //     event->type = LOVE_TOUCHRELEASE;
+    //     event->touch.id = 0;
 
-        event->touch.x = m_lastTouch[0];
-        event->touch.y = m_lastTouch[1];
+    //     event->touch.x = m_lastTouch[0];
+    //     event->touch.y = m_lastTouch[1];
 
-        return true;
-    }
+    //     return true;
+    // }
 
     return false;
 }

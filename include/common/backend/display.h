@@ -3,7 +3,7 @@
 ** Handles internal display information/rendering
 */
 
-#define LOVE_DRAW "if love.draw then love.draw() end"
+#pragma once
 
 class Display
 {

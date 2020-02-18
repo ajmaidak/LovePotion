@@ -218,7 +218,7 @@ function love.createhandlers()
         end
     }, {
         __index = function(self, name)
-            error('Unknown event: ' .. name)
+            error('Unknown event: ' .. tostring(name))
         end,
     })
 end

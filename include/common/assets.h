@@ -3,6 +3,15 @@
 ** @brief   : Loads game content
 */
 
+#pragma once
+
+enum Location
+{
+    SDMC = 0,
+    ROMFS,
+    EXTERNAL
+};
+
 class Assets
 {
     public:
@@ -10,7 +19,7 @@ class Assets
         static void Initialize(const std::string & path);
 
     private:
-        static inline std::string location = "romfs:/";
+        static inline std::string directory = "romfs:";
 
-        static size_t GetLocation(const std::string & path);
+        static Location GetLocation(const std::string & path);
 };

@@ -6,50 +6,52 @@
 
 void Assets::Initialize(const std::string & path)
 {
-    size_t gameAssets = Assets::GetLocation(path);
-
-    switch(gameAssets)
+    Location location = Assets::GetLocation(path);
+    
+    switch(location)
     {
-        case 0:
-        {
-            struct stat pathInfo;
-
-            stat("game", &pathInfo);
-
-            if (S_ISDIR(pathInfo.st_mode))
-                location = "game";
-
+        case Location::SDMC:
+            directory = "game";
             break;
-        }
-        case 1:
-        {
+        case Location::EXTERNAL:
             romfsMountFromFsdev(path.c_str(), 0, "romfs");
-
             break;
-        }
         default:
+        case Location::ROMFS:
             break;
     }
 
-    chdir(location.c_str());
+    chdir(directory.c_str());
 }
 
-size_t Assets::GetLocation(const std::string & path)
+Location Assets::GetLocation(const std::string & path)
 {
     if (path.empty())
-        return 0;
+        return Location::SDMC;
 
-    bool isROMFS = (path.substr(path.find_last_of(".")) == ".lpx");
+    size_t extPosition = path.find_last_of(".");
+    bool isROMFSGame = false;
 
-    if (isROMFS)
+    if (extPosition != std::string::npos)
+        isROMFSGame = (path.substr(extPosition) == ".lpx");
+
+    if (!isROMFSGame)
     {
-        Result rc = romfsInit();
+        struct stat pathInfo;
 
-        if (rc != 0)
-            return 0;
+        stat("game", &pathInfo);
 
-        return 1;
+        if (S_ISDIR(pathInfo.st_mode))
+            return Location::SDMC;
     }
 
-    return 2;
+    // couldn't grab game folder
+    Result rc = romfsInit();
+
+    // load our external ROMFS game
+    if (rc == 0 && isROMFSGame)
+        return Location::EXTERNAL;
+
+    // load no game / fused
+    return Location::ROMFS;
 }

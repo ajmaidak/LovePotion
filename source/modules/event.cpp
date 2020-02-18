@@ -62,7 +62,7 @@ int LoveEvent::Pump(lua_State * L)
             case LOVE_TOUCHPRESS:
             case LOVE_TOUCHRELEASE:
             {
-                const char * field = (m_event.type == LOVE_TOUCHPRESS) ?
+                std::string field = (m_event.type == LOVE_TOUCHPRESS) ?
                          "touchpressed" : "touchreleased";
 
                 vargs.emplace_back(&m_event.touch.id);
