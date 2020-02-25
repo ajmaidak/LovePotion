@@ -6,12 +6,12 @@
 #include "common/backend/display.h"
 #include "common/backend/input.h"
 
-#include "modules/event.h"
-#include "modules/filesystem.h"
-#include "modules/graphics.h"
-#include "modules/joystick.h"
-#include "modules/timer.h"
-#include "modules/window.h"
+#include "modules/event/wrap_event.h"
+#include "modules/filesystem/wrap_filesystem.h"
+#include "modules/graphics/wrap_graphics.h"
+#include "modules/joystick/wrap_joystick.h"
+#include "modules/timer/wrap_timer.h"
+#include "modules/window/wrap_window.h"
 
 #include "objects/gamepad/wrap_gamepad.h"
 
@@ -70,12 +70,12 @@ int Love::Initialize(lua_State * L)
 
     m_modules =
     {{
-        { "love.event",      LoveEvent::Register,  NULL          },
-        { "love.graphics",   Graphics::Register,   NULL          },
-        { "love.filesystem", Filesystem::Register, NULL          },
-        { "love.joystick",   Joystick::Register,   NULL          },
-        { "love.timer",      Timer::Register,      NULL          },
-        { "love.window",     Window::Register,     Display::Exit },
+        { "love.event",       Wrap_Event::Register,      NULL          },
+        { "love.graphics",    Wrap_Graphics::Register,   NULL          },
+        { "love.filesystem",  Wrap_Filesystem::Register, NULL          },
+        { "love.joystick",    Wrap_Joystick::Register,   NULL          },
+        { "love.timer",       Wrap_Timer::Register,      NULL          },
+        { "love.window",      Wrap_Window::Register,     Display::Exit },
         { 0 }
     }};
 
@@ -88,6 +88,9 @@ int Love::Initialize(lua_State * L)
     Love::Preload(L, Boot, "love.boot");
     // love_preload(L, LuaSocket::InitSocket, "socket");
     // love_preload(L, LuaSocket::InitHTTP,   "socket.http");
+
+    // Luax::Require(L, "love.data");
+    // lua_pop(L, 1);
 
     return 1;
 }
@@ -179,9 +182,8 @@ int Love::InsistRegistry(lua_State * L, Registry registry)
 {
     switch (registry)
     {
-        case Registry::OBJECTS:
-            Luax::Insist(L, LUA_REGISTRYINDEX, "_loveobjects");
-            return 1;
+        case Registry::MODULES:
+            return Luax::InsistLove(L, "_modules");
         case Registry::UNKNOWN:
         default:
             return luaL_error(L, "Attempted to use invalid registry");
@@ -200,6 +202,8 @@ int Love::GetRegistry(lua_State * L, Registry registry)
         case Registry::OBJECTS:
             lua_getfield(L, LUA_REGISTRYINDEX, "_loveobjects");
             return 1;
+        case Registry::MODULES:
+            Luax::GetLove(L, "_modules");
         case Registry::UNKNOWN:
         default:
             return luaL_error(L, "Attempted to use invalid registry");

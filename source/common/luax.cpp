@@ -75,12 +75,66 @@ int Luax::InsistGlobal(lua_State * L, const char * field)
 }
 
 /*
+** @func InsistLove
+** Make sure @key is in the love table
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L768
+*/
+int Luax::InsistLove(lua_State * L, const char * key)
+{
+    Luax::InsistGlobal(L, "love");
+    Luax::Insist(L, -1, key);
+
+    //replace with top stack item
+    lua_replace(L, -2);
+
+    return 1;
+}
+
+/*
+** @func GetLove
+** Get @key from the love table
+** See: https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L780
+*/
+int Luax::GetLove(lua_State * L, const char * key)
+{
+    lua_getglobal(L, "love");
+
+    if (!lua_isnil(L, -1))
+    {
+        lua_getfield(L, -1, key);
+        lua_replace(L, -2);
+    }
+
+    return 1;
+}
+
+/*
 ** @func RegisterModule
 ** Registers @module as a proper table to LOVE
 ** See https://github.com/love2d/love/blob/master/src/common/runtime.cpp#L375
 */
-int Luax::RegisterModule(lua_State * L, const Module & module)
+int Luax::RegisterModule(lua_State * L, const WrappedModule & module)
 {
+    module.type->Init();
+
+    Love::InsistRegistry(L, Registry::MODULES);
+
+    Proxy * proxy = (Proxy *)lua_newuserdata(L, sizeof(Proxy));
+
+    proxy->object = module.instance;
+    proxy->type = module.type;
+
+    luaL_newmetatable(L, module.instance->GetName());
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+
+    lua_pushcfunction(L, GarbageCollect);
+    lua_setfield(L, -2, "__gc");
+
+    lua_setmetatable(L, -2);
+    lua_setfield(L, -2, module.name);
+    lua_pop(L, 1);
+
     Luax::InsistGlobal(L, "love");
 
     lua_newtable(L);
@@ -97,6 +151,8 @@ int Luax::RegisterModule(lua_State * L, const Module & module)
     lua_pushvalue(L, -1);
     lua_setfield(L, -3, module.name);
     lua_remove(L, -2);
+
+    Module::RegisterInstance(module.instance);
 
     return 1;
 }
@@ -172,6 +228,19 @@ love::Type * Luax::Type(lua_State * L, int index)
 {
     const char * name = luaL_checkstring(L, index);
     return love::Type::ByName(name);
+}
+
+bool Luax::IsType(lua_State * L, int index, love::Type & type)
+{
+    if (lua_type(L, index) != LUA_TUSERDATA)
+        return false;
+
+    Proxy * proxy = (Proxy *)lua_touserdata(L, index);
+
+    if (proxy->type != nullptr)
+        return proxy->type->IsA(type);
+    else
+        return false;
 }
 
 /*
@@ -360,6 +429,18 @@ lua_Number Luax::ComputerObjectKey(lua_State * L, Object * object)
         luaL_error(L, "Cannot push LOVE object. Pointer value %p is too large.", object);
 
     return (lua_Number)key;
+}
+
+int Luax::IOError(lua_State * L, const char * format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    lua_pushnil(L);
+    lua_pushvfstring(L, format, args);
+
+    va_end(args);
+    return 2;
 }
 
 /**

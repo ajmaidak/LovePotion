@@ -22,7 +22,7 @@ class Gamepad : public Object
 
         std::string GetName();
 
-        float GetVibration();
+        std::pair<float, float> GetVibration();
 
         bool IsConnected();
 
@@ -41,5 +41,10 @@ class Gamepad : public Object
     private:
         size_t id;
         StickPosition stick;
-        float vibrations[2];
+
+        std::pair<float, float> vibrations;
+        float vibrationDuration;
+
+        u32 vibrationHandles[2][2];
+        VibrationValue vibrationValues[2];
 };

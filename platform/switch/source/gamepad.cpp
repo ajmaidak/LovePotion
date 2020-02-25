@@ -4,6 +4,8 @@
 Gamepad::Gamepad(size_t id)
 {
     this->id = id;
+
+    // hidInitializeVibrationDevices(this->vibrationHandles[0], 2, CONTROLLER_HANDHELD, TYPE_HANDHELD);
 }
 
 float Gamepad::GetAxis(size_t axis)
@@ -12,24 +14,24 @@ float Gamepad::GetAxis(size_t axis)
 
     if (axis == 1 || axis == 2)
     {
-        // hidCircleRead(&stick);
+        hidJoystickRead(&stick, CONTROLLER_P1_AUTO, JOYSTICK_LEFT);
 
-        // if (axis == 1)
-        //     value = stick.dx;
-        // else if (axis == 2)
-        //     value = stick.dy;
+        if (axis == 1)
+             value = stick.dx;
+        else if (axis == 2)
+             value = stick.dy;
     }
     else if (axis == 3 || axis == 4)
     {
-        // irrstCstickRead(&stick);
+        hidJoystickRead(&stick, CONTROLLER_P1_AUTO, JOYSTICK_RIGHT);
 
-        // if (axis == 1)
-        //     value = stick.dx;
-        // else if (axis == 2)
-        //     value = stick.dy;
+        if (axis == 3)
+            value = stick.dx;
+        else if (axis == 4)
+            value = stick.dy;
     }
 
-    value = value / 156.0f;
+    value = value / JOYSTICK_MAX;
 
     return std::clamp(value, -1.0f, 1.0f);
 }
@@ -53,24 +55,24 @@ float Gamepad::GetGamepadAxis(const std::string & axis)
 
     if (axis.substr(0, 4) == "left")
     {
-        // hidCircleRead(&stick);
+        hidJoystickRead(&stick, CONTROLLER_P1_AUTO, JOYSTICK_LEFT);
 
-        // if (axis == "leftx")
-        //     value = stick.dx;
-        // else if (axis == "lefty")
-        //     value = stick.dy;
+        if (axis == "leftx")
+             value = stick.dx;
+        else if (axis == "lefty")
+             value = stick.dy;
     }
     else if (axis.substr(0, 5) == "right")
     {
-        // irrstCstickRead(&stick);
+        hidJoystickRead(&stick, CONTROLLER_P1_AUTO, JOYSTICK_RIGHT);
 
-        // if (axis == "rightx")
-        //     value = stick.dx;
-        // else if (axis == "righty")
-        //     value = stick.dy;
+        if (axis == "rightx")
+            value = stick.dx;
+        else if (axis == "righty")
+            value = stick.dy;
     }
 
-    value = value / 156.0f;
+    value = value / JOYSTICK_MAX;
 
     return std::clamp(value, -1.0f, 1.0f);
 }
@@ -103,9 +105,9 @@ std::string Gamepad::GetName()
     return ret;
 }
 
-float Gamepad::GetVibration()
+std::pair<float, float> Gamepad::GetVibration()
 {
-    return 0.0f;
+    return this->vibrations;
 }
 
 bool Gamepad::IsConnected()

@@ -21,7 +21,7 @@ clean-switch:
 	@$(MAKE) -C platform/switch clean
 
 3ds:
-	@$(MAKE) -C platform/3ds
+	@$(MAKE) -C platform/3ds -j2
 
 switch:
-	@$(MAKE) -C platform/switch
+	@$(MAKE) -C platform/switch -j2

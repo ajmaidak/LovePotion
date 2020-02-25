@@ -225,7 +225,7 @@ end
 
 local screens = {
     ["Switch"] = {nil},
-    ["3DS"] = {"top", "bottom"}
+    ["3DS"] = {"top", "top", "bottom"}
 }
 
 function love.run()
@@ -236,7 +236,7 @@ function love.run()
     local delta = 0
 
     return function()
-        if love.event then
+        if love.event and love.event.pump then
             love.event.pump()
 
             for name, a, b, c, d, e, f in love.event.poll() do
@@ -324,28 +324,32 @@ function love.errorhandler(message)
     end
 
     local function draw()
-        love.graphics.clear(0.35, 0.62, 0.86)
+        if love.graphics then
+            love.graphics.clear(0.35, 0.62, 0.86)
 
-        for display = 1, love.window.getDisplayCount() do
-            love.graphics.setScreen(display) --just to clear it
+            for display = 1, love.window.getDisplayCount() do
+                love.graphics.setScreen(display) --just to clear it
 
-            if display == 1 then
-                -- render our error message
-                -- love.graphics.print(msg, 10, 10)
+                if display == 1 then
+                    -- render our error message
+                    -- love.graphics.print(msg, 10, 10)
+                end
             end
-        end
 
-        love.graphics.present()
+            love.graphics.present()
+        end
     end
 
     return function()
-        love.event.pump()
+        if love.event then
+            love.event.pump()
 
-        for name, a, b, c, d, e, f in love.event.poll() do
-            if name == "quit" then
-                return 1
-            elseif name == "gamepadpressed" and b == "start" then
-                return 1
+            for name, a, b, c, d, e, f in love.event.poll() do
+                if name == "quit" then
+                    return 1
+                elseif name == "gamepadpressed" and b == "start" then
+                    return 1
+                end
             end
         end
 
@@ -394,7 +398,11 @@ function love.boot()
     -- Modules to load
     local modules =
     {
-        "window", "event", "joystick", "timer", "graphics"
+        "window",
+        "event",
+        "joystick",
+        "timer",
+        "graphics"
     }
 
     -- Load them all!

@@ -1,13 +1,19 @@
 #include "common/runtime.h"
-#include "modules/window.h"
+#include "modules/window/wrap_window.h"
 
-#include "common/backend/display.h"
+#define instance() (Module::GetInstance<Window>(Module::M_WINDOW))
 
-// love.window.getFullscreenModes
-int Window::GetFullscreenModes(lua_State * L)
+int Wrap_Window::GetDisplayCount(lua_State * L)
+{
+    lua_pushinteger(L, instance()->GetDisplayCount());
+
+    return 1;
+}
+
+int Wrap_Window::GetFullscreenModes(lua_State * L)
 {
     unsigned int display = luaL_optnumber(L, 1, 1);
-    auto displaySizes = Display::GetWindowSizes();
+    auto displaySizes = instance()->GetFullscreenModes();
 
 
     if (!display || display > displaySizes.size())
@@ -38,23 +44,23 @@ int Window::GetFullscreenModes(lua_State * L)
     return 1;
 }
 
-int Window::GetDisplayCount(lua_State * L)
+int Wrap_Window::IsOpen(lua_State * L)
 {
-    lua_pushinteger(L, Display::GetDisplayCount());
+    lua_pushboolean(L, instance()->IsOpen());
 
     return 1;
 }
 
-int Window::IsOpen(lua_State * L)
+int Wrap_Window::SetMode(lua_State * L)
 {
-    lua_pushboolean(L, Display::IsOpen());
+    instance()->SetMode();
 
-    return 1;
+    return 0;
 }
 
-int Window::Register(lua_State * L)
+int Wrap_Window::Register(lua_State * L)
 {
-    luaL_Reg reg[] =
+    luaL_Reg functions[] =
     {
         { "isOpen",             IsOpen             },
         { "setMode",            SetMode            },
@@ -63,9 +69,18 @@ int Window::Register(lua_State * L)
         { 0,                    0                  }
     };
 
-    Module module;
+    Window * instance = instance();
+    if (instance == nullptr)
+        Luax::CatchException(L, [&]() { instance = new Window(); });
+    else
+        instance->Retain();
+
+    WrappedModule module;
+
+    module.instance = instance;
     module.name = "window";
-    module.functions = reg;
+    module.type = &Module::type;
+    module.functions = functions;
     module.types = 0;
 
     return Luax::RegisterModule(L, module);

@@ -23,13 +23,13 @@ float Gamepad::GetAxis(size_t axis)
     {
         irrstCstickRead(&stick);
 
-        if (axis == 1)
+        if (axis == 3)
             value = stick.dx;
-        else if (axis == 2)
+        else if (axis == 3)
             value = stick.dy;
     }
 
-    value = value / 156.0f;
+    value = value / JOYSTICK_MAX;
 
     return std::clamp(value, -1.0f, 1.0f);
 }
@@ -86,9 +86,9 @@ std::string Gamepad::GetName()
     return "Nintendo 3DS";
 }
 
-float Gamepad::GetVibration()
+std::pair<float, float> Gamepad::GetVibration()
 {
-    return 0.0f;
+    return std::make_pair(0.0f, 0.0f);
 }
 
 bool Gamepad::IsConnected()

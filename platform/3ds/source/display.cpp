@@ -1,5 +1,4 @@
 #include "common/runtime.h"
-#include "modules/graphics.h"
 
 #include "common/backend/display.h"
 #include "modules/love.h"
@@ -10,6 +9,7 @@ void Display::Initialize()
         return;
 
     gfxInitDefault();
+    gfxSet3D(true);
 
     if (!C3D_Init(C3D_DEFAULT_CMDBUF_SIZE))
         svcBreak(USERBREAK_PANIC);
@@ -21,11 +21,9 @@ void Display::Initialize()
 
     m_targets = {
         C2D_CreateScreenTarget(GFX_TOP,    GFX_LEFT),
-        C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT),
-        C2D_CreateScreenTarget(GFX_TOP,    GFX_RIGHT)
+        C2D_CreateScreenTarget(GFX_TOP,    GFX_RIGHT),
+        C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT)
     };
-
-    m_open = true;
 }
 
 Renderer * Display::GetRenderer()
@@ -51,7 +49,7 @@ int Display::SetScreen(lua_State * L)
 {
     int index = luaL_checkinteger(L, 1);
 
-    int display = std::clamp((int)index - 1, 0, 1);
+    int display = std::clamp((int)index - 1, 0, 2);
 
     C2D_SceneBegin(m_targets[display]);
 
@@ -63,24 +61,6 @@ int Display::Present(lua_State * L)
     C3D_FrameEnd(0);
 
     return 0;
-}
-
-std::vector<std::pair<int, int>> Display::GetWindowSizes()
-{
-    return std::vector<std::pair<int, int>> {
-        { 400, 240 },
-        { 320, 240}
-    };
-}
-
-unsigned int Display::GetDisplayCount()
-{
-    return 2;
-}
-
-bool Display::IsOpen()
-{
-    return m_open;
 }
 
 void Display::Exit()

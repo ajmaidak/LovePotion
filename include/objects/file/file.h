@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string.h>
+#include "objects/filedata/filedata.h"
 
 class File : public Object
 {
@@ -15,19 +15,28 @@ class File : public Object
             APPEND
         };
 
-        File(const char * path);
+        static const int64_t ALL = -1;
 
+        File(const std::string & filename);
         ~File();
 
-        char * Read();
+        FileData * Read(int64_t size = ALL);
 
-        void Write(const char * data, size_t length);
+        int64_t Read(void * destination, int64_t size);
+
+        bool Write(Data * data, int64_t size);
+        bool Write(const void * data, int64_t size);
 
         const char * GetMode();
 
         bool Open(File::Mode mode);
+
         bool IsOpen();
+
+        int64_t Tell();
+
         void Flush();
+
         void Close();
 
         long GetSize();
@@ -36,11 +45,13 @@ class File : public Object
         static bool GetConstant(Mode in, char * out);
 
     private:
-        const char * path;
-        const char * mode;
+        std::string filename;
+        Mode mode;
 
         FILE * fileHandle;
         bool open;
+
+        const std::string & GetFilename() const;
 
         static inline std::map<char, File::Mode> m_modes =
         {

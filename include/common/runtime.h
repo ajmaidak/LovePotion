@@ -11,12 +11,6 @@ extern "C"
 }
 
 // custom structs
-struct Module
-{
-    const char * name;
-    const luaL_reg * functions;
-    const lua_CFunction * types;
-};
 
 struct Nil {};
 
@@ -33,6 +27,9 @@ enum DoneAction
 #include <map>
 #include <atomic>
 #include <bitset>
+#include <sys/time.h>
+#include <exception>
+#include <filesystem>
 
 #include <string>
 using namespace std::string_literals;
@@ -45,9 +42,12 @@ using namespace std::string_literals;
 #include "common/type.h"
 #include "common/defines.h"
 #include "common/proxy.h"
+#include "common/module.h"
+#include "common/exception.h"
 
 #include "common/logger.h"
 #include "common/luax.h"
 
+#include "common/data.h"
 #include "common/variant.h"
 #include "common/message.h"

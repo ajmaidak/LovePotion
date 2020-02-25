@@ -88,15 +88,18 @@ int Wrap_Gamepad::GetName(lua_State * L)
 
 /*
 ** @func GetVibration
-** @ret Current vibration
+** @ret Current vibration for <left, right>
 */
 int Wrap_Gamepad::GetVibration(lua_State * L)
 {
     Gamepad * self = Wrap_Gamepad::CheckJoystick(L, 1);
 
-    lua_pushnumber(L, self->GetVibration());
+    std::pair<float, float> vibrations = self->GetVibration();
 
-    return 1;
+    lua_pushnumber(L, vibrations.first);
+    lua_pushnumber(L, vibrations.second);
+
+    return 2;
 }
 
 /*

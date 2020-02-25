@@ -11,6 +11,8 @@ typedef SDL_Window Frame;
 
 typedef JoystickPosition StickPosition;
 
+typedef HidVibrationValue VibrationValue;
+
 typedef struct
 {
     float r;

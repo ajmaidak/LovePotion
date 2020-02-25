@@ -9,9 +9,20 @@
 
 #define MAX_GAMEPADS 1
 
+#define JOYSTICK_MAX 150.0f
+
+typedef struct _vibe {
+    float amp_low;
+    float amp_high;
+    float freq_low;
+    float freq_high;
+} VibrationValue;
+
 typedef circlePosition StickPosition;
 
 typedef C3D_RenderTarget Renderer;
+
+typedef C2D_Image Texture;
 
 typedef struct _Frame Frame;
 

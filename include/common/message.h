@@ -1,6 +1,6 @@
 #pragma once
 
-class Message
+class Message : public Object
 {
     public:
         Message(const std::string & name, const std::vector<Variant> & args = {});

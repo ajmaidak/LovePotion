@@ -6,6 +6,7 @@
 enum Registry
 {
     OBJECTS = 0,
+    MODULES,
     UNKNOWN
 };
 
@@ -22,11 +23,15 @@ namespace Luax
 
     int Insist(lua_State * L, int index, const char * key);
 
+    int InsistLove(lua_State * L, const char * key);
+
+    int GetLove(lua_State * L, const char * key);
+
     lua_State * InsistPinnedThread(lua_State * L);
 
     void SetFunctions(lua_State * L, const luaL_reg * l);
 
-    int RegisterModule(lua_State * L, const Module & module);
+    int RegisterModule(lua_State * L, const WrappedModule & module);
 
     int RegisterType(lua_State * L, love::Type * object, ...);
 
@@ -44,9 +49,13 @@ namespace Luax
 
     int Release(lua_State * L);
 
+    bool IsType(lua_State * L, int index, love::Type & type);
+
     void RawNewType(lua_State * L, love::Type & type, Object * object);
 
     lua_Number ComputerObjectKey(lua_State * L, Object * object);
+
+    int IOError(lua_State * L, const char * format, ...);
 
     void PushType(lua_State * L, love::Type & type, Object * object);
 
@@ -63,6 +72,23 @@ namespace Luax
     }
 
     int TypeErrror(lua_State * L, int narg, const char * name);
+
+    template <typename T>
+    T * ToType(lua_State * L, int index, const love::Type & /*type*/)
+    {
+        T * object = (T *)(((Proxy *)lua_touserdata(L, index))->object);
+
+        if (object == nullptr)
+            luaL_error(L, "Cannot use object after it has been released.");
+
+        return object;
+    }
+
+    template <typename T>
+    T * ToType(lua_State * L, int index)
+    {
+        return ToType<T>(L, index, T::type);
+    }
 
     /*
     ** @func CheckType<T>
@@ -101,4 +127,48 @@ namespace Luax
     }
 
     int Traceback(lua_State * L);
+
+    template <typename T>
+    int CatchException(lua_State * L, const T & func)
+    {
+        bool should_error = false;
+
+        try
+        {
+            func();
+        }
+        catch (const std::exception & e)
+        {
+            should_error = true;
+            lua_pushstring(L, e.what());
+        }
+
+        if (should_error)
+            return luaL_error(L, "%s", lua_tostring(L, -1));
+
+        return 0;
+    }
+
+    template <typename T, typename F>
+    int CatchException(lua_State * L, const T & func, const F & finallyfunc)
+    {
+        bool should_error = false;
+
+        try
+        {
+            func();
+        }
+        catch (const std::exception & e)
+        {
+            should_error = true;
+            lua_pushstring(L, e.what());
+        }
+
+        finallyfunc(should_error);
+
+        if (should_error)
+            return luaL_error(L, "%s", lua_tostring(L, -1));
+
+        return 0;
+    }
 };

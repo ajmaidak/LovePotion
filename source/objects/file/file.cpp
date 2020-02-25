@@ -5,9 +5,9 @@
 
 love::Type File::type("File", &Object::type);
 
-File::File(const char * path)
+File::File(const std::string & filename)
 {
-    this->path = strdup(path);
+    this->filename = filename;
     this->open = false;
 }
 
@@ -32,7 +32,17 @@ long File::GetSize()
 
 const char * File::GetMode()
 {
-    return this->mode;
+    switch (this->mode)
+    {
+        case Mode::APPEND:
+            return "a";
+        case Mode::CLOSED:
+            return "c";
+        case Mode::READ:
+            return "r";
+        default:
+            return "w";
+    }
 }
 
 bool File::IsOpen()
@@ -46,23 +56,31 @@ bool File::Open(File::Mode mode)
     this->GetConstant(mode, openMode);
     strcat(openMode, "b");
 
-    this->fileHandle = fopen(this->path, openMode);
+    this->fileHandle = fopen(this->GetFilename().c_str(), openMode);
 
     if (!this->fileHandle)
         return false;
 
-    this->mode = strdup(openMode);
+    this->mode = mode;
     this->open = true;
 
     return true;
 }
 
-void File::Write(const char * data, size_t length)
+bool File::Write(const void * data, int64_t size)
 {
-    if (!this->open)
-        return;
+    if (!this->fileHandle || (this->mode != WRITE && this->mode != APPEND))
+        throw love::Exception("File is not opened for writing");
 
-    fwrite(data, 1, length, this->fileHandle);
+    if (!this->open && !this->Open(Mode::WRITE))
+        throw love::Exception("Could not write to file %s", this->GetFilename().c_str());
+
+    int64_t written = fwrite(data, 1, size, this->fileHandle);
+
+    if (written != size)
+        return false;
+
+    return true;
 }
 
 void File::Flush()
@@ -72,26 +90,91 @@ void File::Flush()
 
 void File::Close()
 {
-
+    this->mode = File::Mode::CLOSED;
     fclose(this->fileHandle);
 }
 
-char * File::Read()
+int64_t File::Read(void * destination, int64_t size)
 {
+    if (!this->open && !this->Open(READ))
+        throw love::Exception("File is not opened for reading.");
+
+    long selfSize = this->GetSize();
+
+    size = (size == ALL) ? selfSize : size;
+    size = (size > selfSize) ? selfSize : size;
+
+    if (size < 0)
+        throw love::Exception("Invalid read size.");
+
+    fread(destination, 1, size, this->fileHandle);
+    // destination[size] = '\0';
+
+    return size;
+}
+
+int64_t File::Tell()
+{
+    if (!this->fileHandle)
+        return -1;
+
+    return ftell(this->fileHandle);
+}
+
+FileData * File::Read(int64_t size)
+{
+    if (!this->open && !this->Open(READ))
+        throw love::Exception("Could not read file %s.", this->GetFilename().c_str());
+
+    int64_t max = this->GetSize();
+    int64_t current = this->Tell();
+
+    size = (size == ALL) ? max : size;
+
+    if (size < 0)
+        throw love::Exception("Invalid read size.");
+
+    if (current < 0)
+        current = 0;
+    else if (current > max)
+        current = max;
+
+    if (current + size > max)
+        size = max - current;
+
+    FileData * fileData = new FileData(size, this->GetFilename());
+
+    int64_t bytesRead = this->Read(fileData->GetData(), size);
+
+    if (bytesRead < 0 || (bytesRead == 0 && bytesRead != size))
+    {
+        delete fileData;
+        throw love::Exception("Could not read from file.");
+    }
+
+    if (bytesRead < size)
+    {
+        FileData * tmp = new FileData(bytesRead, this->GetFilename());
+        memcpy(tmp->GetData(), fileData->GetData(), (size_t)bytesRead);
+        fileData->Release();
+
+        fileData = tmp;
+    }
+
     if (!this->open)
-        return NULL;
+        this->Close();
 
-    char * buffer;
+    return fileData;
+}
 
-    long size = this->GetSize();
+bool File::Write(Data * data, int64_t size)
+{
+    return this->Write(data->GetData(), (size == ALL) ? data->GetSize() : size);
+}
 
-    buffer = (char *)malloc(size * sizeof(char));
-
-    fread(buffer, 1, size, this->fileHandle);
-
-    buffer[size] = '\0';
-
-    return buffer;
+const std::string & File::GetFilename() const
+{
+    return this->filename;
 }
 
 bool File::GetConstant(const char * in, Mode & out)

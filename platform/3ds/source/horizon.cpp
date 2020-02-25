@@ -11,7 +11,7 @@ void Horizon::Initialize()
     acInit();
     mcuHwcInit();
 
-    m_regions = 
+    m_regions =
     {
         { CFG_REGION_AUS, "AUS" },
         { CFG_REGION_CHN, "CHN" },
@@ -109,12 +109,12 @@ std::pair<std::string, int> Horizon::GetWiFiStatus()
     u32 status = 0;
 
     ACU_GetWifiStatus(&status);
-    
+
     std::string stat = "disconnected";
     if (status != 0)
         stat = "connected";
 
-    return std::make_pair(stat, wifiStength);
+    return std::make_pair(stat, wifiStrength);
 }
 
 void Horizon::Exit()

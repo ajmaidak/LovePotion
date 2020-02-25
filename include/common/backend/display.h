@@ -20,6 +20,10 @@ class Display
             m_blendColor = {color->r, color->g, color->b, color->a};
         }
 
+        static inline Color GetBlendColor() {
+            return m_blendColor;
+        }
+
         static int SetScreen(lua_State * L);
 
         static std::vector<std::pair<int, int>> GetWindowSizes();
@@ -28,6 +32,7 @@ class Display
         static Renderer * GetRenderer();
 
         static bool IsOpen();
+
 
         static void Exit();
 
