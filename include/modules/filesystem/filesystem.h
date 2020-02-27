@@ -10,94 +10,97 @@
 
 #define MAX_STAMP 0x20000000000000LL
 
-class Filesystem : public Module
+namespace love
 {
-    public:
-        enum FileType
-        {
-            FILE,
-            DIRECTORY,
-            SYMLINK,
-            OTHER,
-            MAX_ENUM
-        };
-
-        struct Info
-        {
-            int64_t size;
-            int64_t modtime;
-            FileType type;
-        };
-
-        const char * GetName() const override { return "love.filesystem"; }
-
-        virtual ~Filesystem() {};
-
-        virtual ModuleType GetModuleType() const { return M_FILESYSTEM; }
-
-        static inline bool GetConstant(const char * find, FileType & type) {
-            if (types.find(find) != types.end())
+    class Filesystem : public Module
+    {
+        public:
+            enum FileType
             {
-                type = types[find];
-                return true;
-            }
+                FILE,
+                DIRECTORY,
+                SYMLINK,
+                OTHER,
+                MAX_ENUM
+            };
 
-            return false;
-        }
-
-        static inline bool GetConstant(FileType find, const char *& out) {
-            for (auto it = types.begin(); it != types.end(); it++)
+            struct Info
             {
-                if (it->second == find)
+                int64_t size;
+                int64_t modtime;
+                FileType type;
+            };
+
+            const char * GetName() const override { return "love.filesystem"; }
+
+            virtual ~Filesystem() {};
+
+            virtual ModuleType GetModuleType() const { return M_FILESYSTEM; }
+
+            static inline bool GetConstant(const char * find, FileType & type) {
+                if (types.find(find) != types.end())
                 {
-                    out = it->first;
+                    type = types[find];
                     return true;
                 }
+
+                return false;
             }
 
-            return false;
-        }
+            static inline bool GetConstant(FileType find, const char *& out) {
+                for (auto it = types.begin(); it != types.end(); it++)
+                {
+                    if (it->second == find)
+                    {
+                        out = it->first;
+                        return true;
+                    }
+                }
 
-        static void Exit();
+                return false;
+            }
 
-        void Append(const char * filename, const void * data, int64_t size);
+            static void Exit();
 
-        void CreateDirectory(const char * name);
+            void Append(const char * filename, const void * data, int64_t size);
 
-        void GetDirectoryItems(const char * directory, std::vector<std::string> & items);
+            void CreateDirectory(const char * name);
 
-        std::string GetIdentity();
+            void GetDirectoryItems(const char * directory, std::vector<std::string> & items);
 
-        bool GetInfo(const char * filename, Info & info) const;
+            std::string GetIdentity();
 
-        std::string GetSaveDirectory();
+            bool GetInfo(const char * filename, Info & info) const;
 
-        File * NewFile(const char * filename);
+            std::string GetSaveDirectory();
 
-        FileData * NewFileData(const void * data, size_t size, const char * filename);
+            File * NewFile(const char * filename);
 
-        FileData * Read(const char * filename, int64_t size = File::ALL);
+            FileData * NewFileData(const void * data, size_t size, const char * filename);
 
-        bool Remove(const char * filename);
+            FileData * Read(const char * filename, int64_t size = File::ALL);
 
-        void SetIdentity(const char * identity);
+            bool Remove(const char * filename);
 
-        void Write(const char * filename, const void * data, int64_t size);
+            void SetIdentity(const char * identity);
 
-        // End Löve2D Functions
+            void Write(const char * filename, const void * data, int64_t size);
 
-    private:
-        std::string saveDirectory;
-        std::string identity;
+            // End Löve2D Functions
 
-        static inline std::map<const char *, FileType> types = {
-            { "file",      FileType::FILE },
-            { "directory", FileType::DIRECTORY },
-            { "symlink",   FileType::SYMLINK },
-            { "other",     FileType::OTHER }
-        };
+        private:
+            std::string saveDirectory;
+            std::string identity;
 
-        // Löve2D Functions
+            static inline std::map<const char *, FileType> types = {
+                { "file",      FileType::FILE },
+                { "directory", FileType::DIRECTORY },
+                { "symlink",   FileType::SYMLINK },
+                { "other",     FileType::OTHER }
+            };
 
-        std::string Redirect(const char * path);
-};
+            // Löve2D Functions
+
+            std::string Redirect(const char * path);
+    };
+}

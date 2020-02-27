@@ -2,6 +2,7 @@
 
 #include "objects/file/wrap_file.h"
 #include "objects/filedata/wrap_filedata.h"
+#include "modules/data/wrap_datamodule.h"
 #include "modules/filesystem/filesystem.h"
 
 namespace Wrap_Filesystem

@@ -1,26 +1,29 @@
 #pragma once
 
-class Window : public Module
+namespace love
 {
-    public:
-        virtual ~Window() {};
+    class Window : public Module
+    {
+        public:
+            virtual ~Window() {};
 
-        virtual ModuleType GetModuleType() const { return M_WINDOW; }
+            virtual ModuleType GetModuleType() const { return M_WINDOW; }
 
-        const char * GetName() const override { return "love.window"; }
+            const char * GetName() const override { return "love.window"; }
 
-        // Löve2D Functions
+            // Löve2D Functions
 
-        void SetMode() { };
+            void SetMode() { };
 
-        int GetDisplayCount();
+            int GetDisplayCount();
 
-        std::vector<std::pair<int, int>> GetFullscreenModes();
+            std::vector<std::pair<int, int>> GetFullscreenModes();
 
-        bool IsOpen();
+            bool IsOpen();
 
-        // End Löve2D Functions
+            // End Löve2D Functions
 
-    private:
-        std::vector<std::pair<int, int>> displaySizes;
-};
+        private:
+            std::vector<std::pair<int, int>> displaySizes;
+    };
+}

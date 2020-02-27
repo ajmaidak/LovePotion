@@ -1,12 +1,16 @@
 #include "common/runtime.h"
 #include "modules/filesystem/filesystem.h"
 
+#include "common/assets.h"
+
+using namespace love;
+
 #include <sys/stat.h>
 
 void Filesystem::Append(const char * filename, const void * data, int64_t size)
 {
     File file(filename);
-    file.Open(File::Mode::APPEND);
+    file.Open(File::MODE_APPEND);
 
     if (!file.Write(data, size))
         throw love::Exception("Data could not be written.");
@@ -56,12 +60,12 @@ bool Filesystem::GetInfo(const char * filename, Filesystem::Info & info) const
 
 std::string Filesystem::GetSaveDirectory()
 {
-    return this->saveDirectory + "/";
+    return Assets::GetWritePath();
 }
 
 File * Filesystem::NewFile(const char * filename)
 {
-    return new File(filename);
+    return new File(this->GetSaveDirectory() + filename);
 }
 
 FileData * Filesystem::NewFileData(const void * data, size_t size, const char * filename)
@@ -76,7 +80,7 @@ FileData * Filesystem::Read(const char * filename, int64_t size)
 {
     File file(this->Redirect(filename));
 
-    file.Open(File::Mode::READ);
+    file.Open(File::MODE_READ);
 
     return file.Read(size);
 }
@@ -95,24 +99,20 @@ void Filesystem::Write(const char * filename, const void * data, int64_t size)
 {
     File file(this->GetSaveDirectory() + filename);
 
-    file.Open(File::Mode::WRITE);
+    file.Open(File::MODE_WRITE);
 
     if (!file.Write(data, size))
         throw love::Exception("Data could not be written.");
 }
 
+/*
+** Check save directory first
+** If the file doesn't exist, return source directory
+*/
 std::string Filesystem::Redirect(const char * path)
 {
-    struct stat pathInfo;
-
-    //Check save directory first
-    std::string saveFile = GetSaveDirectory() + std::string(path);
-    const char * filename = saveFile.c_str();
-
-    int success = stat(filename, &pathInfo);
-
-    if (success == 0)
-        return saveFile;
+    if (std::filesystem::exists(GetSaveDirectory() + std::string(path)))
+        return GetSaveDirectory() + std::string(path);
     else
-        return std::string(path);
+        return path;
 }

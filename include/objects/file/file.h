@@ -1,63 +1,84 @@
 #pragma once
 
 #include "objects/filedata/filedata.h"
+#include "common/stringmap.h"
 
-class File : public Object
+namespace love
 {
-    public:
-        static love::Type type;
+    class File : public Object
+    {
+        public:
+            static love::Type type;
 
-        enum Mode
-        {
-            CLOSED,
-            READ,
-            WRITE,
-            APPEND
-        };
+            enum Mode
+            {
+                MODE_CLOSED,
+                MODE_READ,
+                MODE_WRITE,
+                MODE_APPEND,
+                MODE_MAX_ENUM
+            };
 
-        static const int64_t ALL = -1;
+            enum BufferMode
+            {
+                BUFFER_NONE,
+                BUFFER_LINE,
+                BUFFER_FULL,
+                BUFFER_MAX_ENUM
+            };
 
-        File(const std::string & filename);
-        ~File();
+            static const int64_t ALL = -1;
 
-        FileData * Read(int64_t size = ALL);
+            File(const std::string & filename);
+            ~File();
 
-        int64_t Read(void * destination, int64_t size);
+            bool Close();
 
-        bool Write(Data * data, int64_t size);
-        bool Write(const void * data, int64_t size);
+            bool Flush();
 
-        const char * GetMode();
+            const char * GetBuffer();
 
-        bool Open(File::Mode mode);
+            const std::string & GetFilename() const;
 
-        bool IsOpen();
+            Mode GetMode();
 
-        int64_t Tell();
+            int64_t GetSize();
 
-        void Flush();
+            bool IsEOF();
 
-        void Close();
+            bool IsOpen();
 
-        long GetSize();
+            bool Open(File::Mode mode);
 
-        static bool GetConstant(const char * in, Mode & out);
-        static bool GetConstant(Mode in, char * out);
+            int64_t Read(void * destination, int64_t size);
+            FileData * Read(int64_t size = ALL);
 
-    private:
-        std::string filename;
-        Mode mode;
+            bool Seek(uint64_t position);
 
-        FILE * fileHandle;
-        bool open;
+            bool SetBuffer(BufferMode mode, int64_t size);
 
-        const std::string & GetFilename() const;
+            int64_t Tell();
 
-        static inline std::map<char, File::Mode> m_modes =
-        {
-            { 'c', Mode::CLOSED },
-            { 'r', Mode::READ   },
-            { 'w', Mode::WRITE, },
-            { 'a', Mode::APPEND }
-        };
-};
+            bool Write(const void * data, int64_t size);
+            bool Write(Data * data, int64_t size);
+
+            // Helper functions
+
+            static bool GetConstant(const char * in, Mode & out);
+            static bool GetConstant(Mode in, const char *& out);
+
+            static std::vector<std::string> GetConstants(Mode);
+
+        private:
+            std::string filename;
+            FILE * file;
+            Mode mode;
+            BufferMode bufferMode;
+            int64_t bufferSize;
+
+            int64_t BufferedRead(void * buffer, size_t length);
+
+            static StringMap<Mode, Mode::MODE_MAX_ENUM>::Entry modeEntries[];
+            static StringMap<Mode, Mode::MODE_MAX_ENUM> modes;
+    };
+}

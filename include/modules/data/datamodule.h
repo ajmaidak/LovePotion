@@ -1,19 +1,32 @@
 #pragma once
 
-class DataModule : public Module
+#include "common/stringmap.h"
+
+namespace love
 {
-    public:
+    namespace data
+    {
         enum EncodeFormat
         {
-            BASE64,
-            HEX
+            ENCODE_BASE64,
+            ENCODE_HEX,
+            ENCODE_MAX_ENUM
         };
 
         enum ContainerType
         {
-            DATA,
-            STRING
+            CONTAINER_DATA,
+            CONTAINER_STRING,
+            CONTAINER_MAX_ENUM
         };
+    }
+}
+
+class DataModule : public Module
+{
+    public:
+        static bool GetConstant(const char * in, love::data::ContainerType & out);
+        static std::vector<std::string> GetConstants();
 
         DataModule();
         virtual ~DataModule();

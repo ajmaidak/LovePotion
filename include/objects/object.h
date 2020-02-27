@@ -1,20 +1,23 @@
 #pragma once
 
-class Object
+namespace love
 {
-    public:
-        Object(const Object & other);
-        Object();
+    class Object
+    {
+        public:
+            Object(const Object & other);
+            Object();
 
-        virtual ~Object() = 0;
+            virtual ~Object() = 0;
 
-        void Retain();
-        void Release();
+            void Retain();
+            void Release();
 
-        int GetReferenceCount() const;
+            int GetReferenceCount() const;
 
-        static love::Type type;
+            static love::Type type;
 
-    private:
-        std::atomic<int> count;
-};
+        private:
+            std::atomic<int> count;
+    };
+}

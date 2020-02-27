@@ -4,8 +4,12 @@
 #include "modules/love.h"
 #include "common/backend/display.h"
 
-DoneAction Run_Love_Potion(lua_State * L, int & retval)
+DoneAction Run_Love_Potion(int & retval)
 {
+    // Make a new Lua state
+    lua_State * L = luaL_newstate();
+    luaL_openlibs(L);
+
     // preload love
     Love::Preload(L, Love::Initialize, "love");
 
@@ -32,12 +36,21 @@ DoneAction Run_Love_Potion(lua_State * L, int & retval)
     while (lua_resume(L, nullptr, 0) == LUA_YIELD)
             lua_pop(L, lua_gettop(L) - stackpos);
 
+    retval = 0;
+    DoneAction done = DONE_QUIT;
+
+    // if we wish to "restart", start up again after closing
+    if (lua_type(L, -1) == LUA_TSTRING && strcmp(lua_tostring(L, -1), "restart") == 0)
+        done = DONE_RESTART;
+
     // custom quit value
     if (lua_isnumber(L, -1))
         retval = (int)lua_tonumber(L, -1);
 
+    Love::Exit(L);
+
     // actually return quit
-    return DoneAction::DONE_QUIT;
+    return done;
 }
 
 int main(int argc, char * argv[])
@@ -52,21 +65,15 @@ int main(int argc, char * argv[])
 
     Display::Initialize();
 
-    // Make a new Lua state
-    lua_State * L = luaL_newstate();
-    luaL_openlibs(L);
-
-    DoneAction done = DoneAction::DONE_QUIT;
+    DoneAction done = DONE_QUIT;
     int retval = 0;
 
     while (appletMainLoop())
     {
-        done = Run_Love_Potion(L, retval);
+        done = Run_Love_Potion(retval);
         if (done == DoneAction::DONE_QUIT)
             break;
     }
-
-    Love::Exit(L);
 
     return retval;
 }

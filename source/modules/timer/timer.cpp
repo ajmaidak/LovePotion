@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/timer/timer.h"
 
+using namespace love;
+
 #include <SDL.h>
 
 //Löve2D Functions

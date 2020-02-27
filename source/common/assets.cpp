@@ -4,10 +4,13 @@
 #include <unistd.h>
 #include <dirent.h>
 
+char path[PATH_MAX];
+std::string Assets::writePath = getcwd(path, PATH_MAX);
+
 void Assets::Initialize(const std::string & path)
 {
     Location location = Assets::GetLocation(path);
-    
+
     switch(location)
     {
         case Location::SDMC:
@@ -22,6 +25,11 @@ void Assets::Initialize(const std::string & path)
     }
 
     chdir(directory.c_str());
+}
+
+std::string Assets::GetWritePath()
+{
+    return writePath;
 }
 
 Location Assets::GetLocation(const std::string & path)

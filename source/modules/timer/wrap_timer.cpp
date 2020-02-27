@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/timer/wrap_timer.h"
 
+using namespace love;
+
 #define instance() (Module::GetInstance<Timer>(Module::M_TIMER))
 
 int Wrap_Timer::GetAverageDelta(lua_State * L)

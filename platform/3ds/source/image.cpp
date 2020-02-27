@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "objects/image/image.h"
 
+using namespace love;
+
 Image::Image(const std::string & path)
 {
     size_t pos = path.find_last_of(".") + 1;

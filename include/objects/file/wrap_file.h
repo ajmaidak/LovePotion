@@ -1,6 +1,7 @@
 #pragma once
 
 #include "objects/file/file.h"
+#include "data/wrap_datamodule.h"
 
 namespace Wrap_File
 {
@@ -19,6 +20,8 @@ namespace Wrap_File
     int IsEOF(lua_State * L);
 
     int IsOpen(lua_State * L);
+
+    int Lines_I(lua_State * L);
 
     int Lines(lua_State * L);
 

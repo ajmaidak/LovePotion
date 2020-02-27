@@ -363,9 +363,6 @@ end
 
 love.errhand = love.errorhandler
 
---################--
--- BOOT THE GAME! --
---################--
 local function error_printer(msg, layer)
     trace = debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1))
     trace = trace:gsub("\n[^\n]+$", "")

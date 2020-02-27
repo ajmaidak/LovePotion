@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "common/module.h"
 
+using namespace love;
+
 namespace
 {
     typedef std::map<std::string, Module *> ModuleRegistry;

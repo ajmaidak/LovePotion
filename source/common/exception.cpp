@@ -1,5 +1,11 @@
 #include "common/runtime.h"
 
+#include <iostream>
+#include <cstdarg>
+#include <cstdio>
+#include <cstring>
+#include <exception>
+
 using namespace love;
 
 Exception::Exception(const char * format, ...)
@@ -29,7 +35,7 @@ Exception::Exception(const char * format, ...)
         delete[] buffer;
     }
 
-    message = std::string(buffer);
+    this->message = std::string(buffer);
     delete[] buffer;
 }
 

@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/joystick/wrap_joystick.h"
 
+using namespace love;
+
 #define instance() (Module::GetInstance<Joystick>(Module::M_JOYSTICK))
 
 int Wrap_Joystick::GetJoystickCount(lua_State * L)

@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "objects/gamepad/gamepad.h"
 
+using namespace love;
+
 Gamepad::Gamepad(size_t id)
 {
     this->id = id;

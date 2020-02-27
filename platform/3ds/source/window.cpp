@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/window/window.h"
 
+using namespace love;
+
 std::vector<std::pair<int, int>> Window::GetFullscreenModes()
 {
     return std::vector<std::pair<int, int>>

@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/window/wrap_window.h"
 
+using namespace love;
+
 #define instance() (Module::GetInstance<Window>(Module::M_WINDOW))
 
 int Wrap_Window::GetDisplayCount(lua_State * L)

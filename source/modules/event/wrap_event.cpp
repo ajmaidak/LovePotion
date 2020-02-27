@@ -3,7 +3,7 @@
 
 #include "wrap_Event_lua.h"
 
-#define instance() (Module::GetInstance<LoveEvent>(Module::M_EVENT))
+#define instance() (Module::GetInstance<love::Event>(Module::M_EVENT))
 
 int Wrap_Event::Poll_I(lua_State * L)
 {
@@ -16,6 +16,15 @@ int Wrap_Event::Poll_I(lua_State * L)
 
         return args;
     }
+
+    return 0;
+}
+
+int Wrap_Event::Clear(lua_State * L)
+{
+    Luax::CatchException(L, [&]() {
+        instance()->Clear();
+    });
 
     return 0;
 }
@@ -54,9 +63,9 @@ int Wrap_Event::Register(lua_State * L)
         { 0,        0      }
     };
 
-    LoveEvent * instance = instance();
+    Event * instance = instance();
     if (instance == nullptr)
-        Luax::CatchException(L, [&]() { instance = new LoveEvent(); });
+        Luax::CatchException(L, [&]() { instance = new love::Event(); });
     else
         instance->Retain();
 

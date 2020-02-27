@@ -3,48 +3,51 @@
 #include "objects/object.h"
 #include "common/backend/input.h"
 
-class Gamepad : public Object
+namespace love
 {
-    public:
-        Gamepad(size_t id);
+    class Gamepad : public Object
+    {
+        public:
+            Gamepad(size_t id);
 
-        static inline love::Type type = love::Type("Joystick", &Object::type);
+            static inline love::Type type = love::Type("Joystick", &Object::type);
 
-        float GetAxis(size_t axis);
+            float GetAxis(size_t axis);
 
-        size_t GetAxisCount();
+            size_t GetAxisCount();
 
-        size_t GetButtonCount();
+            size_t GetButtonCount();
 
-        float GetGamepadAxis(const std::string & axis);
+            float GetGamepadAxis(const std::string & axis);
 
-        size_t GetID() { return (id + 1); };
+            size_t GetID() { return (id + 1); };
 
-        std::string GetName();
+            std::string GetName();
 
-        std::pair<float, float> GetVibration();
+            std::pair<float, float> GetVibration();
 
-        bool IsConnected();
+            bool IsConnected();
 
-        bool IsDown(size_t button);
+            bool IsDown(size_t button);
 
-        bool IsGamepad();
+            bool IsGamepad();
 
-        bool IsGamepadDown(const std::string & button);
+            bool IsGamepadDown(const std::string & button);
 
-        bool IsVibrationSupported();
+            bool IsVibrationSupported();
 
-        bool SetVibration(float left, float right, float duration = 0.0f);
+            bool SetVibration(float left, float right, float duration = 0.0f);
 
-        virtual ~Gamepad() {}
+            virtual ~Gamepad() {}
 
-    private:
-        size_t id;
-        StickPosition stick;
+        private:
+            size_t id;
+            StickPosition stick;
 
-        std::pair<float, float> vibrations;
-        float vibrationDuration;
+            std::pair<float, float> vibrations;
+            float vibrationDuration;
 
-        u32 vibrationHandles[2][2];
-        VibrationValue vibrationValues[2];
-};
+            u32 vibrationHandles[2][2];
+            VibrationValue vibrationValues[2];
+    };
+}

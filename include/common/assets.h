@@ -16,10 +16,15 @@ class Assets
 {
     public:
         Assets() = delete;
+
         static void Initialize(const std::string & path);
+
+        static std::string GetWritePath();
 
     private:
         static inline std::string directory = "romfs:";
 
         static Location GetLocation(const std::string & path);
+
+        static std::string writePath;
 };

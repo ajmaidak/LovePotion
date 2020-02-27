@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/joystick/joystick.h"
 
+using namespace love;
+
 Joystick::Joystick()
 {
     for (size_t index = 0; index < MAX_GAMEPADS; index++)

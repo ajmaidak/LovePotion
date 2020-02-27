@@ -3,6 +3,8 @@
 ** @brief   : Auxillary Lua functions
 */
 
+#pragma once
+
 enum Registry
 {
     OBJECTS = 0,
@@ -14,6 +16,8 @@ enum Registry
 
 #include "objects/object.h"
 #include "common/type.h"
+
+using namespace love;
 
 namespace Luax
 {
@@ -56,6 +60,12 @@ namespace Luax
     lua_Number ComputerObjectKey(lua_State * L, Object * object);
 
     int IOError(lua_State * L, const char * format, ...);
+
+    int IOError(lua_State * L, love::Exception & e);
+
+    int EnumError(lua_State * L, const char * enumName, const char * value);
+
+    int EnumError(lua_State * L, const char * enumName, const std::vector<std::string> & values, const char * value);
 
     void PushType(lua_State * L, love::Type & type, Object * object);
 

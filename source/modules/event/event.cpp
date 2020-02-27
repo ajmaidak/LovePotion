@@ -3,9 +3,18 @@
 
 #include "modules/event/event.h"
 
-void LoveEvent::Pump()
+void love::Event::Clear()
 {
-    while (Input::PollEvent(&loveEvent))
+    while (!this->queue.empty())
+    {
+        this->queue.front()->Release();
+        this->queue.pop();
+    }
+}
+
+void love::Event::Pump()
+{
+    while (Input::PollEvent(&event))
     {
         Message * message = nullptr;
 
@@ -17,22 +26,22 @@ void LoveEvent::Pump()
 
         auto joystickModule = Module::GetInstance<Joystick>(Module::M_JOYSTICK);
 
-        switch (loveEvent.type)
+        switch (event.type)
         {
 
             case LOVE_GAMEPADUP:
             case LOVE_GAMEPADDOWN:
             {
-                std::string field = (loveEvent.type == LOVE_GAMEPADDOWN) ?
+                std::string field = (event.type == LOVE_GAMEPADDOWN) ?
                         "gamepadpressed" : "gamepadreleased";
 
-                gamepad = joystickModule->GetJoystickFromID(loveEvent.button.which);
+                gamepad = joystickModule->GetJoystickFromID(event.button.which);
 
                 if (!gamepad)
                     break;
 
                 vargs.emplace_back(Proxy { joystickType, gamepad });
-                vargs.emplace_back(loveEvent.button.name);
+                vargs.emplace_back(event.button.name);
 
                 message = new Message(field, vargs);
 
@@ -40,7 +49,7 @@ void LoveEvent::Pump()
             }
             case LOVE_GAMEPADAXIS:
             {
-                gamepad = joystickModule->GetJoystickFromID(loveEvent.axis.which);
+                gamepad = joystickModule->GetJoystickFromID(event.axis.which);
 
                 std::string field = "gamepadaxis";
 
@@ -49,7 +58,7 @@ void LoveEvent::Pump()
 
                 vargs.emplace_back(Proxy { joystickType, gamepad });
 
-                std::string axis = loveEvent.axis.axis;
+                std::string axis = event.axis.axis;
                 vargs.emplace_back(axis);
 
                 float value = gamepad->GetGamepadAxis(axis);
@@ -62,12 +71,12 @@ void LoveEvent::Pump()
             case LOVE_TOUCHPRESS:
             case LOVE_TOUCHRELEASE:
             {
-                std::string field = (loveEvent.type == LOVE_TOUCHPRESS) ?
+                std::string field = (event.type == LOVE_TOUCHPRESS) ?
                          "touchpressed" : "touchreleased";
 
-                vargs.emplace_back(&loveEvent.touch.id);
-                vargs.emplace_back((float)loveEvent.touch.x);
-                vargs.emplace_back((float)loveEvent.touch.y);
+                vargs.emplace_back(&event.touch.id);
+                vargs.emplace_back((float)event.touch.x);
+                vargs.emplace_back((float)event.touch.y);
                 vargs.emplace_back(0.0f);
                 vargs.emplace_back(0.0f);
                 vargs.emplace_back((float)1.0f);
@@ -85,7 +94,7 @@ void LoveEvent::Pump()
     }
 }
 
-bool LoveEvent::Poll(Message *& message)
+bool love::Event::Poll(Message *& message)
 {
     if (this->queue.empty())
         return false;
@@ -96,15 +105,8 @@ bool LoveEvent::Poll(Message *& message)
     return true;
 };
 
-void LoveEvent::Push(Message * message)
+void love::Event::Push(Message * message)
 {
     message->Retain();
     this->queue.push(message);
 }
-
-//End Löve2D Functions
-
-// bool LoveEvent::IsTouchDown()
-// {
-//     return m_touchDown;
-// }

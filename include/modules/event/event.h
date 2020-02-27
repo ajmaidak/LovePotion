@@ -5,27 +5,31 @@
 
 #pragma once
 
-#include "modules/love.h"
 #include "modules/joystick/joystick.h"
 
-class LoveEvent : public Module
+namespace love
 {
-    public:
-        virtual ModuleType GetModuleType() const { return M_EVENT; }
+    class Event : public Module
+    {
+        public:
+            virtual ModuleType GetModuleType() const { return M_EVENT; }
 
-        const char * GetName() const override { return "love.event"; }
+            const char * GetName() const override { return "love.event"; }
 
-        ~LoveEvent() {}
+            ~Event() {}
 
-        void Pump();
+            void Clear();
 
-        void Push(Message * message);
+            void Pump();
 
-        bool Poll(Message *& message);
+            void Push(Message * message);
 
-        bool Quit();
+            bool Poll(Message *& message);
 
-    private:
-        LOVE_Event loveEvent;
-        std::queue<Message *> queue;
-};
+            bool Quit();
+
+        private:
+            LOVE_Event event;
+            std::queue<Message *> queue;
+    };
+}

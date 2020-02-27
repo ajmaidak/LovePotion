@@ -440,7 +440,34 @@ int Luax::IOError(lua_State * L, const char * format, ...)
     lua_pushvfstring(L, format, args);
 
     va_end(args);
+
     return 2;
+}
+
+int Luax::IOError(lua_State * L, love::Exception & e)
+{
+    return IOError(L, "%s", e.what());
+}
+
+int Luax::EnumError(lua_State * L, const char * enumName, const char * value)
+{
+    return luaL_error(L, "Invalid %s: %s", enumName, value);
+}
+
+int Luax::EnumError(lua_State * L, const char * enumName, const std::vector<std::string> & values, const char * value)
+{
+    std::stringstream valueStream;
+
+    bool first = true;
+
+    for (auto value : values)
+    {
+        valueStream << (first ? "'" : ", '") << value << "'";
+        first = false;
+    }
+
+    std::string valueString = valueStream.str();
+    return luaL_error(L, "Invalid %s '%s', expected one of: %s", enumName, value, valueString.c_str());
 }
 
 /**

@@ -5,49 +5,52 @@
 
 #pragma once
 
-class Timer : public Module
+namespace love
 {
-    public:
-        Timer();
-        virtual ~Timer() {}
+    class Timer : public Module
+    {
+        public:
+            Timer();
+            virtual ~Timer() {}
 
-        ModuleType GetModuleType() const { return M_TIMER; }
+            ModuleType GetModuleType() const { return M_TIMER; }
 
-        const char * GetName() const override { return "love.timer"; }
+            const char * GetName() const override { return "love.timer"; }
 
-        //Löve2D Functions
+            //Löve2D Functions
 
-        float GetAverageDelta();
+            float GetAverageDelta();
 
-        float GetDelta();
+            float GetDelta();
 
-        int GetFPS();
+            int GetFPS();
 
-        static double GetTime();
+            static double GetTime();
 
-        void Sleep(float ms);
+            void Sleep(float ms);
 
-        double Step();
+            double Step();
 
-        //End Löve2D Functions
+            //End Löve2D Functions
 
-    private:
-        static inline double GetTimeOfDay() {
-            timeval time;
-            gettimeofday(&time, NULL);
+        private:
+            static inline double GetTimeOfDay() {
+                timeval time;
+                gettimeofday(&time, NULL);
 
-            return (double) time.tv_sec + (double) time.tv_usec / 1000000.0;
-        }
+                return (double) time.tv_sec + (double) time.tv_usec / 1000000.0;
+            }
 
-        float currentTime;
-        float lastTime;
-        float prevFPSUpdate;
+            float currentTime;
+            float lastTime;
+            float prevFPSUpdate;
 
-        int fps;
-        float averageDelta;
+            int fps;
+            float averageDelta;
 
-        float fpsUpdateFrequency;
-        int frames;
+            float fpsUpdateFrequency;
+            int frames;
 
-        float dt;
-};
+            float dt;
+    };
+}

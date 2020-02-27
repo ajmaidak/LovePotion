@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/graphics/wrap_graphics.h"
 
+using namespace love;
+
 #define instance() (Module::GetInstance<Graphics>(Module::M_GRAPHICS))
 
 // int Wrap_Graphics::Rectangle(lua_State * L)

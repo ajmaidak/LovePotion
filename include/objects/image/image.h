@@ -2,25 +2,28 @@
 
 #include "common/backend/display.h"
 
-class Image : public Object
+namespace love
 {
-    public:
-        static love::Type type;
+    class Image : public Object
+    {
+        public:
+            static love::Type type;
 
-        Image(const std::string & path);
+            Image(const std::string & path);
 
-        void Draw(float x, float y, float r, float scalarX, float scalarY);
+            void Draw(float x, float y, float r, float scalarX, float scalarY);
 
-        int GetWidth() { return width; }
+            int GetWidth() { return width; }
 
-        int GetHeight() { return height; }
+            int GetHeight() { return height; }
 
-        void SetFilter();
+            void SetFilter();
 
-    private:
-        int width;
-        int height;
+        private:
+            int width;
+            int height;
 
-        Texture texture;
+            Texture texture;
 
-};
+    };
+}

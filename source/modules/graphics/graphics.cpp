@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "modules/graphics/graphics.h"
 
+using namespace love;
+
 Graphics::Graphics() : backgroundColor({0, 0, 0, 0}),
                        foregroundColor({1, 1, 1, 1})
 {}

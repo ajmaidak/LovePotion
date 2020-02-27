@@ -10,13 +10,14 @@ extern "C"
     #include <lutf8lib.h>
 }
 
-// custom structs
+// custom things
 
 struct Nil {};
 
 enum DoneAction
 {
-    DONE_QUIT
+    DONE_QUIT,
+    DONE_RESTART
 };
 
 // std stuff
@@ -28,8 +29,8 @@ enum DoneAction
 #include <atomic>
 #include <bitset>
 #include <sys/time.h>
-#include <exception>
 #include <filesystem>
+#include <limits>
 
 #include <string>
 using namespace std::string_literals;
