@@ -3,6 +3,8 @@
 
 #include <cstddef>
 
+using namespace love;
+
 /*
 ** @func DoBuffer
 ** Runs a specified Lua Buffer
@@ -420,7 +422,7 @@ lua_Number Luax::ComputerObjectKey(lua_State * L, Object * object)
     uintptr_t key = (uintptr_t)object;
 
     if ((key & (minAlign - 1)) != 0)
-        luaL_error(L, "Cannot push LOVE object. Unexpected alignment (%p should be %d).", object, minAlign);
+        luaL_error(L, "Cannot push LOVE object '%s'. Unexpected alignment (%p should be %d).", object->type.GetName(), object, minAlign);
 
     static const size_t shift = (size_t)log2(alignof(std::max_align_t));
     key >>= shift;
@@ -442,11 +444,6 @@ int Luax::IOError(lua_State * L, const char * format, ...)
     va_end(args);
 
     return 2;
-}
-
-int Luax::IOError(lua_State * L, love::Exception & e)
-{
-    return IOError(L, "%s", e.what());
 }
 
 int Luax::EnumError(lua_State * L, const char * enumName, const char * value)

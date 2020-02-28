@@ -1,7 +1,8 @@
 #include "common/runtime.h"
 #include "objects/image/wrap_image.h"
 
-// define this here, since it's a split implementation
+using namespace love;
+
 love::Type Image::type("Image", &Object::type);
 
 int Wrap_Image::New(lua_State * L)

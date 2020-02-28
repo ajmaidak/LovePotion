@@ -6,7 +6,7 @@ using namespace love;
 Joystick::Joystick()
 {
     for (size_t index = 0; index < MAX_GAMEPADS; index++)
-        Joystick::AddGamepad(new Gamepad(index));
+        this->AddGamepad(index);
 }
 
 size_t Joystick::GetJoystickCount()
@@ -22,7 +22,8 @@ Gamepad * Joystick::GetJoystickFromID(size_t index)
     return this->gamepads[index];
 }
 
-void Joystick::AddGamepad(Gamepad * gamepad)
+void Joystick::AddGamepad(size_t index)
 {
-    this->gamepads.emplace_back(gamepad);
+    Gamepad * joystick = new Gamepad(index);
+    this->gamepads.push_back(joystick);
 }

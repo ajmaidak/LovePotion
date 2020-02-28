@@ -73,6 +73,7 @@ int Wrap_Timer::Register(lua_State * L)
     };
 
     Timer * instance = instance();
+
     if (instance == nullptr)
         Luax::CatchException(L, [&]() { instance = new Timer(); });
     else

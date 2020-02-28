@@ -50,7 +50,7 @@ class Input
 {
     public:
         static bool PollEvent(LOVE_Event * event);
-        static std::map<std::string, int> GetButtons();
+        static inline std::map<std::string, int> GetButtons() { return m_buttons; }
 
         template <typename T>
         static inline T GetKeyDown() {
@@ -70,6 +70,8 @@ class Input
     private:
         static inline StickPosition m_lastPosition[2] = { { 0, 0 } };
         static inline std::array<int, 2> m_lastTouch = { 0, 0 };
+
+        static std::map<std::string, int> m_buttons;
 
         static inline std::variant<u32, u64> m_keyDown = (u32)0;
         static inline std::variant<u32, u64> m_keyUp = (u32)0;

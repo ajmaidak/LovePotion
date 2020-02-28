@@ -1,5 +1,11 @@
 #pragma once
 
+#include <exception>
+#include <cstdarg> // vararg
+#include <cstdio> // vsnprintf
+#include <cstring> // strncpy
+#include <string>
+
 namespace love
 {
     class Exception : public std::exception

@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "objects/filedata/filedata.h"
 
+using namespace love;
+
 love::Type FileData::type("FileData", &Data::type);
 
 FileData::FileData(uint64_t size, const std::string & filename) : data(nullptr),

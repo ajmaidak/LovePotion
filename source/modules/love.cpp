@@ -13,8 +13,6 @@
 #include "modules/timer/wrap_timer.h"
 #include "modules/window/wrap_window.h"
 
-#include "objects/gamepad/wrap_gamepad.h"
-
 #include "boot_lua.h"
 
 /*

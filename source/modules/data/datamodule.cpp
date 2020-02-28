@@ -14,9 +14,9 @@ namespace love
     }
 }
 
-using namespace love::data;
+using namespace love;
 
-bool DataModule::GetConstant(const char * in, ContainerType & out)
+bool DataModule::GetConstant(const char * in, love::data::ContainerType & out)
 {
     return love::data::containers.Find(in, out);
 }

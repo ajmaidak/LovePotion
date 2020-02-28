@@ -20,16 +20,16 @@ namespace love
             CONTAINER_MAX_ENUM
         };
     }
+
+    class DataModule : public Module
+    {
+        public:
+            static bool GetConstant(const char * in, love::data::ContainerType & out);
+            static std::vector<std::string> GetConstants();
+
+            DataModule();
+            virtual ~DataModule();
+
+            ModuleType GetModuleType() const { return M_DATA; }
+    };
 }
-
-class DataModule : public Module
-{
-    public:
-        static bool GetConstant(const char * in, love::data::ContainerType & out);
-        static std::vector<std::string> GetConstants();
-
-        DataModule();
-        virtual ~DataModule();
-
-        ModuleType GetModuleType() const { return M_DATA; }
-};

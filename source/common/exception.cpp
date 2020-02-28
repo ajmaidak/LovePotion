@@ -1,10 +1,5 @@
 #include "common/runtime.h"
-
-#include <iostream>
-#include <cstdarg>
-#include <cstdio>
-#include <cstring>
-#include <exception>
+#include "common/exception.h"
 
 using namespace love;
 
@@ -12,23 +7,23 @@ Exception::Exception(const char * format, ...)
 {
     va_list args;
 
-    int size_buffer = 256;
-    int size_out;
+    int sizeBuffer = 256;
+    int sizeOut = 0;
     char * buffer;
 
     while (true)
     {
-        buffer = new char[size_buffer];
-        memset(buffer, 0, size_buffer);
+        buffer = new char[sizeBuffer];
+        memset(buffer, 0, sizeBuffer);
 
         va_start(args, format);
-        size_out = vsnprintf(buffer, size_buffer, format, args);
+        sizeOut = vsnprintf(buffer, sizeBuffer, format, args);
         va_end(args);
 
-        if (size_out == size_buffer || size_out == -1 || size_out == size_buffer - 1)
-            size_buffer *= 2;
-        else if (size_out > size_buffer)
-            size_buffer = size_out + 2;
+        if (sizeOut == sizeBuffer || sizeOut == -1 || sizeOut == sizeBuffer - 1)
+            sizeBuffer *= 2;
+        else if (sizeOut > sizeBuffer)
+            sizeBuffer = sizeOut + 2;
         else
             break;
 

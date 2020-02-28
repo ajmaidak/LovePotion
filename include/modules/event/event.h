@@ -12,11 +12,11 @@ namespace love
     class Event : public Module
     {
         public:
+            virtual ~Event() {}
+
             virtual ModuleType GetModuleType() const { return M_EVENT; }
 
             const char * GetName() const override { return "love.event"; }
-
-            ~Event() {}
 
             void Clear();
 

@@ -3,6 +3,8 @@
 
 #include "objects/file/file.h"
 
+using namespace love;
+
 love::Type File::type("File", &Object::type);
 
 File::File(const std::string & filename) : filename(filename),
@@ -20,9 +22,7 @@ File::~File()
 
 bool File::Close()
 {
-    LOG("%d", this->Flush());
-
-    if (this->file == nullptr || (fclose(this->file) != 0))
+    if (this->file == nullptr || (!this->Flush() && fclose(this->file) != 0))
         return false;
 
     this->mode = MODE_CLOSED;
@@ -39,17 +39,11 @@ bool File::Flush()
     return (fflush(this->file) == 0);
 }
 
-const char * File::GetBuffer()
+File::BufferMode File::GetBuffer(int64_t & size) const
 {
-    switch (this->bufferMode)
-    {
-        case BUFFER_NONE:
-            return "none";
-        case BUFFER_LINE:
-            return "line";
-        default:
-            return "full";
-    }
+    size = this->bufferSize;
+
+    return bufferMode;
 }
 
 const std::string & File::GetFilename() const
@@ -103,10 +97,13 @@ bool File::Open(File::Mode mode)
     {
         case MODE_APPEND:
             handle = fopen(this->GetFilename().c_str(), "a");
+            break;
         case MODE_READ:
             handle = fopen(this->GetFilename().c_str(), "r");
+            break;
         case MODE_WRITE:
             handle = fopen(this->GetFilename().c_str(), "w");
+            break;
         default:
             break;
     }
@@ -116,6 +113,12 @@ bool File::Open(File::Mode mode)
 
     this->file = handle;
     this->mode = mode;
+
+    if (this->file != nullptr && !this->SetBuffer(this->bufferMode, this->bufferSize))
+    {
+        this->bufferMode = BUFFER_NONE;
+        this->bufferSize = 0;
+    }
 
     return (this->file != nullptr);
 }
@@ -141,7 +144,7 @@ int64_t File::Read(void * destination, int64_t size)
 
     int64_t read = 0;
     if (this->bufferMode == BUFFER_NONE)
-        read = fread(destination, 1, size, this->file);
+        read = fread(destination, size, 1, this->file);
     else
         read = this->BufferedRead(destination, size);
 
@@ -242,7 +245,7 @@ bool File::Write(const void * data, int64_t size)
     if (size < 0)
         throw love::Exception("Invalid write size.");
 
-    int64_t written = (int64_t)fwrite(data, 1, size, this->file);
+    int64_t written = fwrite(data, size, sizeof(data), this->file);
 
     if (written != size)
         return false;
@@ -274,7 +277,7 @@ std::vector<std::string> File::GetConstants(Mode mode)
     return modes.GetNames();
 }
 
-StringMap<File::Mode, File::Mode::MODE_MAX_ENUM>::Entry File::modeEntries[] = {
+StringMap<File::Mode, File::MODE_MAX_ENUM>::Entry File::modeEntries[] = {
     { "c", MODE_CLOSED },
     { "r", MODE_READ   },
     { "w", MODE_WRITE  },
@@ -284,3 +287,26 @@ StringMap<File::Mode, File::Mode::MODE_MAX_ENUM>::Entry File::modeEntries[] = {
 StringMap<File::Mode, File::MODE_MAX_ENUM> File::modes(File::modeEntries, sizeof(File::modeEntries));
 
 /* BUFFER MODES */
+
+bool File::GetConstant(const char * in, BufferMode & out)
+{
+    return bufferModes.Find(in, out);
+}
+
+bool File::GetConstant(BufferMode in, const char *& out)
+{
+    return bufferModes.Find(in, out);
+}
+
+std::vector<std::string> File::GetConstants(BufferMode mode)
+{
+    return bufferModes.GetNames();
+}
+
+StringMap<File::BufferMode, File::BUFFER_MAX_ENUM>::Entry File::bufferModeEntries[] = {
+    { "none", BUFFER_NONE },
+    { "line", BUFFER_LINE },
+    { "full", BUFFER_FULL }
+};
+
+StringMap<File::BufferMode, File::BUFFER_MAX_ENUM> File::bufferModes(File::bufferModeEntries, sizeof(File::bufferModeEntries));

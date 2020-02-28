@@ -395,10 +395,10 @@ function love.boot()
     -- Modules to load
     local modules =
     {
-        "window",
+        "timer",
         "event",
         "joystick",
-        "timer",
+        "window",
         "graphics"
     }
 

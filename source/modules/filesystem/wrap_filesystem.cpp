@@ -142,6 +142,7 @@ int Wrap_Filesystem::Load(lua_State * L)
 int Wrap_Filesystem::NewFile(lua_State * L)
 {
     const char * filename = luaL_checkstring(L, 1);
+
     const char * string = 0;
     File::Mode mode = File::MODE_CLOSED;
 
@@ -149,10 +150,11 @@ int Wrap_Filesystem::NewFile(lua_State * L)
     {
         string = luaL_checkstring(L, 2);
         if (!File::GetConstant(string, mode))
-            return 0; // TO DO: enum error
+            return Luax::EnumError(L, "file open mode", File::GetConstants(mode), string);
     }
 
     File * file = instance()->NewFile(filename);
+
     if (mode != File::MODE_CLOSED)
     {
         try

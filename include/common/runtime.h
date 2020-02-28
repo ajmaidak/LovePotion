@@ -44,7 +44,6 @@ using namespace std::string_literals;
 #include "common/defines.h"
 #include "common/proxy.h"
 #include "common/module.h"
-#include "common/exception.h"
 
 #include "common/logger.h"
 #include "common/luax.h"

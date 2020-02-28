@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "objects/gamepad/wrap_gamepad.h"
 
+using namespace love;
+
 /*
 ** @func GetAxes
 ** @ret float/per axis

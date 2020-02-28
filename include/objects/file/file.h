@@ -2,6 +2,7 @@
 
 #include "objects/filedata/filedata.h"
 #include "common/stringmap.h"
+#include "common/exception.h"
 
 namespace love
 {
@@ -36,7 +37,7 @@ namespace love
 
             bool Flush();
 
-            const char * GetBuffer();
+            BufferMode GetBuffer(int64_t & size) const;
 
             const std::string & GetFilename() const;
 
@@ -62,12 +63,19 @@ namespace love
             bool Write(const void * data, int64_t size);
             bool Write(Data * data, int64_t size);
 
-            // Helper functions
+            /* OPEN MODES */
 
             static bool GetConstant(const char * in, Mode & out);
             static bool GetConstant(Mode in, const char *& out);
 
-            static std::vector<std::string> GetConstants(Mode);
+            static std::vector<std::string> GetConstants(Mode mode);
+
+            /* BUFFER MODES */
+
+            static bool GetConstant(const char * in, BufferMode & out);
+            static bool GetConstant(BufferMode in, const char *& out);
+
+            static std::vector<std::string> GetConstants(BufferMode mode);
 
         private:
             std::string filename;
@@ -80,5 +88,8 @@ namespace love
 
             static StringMap<Mode, Mode::MODE_MAX_ENUM>::Entry modeEntries[];
             static StringMap<Mode, Mode::MODE_MAX_ENUM> modes;
+
+            static StringMap<BufferMode, BufferMode::BUFFER_MAX_ENUM>::Entry bufferModeEntries[];
+            static StringMap<BufferMode, BufferMode::BUFFER_MAX_ENUM> bufferModes;
     };
 }

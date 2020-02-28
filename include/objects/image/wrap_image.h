@@ -20,7 +20,7 @@ namespace Wrap_Image
 
     int SetWrap(lua_State * L);
 
-    Image * CheckImage(lua_State * L, int index);
+    love::Image * CheckImage(lua_State * L, int index);
 
     int Register(lua_State * L);
 }

@@ -35,7 +35,7 @@ namespace Wrap_Filesystem
 
     int SetIdentity(lua_State * L);
 
-    int WriteOrAppend(lua_State * L, File::Mode mode);
+    int WriteOrAppend(lua_State * L, love::File::Mode mode);
 
     int Write(lua_State * L);
 }

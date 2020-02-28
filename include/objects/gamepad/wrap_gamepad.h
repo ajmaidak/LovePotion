@@ -31,7 +31,7 @@ namespace Wrap_Gamepad
 
     int SetVibration(lua_State * L);
 
-    Gamepad * CheckJoystick(lua_State * L, int index);
+    love::Gamepad * CheckJoystick(lua_State * L, int index);
 
     int Register(lua_State * L);
 }

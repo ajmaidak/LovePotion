@@ -1,5 +1,7 @@
 #include "common/runtime.h"
 
+using namespace love;
+
 Proxy * Variant::TryExtractProxy(lua_State * L, size_t index)
 {
     Proxy * proxy = (Proxy *)lua_touserdata(L, index);

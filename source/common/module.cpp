@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "common/module.h"
 
+#include "common/exception.h"
+
 using namespace love;
 
 namespace

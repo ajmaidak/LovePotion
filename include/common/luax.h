@@ -17,8 +17,6 @@ enum Registry
 #include "objects/object.h"
 #include "common/type.h"
 
-using namespace love;
-
 namespace Luax
 {
     int DoBuffer(lua_State * L, const char * buffer, size_t size, const char * name);
@@ -35,7 +33,7 @@ namespace Luax
 
     void SetFunctions(lua_State * L, const luaL_reg * l);
 
-    int RegisterModule(lua_State * L, const WrappedModule & module);
+    int RegisterModule(lua_State * L, const love::WrappedModule & module);
 
     int RegisterType(lua_State * L, love::Type * object, ...);
 
@@ -55,19 +53,17 @@ namespace Luax
 
     bool IsType(lua_State * L, int index, love::Type & type);
 
-    void RawNewType(lua_State * L, love::Type & type, Object * object);
+    void RawNewType(lua_State * L, love::Type & type, love::Object * object);
 
-    lua_Number ComputerObjectKey(lua_State * L, Object * object);
+    lua_Number ComputerObjectKey(lua_State * L, love::Object * object);
 
     int IOError(lua_State * L, const char * format, ...);
-
-    int IOError(lua_State * L, love::Exception & e);
 
     int EnumError(lua_State * L, const char * enumName, const char * value);
 
     int EnumError(lua_State * L, const char * enumName, const std::vector<std::string> & values, const char * value);
 
-    void PushType(lua_State * L, love::Type & type, Object * object);
+    void PushType(lua_State * L, love::Type & type, love::Object * object);
 
     template <typename T>
     void PushType(lua_State * L, T * object)
@@ -86,7 +82,7 @@ namespace Luax
     template <typename T>
     T * ToType(lua_State * L, int index, const love::Type & /*type*/)
     {
-        T * object = (T *)(((Proxy *)lua_touserdata(L, index))->object);
+        T * object = (T *)(((love::Proxy *)lua_touserdata(L, index))->object);
 
         if (object == nullptr)
             luaL_error(L, "Cannot use object after it has been released.");
@@ -115,7 +111,7 @@ namespace Luax
             Luax::TypeErrror(L, index, name);
         }
 
-        Proxy * proxy = (Proxy *)lua_touserdata(L, index);
+        love::Proxy * proxy = (love::Proxy *)lua_touserdata(L, index);
 
         // Check that it has a type and matches input
         if (proxy->type == nullptr || !proxy->type->IsA(type))

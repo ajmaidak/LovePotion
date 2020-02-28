@@ -18,17 +18,16 @@ void love::Event::Pump()
     {
         Message * message = nullptr;
 
-        Gamepad * gamepad = nullptr;
-        love::Type * joystickType = &Gamepad::type;
+        love::Gamepad * gamepad = nullptr;
+        love::Type * joystickType = &love::Gamepad::type;
 
         std::vector<Variant> vargs;
-        vargs.reserve(7);
+        vargs.reserve(4);
 
         auto joystickModule = Module::GetInstance<Joystick>(Module::M_JOYSTICK);
 
         switch (event.type)
         {
-
             case LOVE_GAMEPADUP:
             case LOVE_GAMEPADDOWN:
             {
@@ -57,12 +56,8 @@ void love::Event::Pump()
                     break;
 
                 vargs.emplace_back(Proxy { joystickType, gamepad });
-
-                std::string axis = event.axis.axis;
-                vargs.emplace_back(axis);
-
-                float value = gamepad->GetGamepadAxis(axis);
-                vargs.emplace_back(value);
+                vargs.emplace_back(event.axis.axis);
+                vargs.emplace_back((float)gamepad->GetGamepadAxis(event.axis.axis));
 
                 message = new Message(field, vargs);
 
@@ -77,8 +72,6 @@ void love::Event::Pump()
                 vargs.emplace_back(&event.touch.id);
                 vargs.emplace_back((float)event.touch.x);
                 vargs.emplace_back((float)event.touch.y);
-                vargs.emplace_back(0.0f);
-                vargs.emplace_back(0.0f);
                 vargs.emplace_back((float)1.0f);
 
                 message = new Message(field, vargs);

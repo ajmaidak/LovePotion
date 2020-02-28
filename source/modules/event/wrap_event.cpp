@@ -3,6 +3,8 @@
 
 #include "wrap_Event_lua.h"
 
+using namespace love;
+
 #define instance() (Module::GetInstance<love::Event>(Module::M_EVENT))
 
 int Wrap_Event::Poll_I(lua_State * L)
@@ -57,13 +59,15 @@ int Wrap_Event::Register(lua_State * L)
 {
     luaL_Reg reg[] =
     {
+        { "clear",  Clear  },
         { "poll_i", Poll_I },
         { "pump",   Pump   },
         { "quit",   Quit   },
         { 0,        0      }
     };
 
-    Event * instance = instance();
+    love::Event * instance = instance();
+
     if (instance == nullptr)
         Luax::CatchException(L, [&]() { instance = new love::Event(); });
     else

@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "objects/filedata/wrap_filedata.h"
 
+using namespace love;
+
 int Wrap_FileData::Clone(lua_State * L)
 {
     FileData * data = Wrap_FileData::CheckFileData(L, 1);

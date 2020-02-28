@@ -19,9 +19,9 @@ namespace love
 
             size_t GetJoystickCount();
 
-            void AddGamepad(Gamepad * gamepad);
+            void AddGamepad(size_t index);
 
         private:
-            std::vector<Gamepad *> gamepads = {};
+            std::vector<Gamepad *> gamepads;
     };
 }

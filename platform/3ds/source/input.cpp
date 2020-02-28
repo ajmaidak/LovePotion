@@ -1,16 +1,13 @@
 #include "common/runtime.h"
 #include "common/backend/input.h"
 
-std::map<std::string, int> Input::GetButtons()
+std::map<std::string, int> Input::m_buttons =
 {
-    return
-    {
-        { "a", KEY_A}, { "b", KEY_B }, { "x", KEY_X }, { "y", KEY_Y },
-        { "dpright", KEY_DRIGHT}, { "dpleft", KEY_DLEFT },
-        { "dpup", KEY_DUP }, { "dpdown", KEY_DDOWN }, { "rightshoulder", KEY_R },
-        { "leftshoulder", KEY_L }, { "back", KEY_SELECT }, { "start", KEY_START}
-    };
-}
+    { "a", KEY_A}, { "b", KEY_B }, { "x", KEY_X }, { "y", KEY_Y },
+    { "dpright", KEY_DRIGHT}, { "dpleft", KEY_DLEFT },
+    { "dpup", KEY_DUP }, { "dpdown", KEY_DDOWN }, { "rightshoulder", KEY_R },
+    { "leftshoulder", KEY_L }, { "back", KEY_SELECT }, { "start", KEY_START}
+};
 
 bool Input::PollEvent(LOVE_Event * event)
 {
