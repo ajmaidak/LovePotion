@@ -83,6 +83,11 @@ float Gamepad::GetGamepadAxis(const std::string & axis)
     return std::clamp(value, -1.0f, 1.0f);
 }
 
+size_t Gamepad::GetID()
+{
+    return this->id;
+}
+
 std::string Gamepad::GetName()
 {
     return "Nintendo 3DS";

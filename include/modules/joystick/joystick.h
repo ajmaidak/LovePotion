@@ -9,6 +9,7 @@ namespace love
     {
         public:
             Joystick();
+            ~Joystick();
 
             ModuleType GetModuleType() const { return M_JOYSTICK; }
 
@@ -18,7 +19,7 @@ namespace love
 
             size_t GetJoystickCount();
 
-            void AddGamepad(size_t index);
+            Gamepad * AddGamepad(size_t index);
 
         private:
             std::vector<Gamepad *> gamepads;

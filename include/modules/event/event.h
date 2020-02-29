@@ -6,6 +6,7 @@
 #pragma once
 
 #include "modules/joystick/joystick.h"
+#include "common/threads.h"
 
 namespace love
 {
@@ -29,5 +30,6 @@ namespace love
         private:
             LOVE_Event event;
             std::queue<Message *> queue;
+            MutexRef mutex;
     };
 }

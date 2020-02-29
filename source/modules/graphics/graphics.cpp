@@ -19,6 +19,7 @@ void Graphics::SetColor(const Color & color)
 
 Color Graphics::GetBackgroundColor()
 {
+    LOG("Background Color is %.1f, %.1f, %.1f", backgroundColor.r, backgroundColor.g, backgroundColor.b);
     return this->backgroundColor;
 }
 

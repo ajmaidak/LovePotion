@@ -500,7 +500,7 @@ lua_Number Luax::ComputerObjectKey(lua_State * L, Object * object)
     uintptr_t key = (uintptr_t)object;
 
     if ((key & (minAlign - 1)) != 0)
-        luaL_error(L, "Cannot push LOVE object '%s'. Unexpected alignment (%p should be %d).", object->type.GetName(), object, minAlign);
+        luaL_error(L, "Cannot push LOVE object. Unexpected alignment (%p should be %d).", object, minAlign);
 
     static const size_t shift = (size_t)log2(alignof(std::max_align_t));
     key >>= shift;
@@ -567,6 +567,7 @@ void Luax::PushType(lua_State * L, love::Type & type, Object * object)
         return Luax::RawNewType(L, type, object);
     }
 
+    LOG("Attempting to push Object %s!", type.GetName());
     lua_Number key = Luax::ComputerObjectKey(L, object);
 
     // push using that key

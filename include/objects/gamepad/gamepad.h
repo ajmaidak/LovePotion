@@ -20,7 +20,7 @@ namespace love
 
             float GetGamepadAxis(const std::string & axis);
 
-            size_t GetID() { return (id + 1); };
+            size_t GetID();
 
             std::string GetName();
 

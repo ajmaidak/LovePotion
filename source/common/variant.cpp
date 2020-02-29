@@ -22,11 +22,24 @@ Variant::~Variant()
 
     if (self == Type::LOVE_OBJECT)
     {
-        selfProxy = std::get<(size_t)Type::LOVE_OBJECT>(*this);
+        selfProxy = GetValue<Type::LOVE_OBJECT>();
 
         if (selfProxy.object != nullptr)
             selfProxy.object->Release();
     }
+}
+
+Variant::Variant(love::Type * loveType, Object * object)
+{
+    Proxy proxy;
+
+    proxy.type = loveType;
+    proxy.object = object;
+
+    if (proxy.object != nullptr)
+        proxy.object->Retain();
+
+    this->variant = proxy;
 }
 
 Variant & Variant::operator=(const Variant & v)
@@ -36,7 +49,7 @@ Variant & Variant::operator=(const Variant & v)
     Proxy otherProxy;
     if (other == Type::LOVE_OBJECT)
     {
-        otherProxy = std::get<(size_t)Type::LOVE_OBJECT>(*this);
+        otherProxy = v.GetValue<Type::LOVE_OBJECT>();
         otherProxy.object->Retain();
     }
 
@@ -45,18 +58,18 @@ Variant & Variant::operator=(const Variant & v)
 
     if (self == Type::LOVE_OBJECT)
     {
-        selfProxy = std::get<(size_t)Type::LOVE_OBJECT>(*this);
+        selfProxy = GetValue<Type::LOVE_OBJECT>();
         selfProxy.object->Release();
     }
 
-    std::variant<std::monostate, bool, Proxy, void *, Nil, float, std::string>::operator=(std::forward<const Variant &>(v));
+    variant = v.variant;
 
     return *this;
 }
 
 std::string Variant::GetTypeString() const
 {
-    Type type = (Type)this->index();
+    Type type = GetType();
 
     if (type == Type::BOOLEAN)
         return "boolean";
@@ -76,7 +89,7 @@ std::string Variant::GetTypeString() const
 
 Variant::Type Variant::GetType() const
 {
-    Type retval = (Type)this->index();
+    Type retval = (Type)variant.index();
 
     return retval;
 }
@@ -87,6 +100,7 @@ Variant Variant::FromLua(lua_State * L, int n)
     bool boolean;
     float number;
 
+    // Defaults to std::monostate, aka Type::UNKNOWN
     Variant retval;
 
     if (n < 0)
@@ -96,24 +110,23 @@ Variant Variant::FromLua(lua_State * L, int n)
     {
         case LUA_TSTRING:
             string = lua_tostring(L, n);
-            retval.emplace<Type::STRING>(string);
+            retval = string;
             return retval;
         case LUA_TNIL:
-            retval.emplace<Type::NIL>(Nil());
+            retval = Nil{};
             return retval;
         case LUA_TBOOLEAN:
             boolean = lua_toboolean(L, n);
-            retval.emplace<Type::BOOLEAN>(boolean);
+            retval = boolean;
             return retval;
         case LUA_TNUMBER:
             number = lua_tonumber(L, n);
-            retval.emplace<Type::NUMBER>(number);
+            retval = number;
             return retval;
-
-        break;
+        default:
+            break;
     }
 
-    retval.emplace<Type::UNKNOWN>(std::monostate {});
     return retval;
 }
 
@@ -128,23 +141,23 @@ void Variant::ToLua(lua_State * L) const
     switch (this->GetType())
     {
         case Type::STRING:
-            string = std::get<(size_t)Type::STRING>(*this);
+            string = GetValue<Type::STRING>();
             lua_pushlstring(L, string.c_str(), string.length());
             break;
         case Type::LOVE_OBJECT:
-            proxy = std::get<(size_t)Type::LOVE_OBJECT>(*this);
+            proxy = GetValue<Type::LOVE_OBJECT>();
             Luax::PushType(L, *proxy.type, proxy.object);
             break;
         case Type::BOOLEAN:
-            boolean = std::get<(size_t)Type::BOOLEAN>(*this);
+            boolean = GetValue<Type::BOOLEAN>();
             lua_pushboolean(L, boolean);
             break;
         case Type::NUMBER:
-            number = std::get<(size_t)Type::NUMBER>(*this);
+            number = GetValue<Type::NUMBER>();
             lua_pushnumber(L, number);
             break;
         case Type::LUSERDATA:
-            lightUserdata = std::get<(size_t)Type::LUSERDATA>(*this);
+            lightUserdata = GetValue<Type::LUSERDATA>();
             lua_pushlightuserdata(L, lightUserdata);
         case Type::NIL:
         default:

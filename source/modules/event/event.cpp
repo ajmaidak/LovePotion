@@ -5,6 +5,8 @@
 
 void love::Event::Clear()
 {
+    //Lock lock(this->mutex);
+
     while (!this->queue.empty())
     {
         this->queue.front()->Release();
@@ -18,31 +20,29 @@ void love::Event::Pump()
     {
         Message * message = nullptr;
 
-        love::Gamepad * gamepad = nullptr;
-        love::Type * joystickType = &love::Gamepad::type;
+        Gamepad * gamepad = nullptr;
+        love::Type * joystickType = &Gamepad::type;
 
-        std::vector<love::Variant> vargs;
+        std::vector<Variant> vargs;
         vargs.reserve(4);
 
-        auto joystickModule = love::Module::GetInstance<love::Joystick>(love::Module::M_JOYSTICK);
+        auto joystickModule = Module::GetInstance<Joystick>(Module::M_JOYSTICK);
 
         switch (event.type)
         {
             case LOVE_GAMEPADUP:
             case LOVE_GAMEPADDOWN:
             {
-                std::string field = (event.type == LOVE_GAMEPADDOWN) ?
-                        "gamepadpressed" : "gamepadreleased";
-
                 gamepad = joystickModule->GetJoystickFromID(event.button.which);
 
                 if (!gamepad)
                     break;
 
-                vargs.emplace_back(Proxy { joystickType, gamepad });
+                vargs.emplace_back(joystickType, gamepad);
                 vargs.emplace_back(event.button.name);
 
-                message = new Message(field, vargs);
+                message = new Message((event.type == LOVE_GAMEPADDOWN) ?
+                        "gamepadpressed" : "gamepadreleased", vargs);
 
                 break;
             }
@@ -50,31 +50,27 @@ void love::Event::Pump()
             {
                 gamepad = joystickModule->GetJoystickFromID(event.axis.which);
 
-                std::string field = "gamepadaxis";
-
                 if (!gamepad)
                     break;
 
-                vargs.emplace_back(Proxy { joystickType, gamepad });
+                vargs.emplace_back(joystickType, gamepad);
                 vargs.emplace_back(event.axis.axis);
                 vargs.emplace_back((float)gamepad->GetGamepadAxis(event.axis.axis));
 
-                message = new Message(field, vargs);
+                message = new Message("gamepadaxis", vargs);
 
                 break;
             }
             case LOVE_TOUCHPRESS:
             case LOVE_TOUCHRELEASE:
             {
-                std::string field = (event.type == LOVE_TOUCHPRESS) ?
-                         "touchpressed" : "touchreleased";
-
                 vargs.emplace_back(&event.touch.id);
                 vargs.emplace_back((float)event.touch.x);
                 vargs.emplace_back((float)event.touch.y);
                 vargs.emplace_back((float)1.0f);
 
-                message = new Message(field, vargs);
+                message = new Message((event.type == LOVE_TOUCHPRESS) ?
+                         "touchpressed" : "touchreleased", vargs);
 
                 break;
             }
@@ -83,12 +79,17 @@ void love::Event::Pump()
         }
 
         if (message)
-            this->queue.push(message);
+        {
+            this->Push(message);
+            message->Release();
+        }
     }
 }
 
 bool love::Event::Poll(Message *& message)
 {
+    //Lock lock(this->mutex);
+
     if (this->queue.empty())
         return false;
 
@@ -100,6 +101,8 @@ bool love::Event::Poll(Message *& message)
 
 void love::Event::Push(Message * message)
 {
+    //Lock lock(this->mutex);
+
     message->Retain();
     this->queue.push(message);
 }

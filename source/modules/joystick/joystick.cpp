@@ -9,6 +9,12 @@ Joystick::Joystick()
         this->AddGamepad(index);
 }
 
+Joystick::~Joystick()
+{
+    for (auto stick : this->gamepads)
+        stick->Release();
+}
+
 size_t Joystick::GetJoystickCount()
 {
     return this->gamepads.size();
@@ -16,14 +22,19 @@ size_t Joystick::GetJoystickCount()
 
 Gamepad * Joystick::GetJoystickFromID(size_t index)
 {
-    if (index < 0 || index >= this->gamepads.size())
-        return nullptr;
+    for (auto stick : this->gamepads)
+    {
+        if (stick->GetID() == index)
+            return stick;
+    }
 
-    return this->gamepads[index];
+    return nullptr;
 }
 
-void Joystick::AddGamepad(size_t index)
+Gamepad * Joystick::AddGamepad(size_t index)
 {
     Gamepad * joystick = new Gamepad(index);
     this->gamepads.push_back(joystick);
+
+    return joystick;
 }

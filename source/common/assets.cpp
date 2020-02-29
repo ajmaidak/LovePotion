@@ -44,8 +44,7 @@ Location Assets::GetLocation(const std::string & path)
 
     if (!isROMFSGame)
     {
-        bool isDirectory = std::filesystem::is_directory(path);
-        if (std::filesystem::exists("game") && isDirectory)
+        if (std::filesystem::is_directory("game"))
             return LOCATION_SDMC;
     }
 
