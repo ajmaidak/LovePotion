@@ -31,6 +31,18 @@ namespace Luax
 
     lua_State * InsistPinnedThread(lua_State * L);
 
+    int Require(lua_State * L, const char * name);
+
+    int ConvertObject(lua_State *L, int idx, const char  *mod, const char * fn);
+
+    int ConvertObject(lua_State *L, const int idxs[], int n, const char *mod, const char *fn);
+
+    int ConvertObject(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function);
+
+    int AssertNilError(lua_State *L, int idx);
+
+    int GetLOVEFunction(lua_State *L, const char * mod, const char * fn);
+
     void SetFunctions(lua_State * L, const luaL_reg * l);
 
     int RegisterModule(lua_State * L, const love::WrappedModule & module);

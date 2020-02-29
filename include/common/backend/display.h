@@ -5,41 +5,39 @@
 
 #pragma once
 
-class Display
+namespace Display
 {
-    public:
-        Display() = delete;
+    /* Variables */
 
-        static void Initialize();
+    inline bool open = false;
+    inline std::vector<Renderer *> targets = { nullptr };
+    inline Frame * window = nullptr;
 
-        static void Clear(Color * color);
-        static int Draw(lua_State * L);
-        static int Present(lua_State * L);
+    inline Color m_blendColor = { 1, 1, 1, 1 };
 
-        static inline void SetBlendColor(Color * color) {
-            m_blendColor = {color->r, color->g, color->b, color->a};
-        }
+    /* Functions */
 
-        static inline Color GetBlendColor() {
-            return m_blendColor;
-        }
+    void Initialize();
 
-        static int SetScreen(lua_State * L);
+    void Clear(Color * color);
+    int Present(lua_State * L);
 
-        static std::vector<std::pair<int, int>> GetWindowSizes();
-        static unsigned int GetDisplayCount();
+    inline void SetBlendColor(Color * color) {
+        m_blendColor = {color->r, color->g, color->b, color->a};
+    }
 
-        static Renderer * GetRenderer();
+    inline Color GetBlendColor() {
+        return m_blendColor;
+    }
 
-        static bool IsOpen();
+    int SetScreen(lua_State * L);
 
+    std::vector<std::pair<int, int>> & GetWindowSizes();
+    unsigned int GetDisplayCount();
 
-        static void Exit();
+    Renderer * GetRenderer();
 
-    private:
-        static inline bool m_open = false;
-        static inline std::vector<Renderer *> m_targets = { nullptr };
-        static inline Frame * m_window = nullptr;
+    bool IsOpen();
 
-        static inline Color m_blendColor = { 1, 1, 1, 1 };
+    void Exit();
 };

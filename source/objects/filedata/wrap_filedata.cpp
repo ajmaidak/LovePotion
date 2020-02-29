@@ -49,8 +49,5 @@ int Wrap_FileData::Register(lua_State * L)
         { 0,              0            }
     };
 
-    int ret = Luax::RegisterType(L, &FileData::type, reg, nullptr);
-    // Data::RunDataWrapper(L, FileData::type);
-
-    return ret;
+    return Luax::RegisterType(L, &FileData::type, Wrap_Data::functions, reg, nullptr);
 }

@@ -245,7 +245,7 @@ bool File::Write(const void * data, int64_t size)
     if (size < 0)
         throw love::Exception("Invalid write size.");
 
-    int64_t written = fwrite(data, size, sizeof(data), this->file);
+    int64_t written = fwrite(data, 1, size, this->file);
 
     if (written != size)
         return false;

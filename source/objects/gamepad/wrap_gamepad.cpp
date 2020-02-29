@@ -125,7 +125,7 @@ int Wrap_Gamepad::IsDown(lua_State * L)
 {
     Gamepad * self = Wrap_Gamepad::CheckJoystick(L, 1);
 
-    size_t buttonCount = Input::GetButtons().size();
+    size_t buttonCount = Input::buttons.size();
 
     size_t index = luaL_checkinteger(L, 2);
 

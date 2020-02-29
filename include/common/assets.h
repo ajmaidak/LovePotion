@@ -7,24 +7,23 @@
 
 enum Location
 {
-    SDMC = 0,
-    ROMFS,
-    EXTERNAL
+    LOCATION_SDMC = 0,
+    LOCATION_ROMFS,
+    LOCATION_EXTERNAL
 };
 
-class Assets
+namespace Assets
 {
-    public:
-        Assets() = delete;
+    /* Variables */
 
-        static void Initialize(const std::string & path);
+    inline std::string directory = "romfs:";
+    inline std::string writePath = "";
 
-        static std::string GetWritePath();
+    /* Functions */
 
-    private:
-        static inline std::string directory = "romfs:";
+    void Initialize(const std::string & path);
 
-        static Location GetLocation(const std::string & path);
+    Location GetLocation(const std::string & path);
 
-        static std::string writePath;
+    std::string GetWritePath();
 };

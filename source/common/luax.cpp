@@ -14,6 +14,84 @@ int Luax::DoBuffer(lua_State * L, const char * buffer, size_t size, const char *
     return (luaL_loadbuffer(L, buffer, size, name) || lua_pcall(L, 0, LUA_MULTRET, 0));
 }
 
+int Luax::Require(lua_State * L, const char * name)
+{
+    lua_getglobal(L, "require");
+    lua_pushstring(L, name);
+    lua_call(L, 1, 1);
+
+    return 1;
+}
+
+int Luax::ConvertObject(lua_State *L, int idx, const char  *mod, const char * fn)
+{
+    // Convert to absolute index if necessary.
+    if (idx < 0 && idx > LUA_REGISTRYINDEX)
+        idx += lua_gettop(L) + 1;
+
+    // Convert string to a file.
+    Luax::GetLOVEFunction(L, mod, fn);
+    lua_pushvalue(L, idx); // The initial argument.
+    lua_call(L, 1, 2); // Call the function, one arg, one return value (plus optional errstring.)
+
+    Luax::AssertNilError(L, -2); // Make sure the function returned something.
+    lua_pop(L, 1); // Pop the second return value now that we don't need it.
+    lua_replace(L, idx); // Replace the initial argument with the new object.
+
+    return 0;
+}
+
+int Luax::ConvertObject(lua_State *L, const int idxs[], int n, const char *mod, const char *fn)
+{
+    Luax::GetLOVEFunction(L, mod, fn);
+    for (int i = 0; i < n; i++)
+        lua_pushvalue(L, idxs[i]); // The arguments.
+
+    lua_call(L, n, 2); // Call the function, n args, one return value (plus optional errstring.)
+
+    Luax::AssertNilError(L, -2); // Make sure the function returned something.
+    lua_pop(L, 1); // Pop the second return value now that we don't need it.
+    if (n > 0)
+        lua_replace(L, idxs[0]); // Replace the initial argument with the new object.
+
+    return 0;
+}
+
+int Luax::ConvertObject(lua_State *L, const std::vector<int>& idxs, const char *module, const char *function)
+{
+    const int * idxPtr = idxs.size() > 0 ? &idxs[0] : nullptr;
+    return Luax::ConvertObject(L, idxPtr, (int) idxs.size(), module, function);
+}
+
+int Luax::AssertNilError(lua_State *L, int idx)
+{
+    if (lua_isnoneornil(L, idx))
+    {
+        if (lua_isstring(L, idx + 1))
+            return luaL_error(L, lua_tostring(L, idx + 1));
+        else
+            return luaL_error(L, "assertion failed!");
+    }
+    return 0;
+}
+
+int Luax::GetLOVEFunction(lua_State *L, const char * mod, const char * fn)
+{
+    lua_getglobal(L, "love");
+    if (lua_isnil(L, -1)) return luaL_error(L, "Could not find global love!");
+
+    lua_getfield(L, -1, mod);
+    if (lua_isnil(L, -1)) return luaL_error(L, "Could not find love.%s!", mod);
+
+    lua_getfield(L, -1, fn);
+    if (lua_isnil(L, -1)) return luaL_error(L, "Could not find love.%s.%s!", mod, fn);
+
+    lua_remove(L, -2); // remove mod
+    lua_remove(L, -2); // remove fn
+
+    return 0;
+}
+
 /*
 ** @func Insist
 ** Make sure @index with @key exists

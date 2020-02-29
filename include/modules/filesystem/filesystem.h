@@ -31,36 +31,17 @@ namespace love
                 FileType type;
             };
 
+            Filesystem();
+
+            static love::Type type;
+
+            /* Module implementors */
+
             const char * GetName() const override { return "love.filesystem"; }
 
-            virtual ~Filesystem() {};
+            ModuleType GetModuleType() const { return M_FILESYSTEM; }
 
-            virtual ModuleType GetModuleType() const { return M_FILESYSTEM; }
-
-            static inline bool GetConstant(const char * find, FileType & type) {
-                if (types.find(find) != types.end())
-                {
-                    type = types[find];
-                    return true;
-                }
-
-                return false;
-            }
-
-            static inline bool GetConstant(FileType find, const char *& out) {
-                for (auto it = types.begin(); it != types.end(); it++)
-                {
-                    if (it->second == find)
-                    {
-                        out = it->first;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            static void Exit();
+            /* Löve2D Functions */
 
             void Append(const char * filename, const void * data, int64_t size);
 
@@ -86,10 +67,32 @@ namespace love
 
             void Write(const char * filename, const void * data, int64_t size);
 
-            // End Löve2D Functions
+            /* Helper Functions */
+
+            static inline bool GetConstant(const char * find, FileType & type) {
+                if (types.find(find) != types.end())
+                {
+                    type = types[find];
+                    return true;
+                }
+
+                return false;
+            }
+
+            static inline bool GetConstant(FileType find, const char *& out) {
+                for (auto it = types.begin(); it != types.end(); it++)
+                {
+                    if (it->second == find)
+                    {
+                        out = it->first;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
 
         private:
-            std::string saveDirectory;
             std::string identity;
 
             static inline std::map<const char *, FileType> types = {

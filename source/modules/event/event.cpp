@@ -21,10 +21,10 @@ void love::Event::Pump()
         love::Gamepad * gamepad = nullptr;
         love::Type * joystickType = &love::Gamepad::type;
 
-        std::vector<Variant> vargs;
+        std::vector<love::Variant> vargs;
         vargs.reserve(4);
 
-        auto joystickModule = Module::GetInstance<Joystick>(Module::M_JOYSTICK);
+        auto joystickModule = love::Module::GetInstance<love::Joystick>(love::Module::M_JOYSTICK);
 
         switch (event.type)
         {

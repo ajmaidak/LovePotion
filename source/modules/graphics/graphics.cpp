@@ -14,7 +14,7 @@ Color Graphics::GetColor()
 
 void Graphics::SetColor(const Color & color)
 {
-    AdjustColor(color, &this->foregroundColor);
+    this->AdjustColor(color, &this->foregroundColor);
 }
 
 Color Graphics::GetBackgroundColor()
@@ -24,7 +24,7 @@ Color Graphics::GetBackgroundColor()
 
 void Graphics::SetBackgroundColor(const Color & color)
 {
-    AdjustColor(color, &this->backgroundColor);
+    this->AdjustColor(color, &this->backgroundColor);
 }
 
 void Graphics::AdjustColor(const Color & in, Color * out)

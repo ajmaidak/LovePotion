@@ -46,34 +46,35 @@ enum LOVE_EventType
     LOVE_TOUCHMOVED
 };
 
-class Input
+namespace Input
 {
-    public:
-        static bool PollEvent(LOVE_Event * event);
-        static inline std::map<std::string, int> GetButtons() { return m_buttons; }
+        bool PollEvent(LOVE_Event * event);
+
+        /* Variables */
+
+        inline std::variant<u32, u64> down = (u32)0;
+        inline std::variant<u32, u64> up   = (u32)0;
+        inline std::variant<u32, u64> held = (u32)0;
+
+        inline StickPosition lastPosition[2] = { { 0, 0 } };
+        inline std::array<int, 2> lastTouch =  { 0, 0 };
+
+        extern std::unordered_map<std::string, int> buttons;
+
+        /* Functions */
 
         template <typename T>
-        static inline T GetKeyDown() {
-            return std::get<T>(m_keyDown);
+        inline T GetKeyDown() {
+            return std::get<T>(down);
         }
 
         template <typename T>
-        static inline T GetKeyUp() {
-            return std::get<T>(m_keyUp);
+        inline T GetKeyUp() {
+            return std::get<T>(up);
         }
 
         template <typename T>
-        static inline T GetKeyHeld() {
-            return std::get<T>(m_keyHeld);
+        inline T GetKeyHeld() {
+            return std::get<T>(held);
         }
-
-    private:
-        static inline StickPosition m_lastPosition[2] = { { 0, 0 } };
-        static inline std::array<int, 2> m_lastTouch = { 0, 0 };
-
-        static std::map<std::string, int> m_buttons;
-
-        static inline std::variant<u32, u64> m_keyDown = (u32)0;
-        static inline std::variant<u32, u64> m_keyUp = (u32)0;
-        static inline std::variant<u32, u64> m_keyHeld = (u32)0;
 };

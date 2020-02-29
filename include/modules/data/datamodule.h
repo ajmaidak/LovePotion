@@ -27,9 +27,8 @@ namespace love
             static bool GetConstant(const char * in, love::data::ContainerType & out);
             static std::vector<std::string> GetConstants();
 
-            DataModule();
-            virtual ~DataModule();
-
             ModuleType GetModuleType() const { return M_DATA; }
+
+            const char * GetName() const override { return "love.data"; }
     };
 }

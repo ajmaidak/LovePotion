@@ -33,7 +33,7 @@ int Wrap_Graphics::Clear(lua_State * L)
     inputColor.g = luaL_checknumber(L, 2);
     inputColor.b = luaL_checknumber(L, 3);
 
-    Graphics::AdjustColor(inputColor, &clearColor);
+    instance()->AdjustColor(inputColor, &clearColor);
 
     Display::Clear(&clearColor);
 
@@ -159,11 +159,12 @@ int Wrap_Graphics::Register(lua_State * L)
 
     lua_CFunction types[] =
     {
-        Wrap_Image::Register,
+        //Wrap_Image::Register,
         0
     };
 
     Graphics * instance = instance();
+
     if (instance == nullptr)
         Luax::CatchException(L, [&]() { instance = new Graphics(); });
     else

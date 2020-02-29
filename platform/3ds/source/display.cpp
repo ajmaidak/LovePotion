@@ -5,7 +5,7 @@
 
 void Display::Initialize()
 {
-    if (m_open)
+    if (open)
         return;
 
     gfxInitDefault();
@@ -19,7 +19,7 @@ void Display::Initialize()
 
     C2D_Prepare();
 
-    m_targets = {
+    targets = {
         C2D_CreateScreenTarget(GFX_TOP,    GFX_LEFT),
         C2D_CreateScreenTarget(GFX_TOP,    GFX_RIGHT),
         C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT)
@@ -36,12 +36,12 @@ void Display::Clear(Color * color)
 {
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 
-    for (size_t index = 0; index < m_targets.size(); index++)
+    for (size_t index = 0; index < targets.size(); index++)
     {
         if (!color)
             (*color) = { 0, 0, 0, 1 };
 
-        C2D_TargetClear(m_targets[index], C2D_Color32f(color->r, color->g, color->b, 1.0));
+        C2D_TargetClear(targets[index], C2D_Color32f(color->r, color->g, color->b, 1.0));
     }
 }
 
@@ -51,7 +51,7 @@ int Display::SetScreen(lua_State * L)
 
     int display = std::clamp((int)index - 1, 0, 2);
 
-    C2D_SceneBegin(m_targets[display]);
+    C2D_SceneBegin(targets[display]);
 
     return 0;
 }

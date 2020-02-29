@@ -50,7 +50,7 @@ size_t Gamepad::GetAxisCount()
 
 size_t Gamepad::GetButtonCount()
 {
-    auto buttons = Input::GetButtons();
+    auto buttons = Input::buttons;
 
     return buttons.size();
 }
@@ -100,7 +100,7 @@ bool Gamepad::IsConnected()
 
 bool Gamepad::IsDown(size_t button)
 {
-    auto buttons = Input::GetButtons();
+    auto buttons = Input::buttons;
 
     for (auto it = buttons.begin(); it != buttons.end(); it++)
     {
@@ -123,7 +123,7 @@ bool Gamepad::IsGamepad()
 
 bool Gamepad::IsGamepadDown(const std::string & button)
 {
-    auto buttons = Input::GetButtons();
+    auto buttons = Input::buttons;
 
     for (auto it = buttons.begin(); it != buttons.end(); it++)
     {

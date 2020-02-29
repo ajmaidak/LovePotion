@@ -2,10 +2,14 @@
 #include "modules/filesystem/filesystem.h"
 
 #include "common/assets.h"
+#include <sys/stat.h>
 
 using namespace love;
 
-#include <sys/stat.h>
+love::Type Filesystem::type("Filesystem", &Module::type);
+
+Filesystem::Filesystem() : identity("SuperGame")
+{}
 
 void Filesystem::Append(const char * filename, const void * data, int64_t size)
 {

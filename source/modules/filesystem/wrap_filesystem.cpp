@@ -175,6 +175,50 @@ int Wrap_Filesystem::NewFile(lua_State * L)
     return 1;
 }
 
+int Wrap_Filesystem::NewFileData(lua_State * L)
+{
+    if (lua_gettop(L) == 1)
+    {
+        if (lua_isstring(L, 1))
+            Luax::ConvertObject(L, 1, "filesystem", "newFile");
+
+        if (Luax::IsType(L, 1, File::type))
+        {
+            File * file = Wrap_File::CheckFile(L, 1);
+            StrongReference<FileData> data;
+
+            try
+            {
+                data.Set(file->Read(), Acquire::NORETAIN);
+            }
+            catch(love::Exception & e)
+            {
+                return Luax::IOError(L, "%s", e.what());
+            }
+
+            Luax::PushType(L, data);
+
+            return 1;
+        }
+        else
+            return luaL_argerror(L, 1, "filename or File expected");
+    }
+
+    size_t length = 0;
+    const char * string = luaL_checklstring(L, 1, &length);
+    const char * filename = luaL_checkstring(L, 2);
+
+    FileData * data = nullptr;
+    Luax::CatchException(L, [&]() {
+        data = instance()->NewFileData(string, length, filename);
+    });
+
+    Luax::PushType(L, data);
+    data->Release();
+
+    return 1;
+}
+
 int Wrap_Filesystem::Read(lua_State * L)
 {
     love::data::ContainerType type = love::data::CONTAINER_STRING;
@@ -291,7 +335,7 @@ int Wrap_Filesystem::Register(lua_State * L)
         { "getSaveDirectory",       GetSaveDirectory  },
         { "load",                   Load              },
         { "newFile",                NewFile           },
-        // { "newFileData",            NewFileData       },
+        { "newFileData",            NewFileData       },
         { "read",                   Read              },
         { "remove",                 Remove            },
         { "setIdentity",            SetIdentity       },
@@ -302,11 +346,12 @@ int Wrap_Filesystem::Register(lua_State * L)
     lua_CFunction types[] =
     {
         Wrap_File::Register,
-        //Wrap_FileData::Register,
+        Wrap_FileData::Register,
         0
     };
 
     Filesystem * instance = instance();
+
     if (instance == nullptr)
         Luax::CatchException(L, [&]() { instance = new Filesystem(); });
     else
@@ -317,7 +362,7 @@ int Wrap_Filesystem::Register(lua_State * L)
     module.instance = instance;
     module.name = "filesystem";
     module.functions = reg;
-    module.type = &Module::type;
+    module.type = &Filesystem::type;
     module.types = types;
 
     return Luax::RegisterModule(L, module);

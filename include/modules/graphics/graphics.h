@@ -20,9 +20,8 @@ namespace love
             };
 
             Graphics();
-            virtual ~Graphics() {}
 
-            virtual ModuleType GetModuleType() const { return M_GRAPHICS; }
+            ModuleType GetModuleType() const { return M_GRAPHICS; }
 
             const char * GetName() const override { return "love.graphics"; }
 
@@ -38,12 +37,9 @@ namespace love
 
             void Present();
 
-            static void AdjustColor(const Color & in, Color * out);
+            void AdjustColor(const Color & in, Color * out);
 
         private:
-            static inline float m_depth = 0.0f;
-            static inline float m_lineWidth = 1.0f;
-
             Color backgroundColor;
             Color foregroundColor;
 

@@ -6,6 +6,7 @@
 #include "common/backend/display.h"
 #include "common/backend/input.h"
 
+#include "modules/data/wrap_datamodule.h"
 #include "modules/event/wrap_event.h"
 #include "modules/filesystem/wrap_filesystem.h"
 #include "modules/graphics/wrap_graphics.h"
@@ -68,12 +69,14 @@ int Love::Initialize(lua_State * L)
 
     m_modules =
     {{
+        { "love.data",        Wrap_Data::Register,       NULL          },
         { "love.event",       Wrap_Event::Register,      NULL          },
         { "love.graphics",    Wrap_Graphics::Register,   NULL          },
         { "love.filesystem",  Wrap_Filesystem::Register, NULL          },
         { "love.joystick",    Wrap_Joystick::Register,   NULL          },
         { "love.timer",       Wrap_Timer::Register,      NULL          },
         { "love.window",      Wrap_Window::Register,     Display::Exit },
+        { "love.boot",        Boot,                      NULL          },
         { 0 }
     }};
 
@@ -81,14 +84,12 @@ int Love::Initialize(lua_State * L)
     for (int i = 0; m_modules[i].name  != nullptr; i++)
         Love::Preload(L, m_modules[i].reg, m_modules[i].name);
 
-    Love::Preload(L, luaopen_luautf8, "utf8");
+    Luax::Require(L, "love.data");
+    lua_pop(L, 1);
 
-    Love::Preload(L, Boot, "love.boot");
+    Love::Preload(L, luaopen_luautf8, "utf8");
     // love_preload(L, LuaSocket::InitSocket, "socket");
     // love_preload(L, LuaSocket::InitHTTP,   "socket.http");
-
-    // Luax::Require(L, "love.data");
-    // lua_pop(L, 1);
 
     return 1;
 }

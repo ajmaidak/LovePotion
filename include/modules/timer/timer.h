@@ -11,7 +11,6 @@ namespace love
     {
         public:
             Timer();
-            virtual ~Timer() {}
 
             ModuleType GetModuleType() const { return M_TIMER; }
 

@@ -9,9 +9,8 @@ namespace love
     {
         public:
             Joystick();
-            virtual ~Joystick() {}
 
-            virtual ModuleType GetModuleType() const { return M_JOYSTICK; }
+            ModuleType GetModuleType() const { return M_JOYSTICK; }
 
             const char * GetName() const override { return "love.joystick"; }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "objects/filedata/filedata.h"
+#include "objects/data/wrap_data.h"
 
 namespace Wrap_FileData
 {

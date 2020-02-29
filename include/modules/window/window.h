@@ -5,9 +5,7 @@ namespace love
     class Window : public Module
     {
         public:
-            virtual ~Window() {};
-
-            virtual ModuleType GetModuleType() const { return M_WINDOW; }
+            ModuleType GetModuleType() const { return M_WINDOW; }
 
             const char * GetName() const override { return "love.window"; }
 
