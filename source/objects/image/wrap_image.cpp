@@ -5,19 +5,6 @@ using namespace love;
 
 love::Type Image::type("Image", &Object::type);
 
-int Wrap_Image::New(lua_State * L)
-{
-    std::string path = luaL_checkstring(L, 1);
-
-    Image * image = new Image(path);
-
-    Luax::PushType(L, image);
-
-    image->Release();
-
-    return 1;
-}
-
 int Wrap_Image::GetDimensions(lua_State * L)
 {
     Image * self = Wrap_Image::CheckImage(L, 1);

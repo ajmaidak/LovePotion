@@ -5,23 +5,37 @@ namespace love
     class Window : public Module
     {
         public:
+            Window();
+            ~Window();
+
             ModuleType GetModuleType() const { return M_WINDOW; }
 
             const char * GetName() const override { return "love.window"; }
 
-            // Löve2D Functions
+            Renderer * GetRenderer();
 
-            void SetMode() { };
+            // Löve2D Functions
 
             int GetDisplayCount();
 
-            std::vector<std::pair<int, int>> GetFullscreenModes();
+            std::vector<std::pair<int, int>> & GetFullscreenModes();
 
             bool IsOpen();
+
+            void SetMode() { };
+
+            void SetScreen(size_t screen);
+
+            void Clear(Color * color);
+
+            void Present();
 
             // End Löve2D Functions
 
         private:
             std::vector<std::pair<int, int>> displaySizes;
+            std::vector<Renderer *> targets;
+            Frame * window;
+            bool open;
     };
 }

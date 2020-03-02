@@ -31,6 +31,40 @@ int Wrap_Event::Clear(lua_State * L)
     return 0;
 }
 
+int Wrap_Event::Pump(lua_State * L)
+{
+    Luax::CatchException(L, [&]() {
+        instance()->Pump();
+    });
+
+    return 0;
+}
+
+int Wrap_Event::Push(lua_State * L)
+{
+    StrongReference<Message> message;
+
+    Luax::CatchException(L, [&]() {
+        message.Set(Message::FromLua(L, 1), Acquire::NORETAIN);
+    });
+
+    lua_pushboolean(L, message.Get() != nullptr);
+
+    if (message.Get() != nullptr)
+        return 1;
+
+    instance()->Push(message);
+
+    return 1;
+}
+
+int Wrap_Event::Wait(lua_State * L)
+{
+    /* TO DO */
+
+    return 0;
+}
+
 int Wrap_Event::Quit(lua_State * L)
 {
     Luax::CatchException(L, [&]() {
@@ -46,22 +80,14 @@ int Wrap_Event::Quit(lua_State * L)
     return 1;
 }
 
-int Wrap_Event::Pump(lua_State * L)
-{
-    Luax::CatchException(L, [&]() {
-        instance()->Pump();
-    });
-
-    return 0;
-}
-
 int Wrap_Event::Register(lua_State * L)
 {
     luaL_Reg reg[] =
     {
-        { "clear",  Clear  },
         { "poll_i", Poll_I },
+        { "clear",  Clear  },
         { "pump",   Pump   },
+        { "push",   Push   },
         { "quit",   Quit   },
         { 0,        0      }
     };

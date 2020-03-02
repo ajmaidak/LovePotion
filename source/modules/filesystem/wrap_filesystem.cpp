@@ -30,7 +30,7 @@ int Wrap_Filesystem::GetDirectoryItems(lua_State * L)
 
     for (size_t index = 0; index < items.size(); index++)
     {
-        lua_pushstring(L, items[index].c_str());
+        lua_pushlstring(L, items[index].data(), items[index].size());
         lua_rawseti(L, -2, index + 1);
     }
 
@@ -41,7 +41,7 @@ int Wrap_Filesystem::GetIdentity(lua_State * L)
 {
     std::string identity = instance()->GetIdentity();
 
-    lua_pushstring(L, identity.c_str());
+    lua_pushlstring(L, identity.data(), identity.size());
 
     return 1;
 }
@@ -106,7 +106,7 @@ int Wrap_Filesystem::GetSaveDirectory(lua_State * L)
 {
     std::string saveDirectory = instance()->GetSaveDirectory();
 
-    lua_pushstring(L, saveDirectory.c_str());
+    lua_pushlstring(L, saveDirectory.data(), saveDirectory.size());
 
     return 1;
 }

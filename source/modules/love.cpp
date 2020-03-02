@@ -67,22 +67,22 @@ int Love::Initialize(lua_State * L)
 
     //---------------------------------------//
 
-    m_modules =
+    Love::modules =
     {{
-        { "love.data",        Wrap_Data::Register,       NULL          },
-        { "love.event",       Wrap_Event::Register,      NULL          },
-        { "love.graphics",    Wrap_Graphics::Register,   NULL          },
-        { "love.filesystem",  Wrap_Filesystem::Register, NULL          },
-        { "love.joystick",    Wrap_Joystick::Register,   NULL          },
-        { "love.timer",       Wrap_Timer::Register,      NULL          },
-        { "love.window",      Wrap_Window::Register,     Display::Exit },
-        { "love.boot",        Boot,                      NULL          },
+        { "love.data",        Wrap_Data::Register,       },
+        { "love.event",       Wrap_Event::Register,      },
+        { "love.graphics",    Wrap_Graphics::Register,   },
+        { "love.filesystem",  Wrap_Filesystem::Register, },
+        { "love.joystick",    Wrap_Joystick::Register,   },
+        { "love.timer",       Wrap_Timer::Register,      },
+        { "love.window",      Wrap_Window::Register,     },
+        { "love.boot",        Boot                       },
         { 0 }
     }};
 
     // preload all the modules
-    for (int i = 0; m_modules[i].name  != nullptr; i++)
-        Love::Preload(L, m_modules[i].reg, m_modules[i].name);
+    for (int i = 0; Love::modules[i].name  != nullptr; i++)
+        Love::Preload(L, Love::modules[i].reg, Love::modules[i].name);
 
     Luax::Require(L, "love.data");
     lua_pop(L, 1);
@@ -207,40 +207,4 @@ int Love::GetRegistry(lua_State * L, Registry registry)
         default:
             return luaL_error(L, "Attempted to use invalid registry");
     }
-}
-
-/*
-** @func DeRegObject
-** De-register a pointer to <object> in the Registry
-** given its light userdata key.
-*/
-void Love::DeRegObject(lua_State * L, void * object)
-{
-    Love::GetRegistry(L, Registry::OBJECTS);
-
-    lua_pushlightuserdata(L, object);
-    lua_pushnil(L);
-    lua_settable(L, -3);
-
-    lua_setfield(L, LUA_REGISTRYINDEX, "_loveobjects");
-}
-
-//------------------------------//
-
-/*
-** @func Exit
-** Called when the application is shutting down
-** and cleans up everything.
-*/
-void Love::Exit(lua_State * L)
-{
-    for (int i = 0; m_modules[i].name != nullptr; i++)
-    {
-        if (m_modules[i].close != nullptr)
-            m_modules[i].close();
-    }
-
-    lua_close(L);
-
-    Logger::Exit();
 }

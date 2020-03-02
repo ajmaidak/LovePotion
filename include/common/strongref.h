@@ -54,15 +54,15 @@ class StrongReference
             return object;
         }
 
-        void Set(T * object, Acquire acquire = Acquire::RETAIN)
+        void Set(T * obj, Acquire acquire = Acquire::RETAIN)
         {
-            if (object && acquire == Acquire::RETAIN)
-                object->Retain();
+            if (obj && acquire == Acquire::RETAIN)
+                obj->Retain();
 
             if (object)
                 object->Release();
 
-            object = object;
+            object = obj;
         }
 
         T * Get() const

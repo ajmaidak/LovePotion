@@ -1,6 +1,7 @@
 #pragma once
 
 #include "modules/graphics/graphics.h"
+#include "modules/window/window.h"
 
 namespace Wrap_Graphics
 {
@@ -28,6 +29,14 @@ namespace Wrap_Graphics
 
     int Rectangle(lua_State * L);
 
+    int NewImage(lua_State * L);
+
+    int NewFont(lua_State * L);
+
+    int SetNewFont(lua_State * L);
+
+    int SetFont(lua_State * L);
+
     int Stencil(lua_State * L);
 
     int GetBackgroundColor(lua_State * L);
@@ -35,6 +44,8 @@ namespace Wrap_Graphics
     int GetCanvas(lua_State * L);
 
     int GetColor(lua_State * L);
+
+    int Reset(lua_State * L);
 
     int GetDefaultFilter(lua_State * L);
 

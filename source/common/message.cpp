@@ -5,9 +5,42 @@ using namespace love;
 Message::Message(const std::string & name, const std::vector<Variant> & args) : name(name), args(args)
 {}
 
+Message::~Message()
+{}
+
+Message * Message::FromLua(lua_State * L, int index)
+{
+    std::string name = luaL_checkstring(L, index);
+    std::vector<Variant> vargs;
+
+    int count = lua_gettop(L) - index;
+    index++;
+
+    Variant varg;
+
+    for (int i = 0; i < count; i++)
+    {
+        if (lua_isnoneornil(L, index + i))
+            break;
+
+        Luax::CatchException(L, [&]() {
+            vargs.push_back(Variant::FromLua(L, index + i));
+        });
+
+        if (vargs.back().GetType() == Variant::UNKNOWN)
+        {
+            vargs.clear();
+            luaL_error(L, "Argument %d can't be stored safely\nExpected boolean, number, string or userdata.", index + i);
+            return nullptr;
+        }
+    }
+
+    return new Message(name, vargs);
+}
+
 int Message::ToLua(lua_State * L)
 {
-    lua_pushstring(L, this->name.c_str());
+    lua_pushlstring(L, this->name.data(), this->name.size());
 
     for (const Variant & v : this->args)
         v.ToLua(L);

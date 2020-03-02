@@ -181,17 +181,17 @@ function love.createhandlers()
                 return love.textinput(text)
             end
         end,
-        touchpressed = function(id, x, y, pressure)
+        touchpressed = function(id, x, y, dx, dy, pressure)
             if love.touchpressed then
                 return love.touchpressed(id, x, y, pressure)
             end
         end,
-        touchreleased = function(id, x, y, pressure)
+        touchreleased = function(id, x, y, dx, dy, pressure)
             if love.touchreleased then
                 return love.touchreleased(id, x, y, pressure)
             end
         end,
-        touchmoved = function(id, x, y, pressure)
+        touchmoved = function(id, x, y, dx, dy, pressure)
             if love.touchmoved then
                 return love.touchmoved(id, x, y, pressure)
             end
@@ -233,6 +233,10 @@ function love.run()
         love.load()
     end
 
+    if love.timer then
+        love.timer.step()
+    end
+
     local delta = 0
 
     return function()
@@ -261,7 +265,7 @@ function love.run()
             love.graphics.clear(love.graphics.getBackgroundColor())
 
             for display = 1, love.window.getDisplayCount() do
-                love.graphics.setScreen(display)
+                love.window.setScreen(display)
 
                 if love.draw then
                     local screen = screens[love._console_name][display]
@@ -278,46 +282,80 @@ function love.run()
     end
 end
 
+local utf8 = require("utf8")
+
+local function error_printer(msg, layer)
+    trace = debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1))
+    trace = trace:gsub("\n[^\n]+$", "")
+
+    file = io.open("crash.txt", "w")
+    file:write(trace)
+    file:close()
+end
+
 function love.errorhandler(message)
     message = tostring(message)
 
-    message = message:gsub("^(./)", "")
+    error_printer(message, 2)
 
-    local err = {}
+    if not love.window or not love.event then
+        return
+    end
 
-    table.insert(err, message .. "\n")
+    --[[
+        LOVE creates a window if necessary.
+        We don't have to because it's .. needed?
+
+        Also they deal with the mouse module here.
+        We don't have a mouse module because reasons.
+    --]]
+
+    if love.joystick then
+        for i, v in ipairs(love.joystick.getJoysticks()) do
+            v:setVibration()
+        end
+    end
 
     if love.audio then
         love.audio.stop()
     end
 
+    love.graphics.reset()
+
+    local font = love.graphics.setNewFont(16.5)
+
+    love.graphics.setColor(1, 1, 1, 1)
+
     local trace = debug.traceback()
+
+    -- love.graphics.origin
+
+    local sanitized = {}
+    for char in message:gmatch(utf8.charpattern) do
+        table.insert(sanitized, char)
+    end
+    sanitized = table.concat(sanitized)
+
+    local error = {}
+    table.insert(error, "Error\n")
+    table.insert(error, sanitized)
+
+    if (#sanitized ~= #message) then
+        table.insert(error, "Invalid UTF-8 string in error message")
+    end
+
+    table.insert(error, "\n")
 
     for l in trace:gmatch("(.-)\n") do
         if not l:match("boot.lua") then
             l = l:gsub("stack traceback:", "Traceback:\n")
-            table.insert(err, l)
+            table.insert(error, l)
         end
     end
 
-    local realError = table.concat(err, "\n")
-    realError = realError:gsub("\t", "")
-    realError = realError:gsub("%[string \"(.-)\"%]", "%1")
-
-    -- MAKE A COPY FOR THE CRASH LOG --
-
-    local copy = err
-    table.insert(copy, "\nLöve Potion " .. love._potion_version .. " (API " .. love._version .. ")")
-
-    local dateTime = os.date("%c")
-    table.insert(copy, "\nDate and Time: " .. dateTime)
-    table.insert(copy, "\nA log has been saved to " .. love.filesystem.getSaveDirectory() .. "crash.txt")
-
-    -----------------------------------
-
-    local fullError = table.concat(err, "\n")
-
-    love.filesystem.write("crash.txt", fullError)
+    local pretty = table.concat(error, "\n")
+    pretty = pretty:gsub("\t", "")
+    pretty = pretty:gsub("%[string \"(.-)\"%]", "%1")
 
     if not love.window.isOpen() then
         return
@@ -328,11 +366,11 @@ function love.errorhandler(message)
             love.graphics.clear(0.35, 0.62, 0.86)
 
             for display = 1, love.window.getDisplayCount() do
-                love.graphics.setScreen(display) --just to clear it
+                love.window.setScreen(display) --just to clear it
 
                 if display == 1 then
                     -- render our error message
-                    -- love.graphics.print(msg, 10, 10)
+                    love.graphics.print(pretty, 10, 10)
                 end
             end
 
@@ -363,15 +401,6 @@ end
 
 love.errhand = love.errorhandler
 
-local function error_printer(msg, layer)
-    trace = debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1))
-    trace = trace:gsub("\n[^\n]+$", "")
-
-    file = io.open("crash.txt", "w")
-    file:write(trace)
-    file:close()
-end
-
 function love.boot()
     -- Load the LOVE filesystem module, its absolutely needed
     require("love.filesystem")
@@ -395,6 +424,7 @@ function love.boot()
     -- Modules to load
     local modules =
     {
+        "data",
         "timer",
         "event",
         "joystick",
@@ -423,17 +453,9 @@ function love.boot()
         error(conferr)
     end
 
-    --[[local __defaultFont = love.graphics.newFont()
-    love.graphics.setFont(__defaultFont)]]
-
-    if love.filesystem.getInfo("main.lua") then
-        -- Try to load `main.lua`.
-        require("main")
-    else
-        -- If there's no game to load then we'll just load up something on the
-        -- screen to tell the user that there's NO GAME!
-        --love._nogame()
-    end
+    -- nogame is handled in romfs
+    -- for non-fused games
+    require("main")
 end
 
 return function()

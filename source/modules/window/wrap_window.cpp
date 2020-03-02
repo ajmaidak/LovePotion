@@ -21,6 +21,7 @@ int Wrap_Window::GetFullscreenModes(lua_State * L)
     if (!display || display > displaySizes.size())
     {
         lua_newtable(L);
+
         return 1;
     }
 
@@ -60,6 +61,15 @@ int Wrap_Window::SetMode(lua_State * L)
     return 0;
 }
 
+int Wrap_Window::SetScreen(lua_State * L)
+{
+    size_t screen = luaL_checkinteger(L, 1);
+
+    instance()->SetScreen(screen);
+
+    return 0;
+}
+
 int Wrap_Window::Register(lua_State * L)
 {
     luaL_Reg functions[] =
@@ -68,10 +78,12 @@ int Wrap_Window::Register(lua_State * L)
         { "setMode",            SetMode            },
         { "getDisplayCount",    GetDisplayCount    },
         { "getFullscreenModes", GetFullscreenModes },
+        { "setScreen",          SetScreen          },
         { 0,                    0                  }
     };
 
     Window * instance = instance();
+
     if (instance == nullptr)
         Luax::CatchException(L, [&]() { instance = new Window(); });
     else

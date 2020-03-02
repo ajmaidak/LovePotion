@@ -1,16 +1,14 @@
-local nest = require 'libraries.nest'.init('ctr', {no_override = true})
-
 local function load_assets(path)
     local ret = {}
 
     local abs_path = string.format("graphics/%s", path)
     local files = love.filesystem.getDirectoryItems(abs_path)
-    
+
     local extension = ".png"
     if path == "ctr" then
         extension = ".t3x"
-    end 
-    
+    end
+
     for i = 1, #files do
         local index = files[i]:gsub(extension, "")
         ret[index] = love.graphics.newImage(abs_path .. "/" .. index .. ".png")
@@ -55,7 +53,7 @@ local function create_eye(x, y)
             return true
         end
     end
-    
+
     function eye:draw()
         love.graphics.draw(self.texture, self.quads[self.animationIndex], self.x, self.y)
     end

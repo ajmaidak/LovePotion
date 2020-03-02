@@ -99,6 +99,7 @@ Variant Variant::FromLua(lua_State * L, int n)
     std::string string;
     bool boolean;
     float number;
+    Proxy * proxy = nullptr;
 
     // Defaults to std::monostate, aka Type::UNKNOWN
     Variant retval;
@@ -110,24 +111,33 @@ Variant Variant::FromLua(lua_State * L, int n)
     {
         case LUA_TSTRING:
             string = lua_tostring(L, n);
-            retval = string;
+            retval = Variant(string);
             return retval;
         case LUA_TNIL:
-            retval = Nil{};
+            retval = Variant(Nil());
             return retval;
         case LUA_TBOOLEAN:
             boolean = lua_toboolean(L, n);
-            retval = boolean;
+            retval = Variant(boolean);
             return retval;
         case LUA_TNUMBER:
             number = lua_tonumber(L, n);
-            retval = number;
+            retval = Variant(number);
             return retval;
+        case LUA_TUSERDATA:
+            proxy = TryExtractProxy(L, n);
+            if (proxy != nullptr)
+                return Variant(proxy->type, proxy->object);
+            else
+            {
+                Luax::TypeErrror(L, n, "love type");
+                return Variant(Nil());
+            }
         default:
             break;
     }
 
-    return retval;
+    return Variant(std::monostate());
 }
 
 void Variant::ToLua(lua_State * L) const
@@ -142,7 +152,7 @@ void Variant::ToLua(lua_State * L) const
     {
         case Type::STRING:
             string = GetValue<Type::STRING>();
-            lua_pushlstring(L, string.c_str(), string.length());
+            lua_pushlstring(L, string.data(), string.size());
             break;
         case Type::LOVE_OBJECT:
             proxy = GetValue<Type::LOVE_OBJECT>();
@@ -159,6 +169,7 @@ void Variant::ToLua(lua_State * L) const
         case Type::LUSERDATA:
             lightUserdata = GetValue<Type::LUSERDATA>();
             lua_pushlightuserdata(L, lightUserdata);
+            break;
         case Type::NIL:
         default:
             lua_pushnil(L);

@@ -26,20 +26,13 @@ namespace love
 
             static double GetTime();
 
-            void Sleep(float ms);
+            void Sleep(s64 ms);
 
             double Step();
 
             //End Löve2D Functions
 
         private:
-            static inline double GetTimeOfDay() {
-                timeval time;
-                gettimeofday(&time, NULL);
-
-                return (double) time.tv_sec + (double) time.tv_usec / 1000000.0;
-            }
-
             float currentTime;
             float lastTime;
             float prevFPSUpdate;

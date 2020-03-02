@@ -6,8 +6,9 @@ namespace love
     {
         public:
             Message(const std::string & name, const std::vector<Variant> & args = {});
-            ~Message() {};
+            ~Message();
 
+            static Message * FromLua(lua_State * L, int index);
             int ToLua(lua_State * L);
 
         private:

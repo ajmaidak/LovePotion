@@ -4,8 +4,6 @@
 
 namespace Wrap_Image
 {
-    int New(lua_State * L);
-
     int GetDimensions(lua_State * L);
 
     int GetFilter(lua_State * L);

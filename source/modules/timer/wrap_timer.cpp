@@ -43,7 +43,7 @@ int Wrap_Timer::GetTime(lua_State * L)
 
 int Wrap_Timer::Sleep(lua_State * L)
 {
-    size_t seconds = luaL_checknumber(L, 1);
+    s64 seconds = luaL_checknumber(L, 1);
 
     instance()->Sleep(seconds);
 

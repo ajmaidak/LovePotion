@@ -64,9 +64,11 @@ void love::Event::Pump()
             case LOVE_TOUCHPRESS:
             case LOVE_TOUCHRELEASE:
             {
-                vargs.emplace_back(&event.touch.id);
+                vargs.emplace_back((void *)(intptr_t)event.touch.id);
                 vargs.emplace_back((float)event.touch.x);
                 vargs.emplace_back((float)event.touch.y);
+                vargs.emplace_back((float)0.0f);
+                vargs.emplace_back((float)0.0f);
                 vargs.emplace_back((float)1.0f);
 
                 message = new Message((event.type == LOVE_TOUCHPRESS) ?

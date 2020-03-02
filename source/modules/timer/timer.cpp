@@ -7,7 +7,7 @@ using namespace love;
 
 //Löve2D Functions
 
-#define CLOCK_DIV 1000000000.0
+#define SLEEP_ULL 1000000000ULL
 
 Timer::Timer() : currentTime(0),
                  prevFPSUpdate(0),
@@ -16,7 +16,9 @@ Timer::Timer() : currentTime(0),
                  fpsUpdateFrequency(1),
                  frames(0),
                  dt(0)
-{}
+{
+    this->prevFPSUpdate = currentTime = this->GetTime();
+}
 
 float Timer::GetAverageDelta()
 {
@@ -35,40 +37,36 @@ int Timer::GetFPS()
 
 double Timer::GetTime()
 {
-    clockid_t clk_id = CLOCK_MONOTONIC;
-    timespec time;
-    double mt;
-
-    if (clock_gettime(clk_id, &time) == 0)
-        mt = (double)time.tv_sec + (double)time.tv_nsec / CLOCK_DIV;
-    else
-        mt = GetTimeOfDay();
-
-    return mt;
+    return SDL_GetTicks();
 }
 
-void Timer::Sleep(float ms)
+void Timer::Sleep(s64 seconds)
 {
-    SDL_Delay(ms);
+    if (seconds >= 0)
+        svcSleepThread(seconds * SLEEP_ULL);
 }
 
 double Timer::Step()
 {
-    this->frames++;
     this->lastTime = this->currentTime;
+    this->currentTime = SDL_GetTicks();
 
-    this->currentTime = this->GetTime();
+    this->dt = (this->currentTime - this->lastTime) * 0.001;
 
-    this->dt = (this->currentTime - this->lastTime);
+    if (this->dt < 0)
+        this->dt = 0;
 
-    double timeSinceLast = this->currentTime - 0;
+    this->frames++;
+    double timeSinceLast = this->currentTime - this->prevFPSUpdate;
 
-    if (timeSinceLast > 1)
+    if (timeSinceLast > 1000)
     {
-        this->fps = int((this->frames / timeSinceLast) + 0.5);
+        this->fps = int((this->frames / timeSinceLast) * 1000);
         this->averageDelta = timeSinceLast / frames;
         this->prevFPSUpdate = this->currentTime;
         this->frames = 0;
+
+        LOG("FPS %d - Delta %.1f", fps, this->dt);
     }
 
     return this->dt;

@@ -46,11 +46,13 @@ namespace love
             static Proxy * TryExtractProxy(lua_State * L, size_t index);
 
             Type GetType() const;
+
             template <Type type>
             const std::variant_alternative_t<size_t(type), decltype(variant)> & GetValue() const
             {
                 return std::get<size_t(type)>(variant);
             }
+
             template <Type type>
             std::variant_alternative_t<size_t(type), decltype(variant)> & GetValue()
             {

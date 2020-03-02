@@ -3,30 +3,113 @@
 
 using namespace love;
 
-Graphics::Graphics() : backgroundColor({0, 0, 0, 0}),
-                       foregroundColor({1, 1, 1, 1})
-{}
+Graphics::Graphics()
+{
+    this->states.reserve(10);
+    this->states.push_back(DisplayState());
+}
+
+Graphics::~Graphics()
+{
+    this->states.clear();
+}
 
 Color Graphics::GetColor()
 {
-    return this->foregroundColor;
+    return this->states.back().foreground;
 }
 
 void Graphics::SetColor(const Color & color)
 {
-    this->AdjustColor(color, &this->foregroundColor);
+    this->AdjustColor(color, &this->states.back().foreground);
 }
 
 Color Graphics::GetBackgroundColor()
 {
-    LOG("Background Color is %.1f, %.1f, %.1f", backgroundColor.r, backgroundColor.g, backgroundColor.b);
-    return this->backgroundColor;
+    return this->states.back().background;
 }
 
 void Graphics::SetBackgroundColor(const Color & color)
 {
-    this->AdjustColor(color, &this->backgroundColor);
+    this->AdjustColor(color, &this->states.back().background);
 }
+
+/* Objects */
+
+Image * Graphics::NewImage(const std::string & path)
+{
+    return new Image(path);
+}
+
+Font * Graphics::NewFont(float size)
+{
+    return new Font(size);
+}
+
+Font * Graphics::NewFont(const std::string & path, float size)
+{
+    return new Font(path, size);
+}
+
+void Graphics::Print(const char * string, float x, float y)
+{
+    this->CheckSetDefaultFont();
+
+    if (this->states.back().font.Get() != nullptr)
+        this->Print(string, this->states.back().font.Get(), x, y);
+}
+
+void Graphics::Print(const char * string, Font * font, float x, float y)
+{
+    font->Print(string, x, y, this->states.back().foreground);
+}
+
+/* End Objects */
+
+void Graphics::Reset()
+{
+    DisplayState blankState;
+    this->RestoreState(blankState);
+    // Origin
+}
+
+/* Private */
+
+void Graphics::RestoreState(const DisplayState & state)
+{
+    this->SetColor(state.foreground);
+    this->SetBackgroundColor(state.background);
+    this->SetFont(state.font);
+}
+
+/* Font */
+
+void Graphics::CheckSetDefaultFont()
+{
+    // We don't create or set the default Font if an existing font is in use.
+    if (this->states.back().font.Get() != nullptr)
+        return;
+
+    // Create a new default font if we don't have one yet.
+    if (!this->defaultFont.Get())
+        this->defaultFont.Set(this->NewFont(), Acquire::NORETAIN);
+
+    this->states.back().font.Set(this->defaultFont.Get());
+}
+
+void Graphics::SetFont(Font * font)
+{
+    DisplayState & state = this->states.back();
+    state.font.Set(font);
+}
+
+Font * Graphics::GetFont()
+{
+    this->CheckSetDefaultFont();
+    return this->states.back().font.Get();
+}
+
+/* End Font */
 
 void Graphics::AdjustColor(const Color & in, Color * out)
 {

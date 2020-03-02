@@ -26,6 +26,10 @@ typedef C2D_Image Texture;
 
 typedef struct _Frame Frame;
 
+typedef C2D_Font FontHandle;
+typedef C2D_TextBuf TextBuffer;
+typedef C2D_Text TextHandle;
+
 struct Color
 {
     float r;

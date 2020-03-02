@@ -14,5 +14,7 @@ namespace Wrap_Window
 
     int SetMode(lua_State * L);
 
+    int SetScreen(lua_State * L);
+
     int Register(lua_State * L);
 }

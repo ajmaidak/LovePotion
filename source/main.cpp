@@ -47,7 +47,7 @@ DoneAction Run_Love_Potion(int & retval)
     if (lua_isnumber(L, -1))
         retval = (int)lua_tonumber(L, -1);
 
-    Love::Exit(L);
+    lua_close(L);
 
     // actually return quit
     return done;
@@ -63,8 +63,6 @@ int main(int argc, char * argv[])
 
     Assets::Initialize(path);
 
-    Display::Initialize();
-
     DoneAction done = DONE_QUIT;
     int retval = 0;
 
@@ -74,6 +72,8 @@ int main(int argc, char * argv[])
         if (done == DoneAction::DONE_QUIT)
             break;
     }
+
+    Logger::Exit();
 
     return retval;
 }

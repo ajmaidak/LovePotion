@@ -11,13 +11,14 @@ Image::Image(const std::string & path)
     if (pos != std::string::npos)
         translation = (path.substr(0, pos) + "t3x");
 
-    const char * realPath = translation.c_str();
+    if (std::filesystem::exists(translation))
+    {
+        C2D_SpriteSheet sheet = C2D_SpriteSheetLoad(translation.c_str());
+        this->texture = C2D_SpriteSheetGetImage(sheet, 0);
 
-    C2D_SpriteSheet sheet = C2D_SpriteSheetLoad(realPath);
-    this->texture = C2D_SpriteSheetGetImage(sheet, 0);
-
-    this->width = this->texture.subtex->width;
-    this->height = this->texture.subtex->height;
+        this->width = this->texture.subtex->width;
+        this->height = this->texture.subtex->height;
+    }
 }
 
 void Image::Draw(float x, float y, float r, float sx, float sy)
