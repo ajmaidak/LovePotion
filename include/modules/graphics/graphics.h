@@ -3,8 +3,6 @@
 ** @brief : handles graphical drawing
 */
 
-#include "common/backend/render.h"
-
 #include "objects/image/wrap_image.h"
 #include "objects/image/image.h"
 
@@ -18,8 +16,8 @@ namespace love
         public:
             enum DrawMode
             {
-                LINE,
-                FILL
+                DRAW_LINE,
+                DRAW_FILL
             };
 
             struct DisplayState
@@ -27,12 +25,22 @@ namespace love
                 Color foreground = { 1, 1, 1, 1 };
                 Color background = { 0, 0, 0, 0 };
 
-                float lineWidth = 1.0f;
-                float pointSize = 1.0f;
+                float lineWidth = 2.0f;
+                float pointSize = 2.0f;
 
-                bool scissor = false;
                 StrongReference<Font> font;
+
+                Rect scissor;
             };
+
+            struct Point
+            {
+                float x;
+                float y;
+            };
+
+            static constexpr float MIN_DEPTH = 1.0f/16384.0f;
+            static inline float CURRENT_DEPTH = 0;
 
             Graphics();
             ~Graphics();
@@ -48,6 +56,16 @@ namespace love
             void SetColor(const Color & color);
 
             Color GetBackgroundColor();
+
+            void SetBackgroundColor(const Color & color);
+
+            float GetLineWidth();
+
+            void SetLineWidth(float width);
+
+            void SetScissor(float x, float y, float width, float height);
+
+            Rect GetScissor();
 
             /* Objects */
 
@@ -68,25 +86,12 @@ namespace love
 
             void Reset();
 
-            void SetBackgroundColor(const Color & color);
 
             void Present();
 
             void AdjustColor(const Color & in, Color * out);
 
             std::vector<DisplayState> states;
-
-        private:
-            void RestoreState(const DisplayState & state);
-            void CheckSetDefaultFont();
-
-            StrongReference<Font> defaultFont;
-
-            static inline std::map<std::string, Graphics::DrawMode> m_modes =
-            {
-                { "line", DrawMode::LINE },
-                { "fill", DrawMode::FILL }
-            };
 
             static inline bool GetConstant(const std::string & in, DrawMode & out) {
                 if (m_modes.find(in) != m_modes.end())
@@ -97,5 +102,17 @@ namespace love
 
                 return false;
             }
+
+        private:
+            void RestoreState(const DisplayState & state);
+            void CheckSetDefaultFont();
+
+            StrongReference<Font> defaultFont;
+
+            static inline std::map<std::string, Graphics::DrawMode> m_modes =
+            {
+                { "line", DrawMode::DRAW_LINE },
+                { "fill", DrawMode::DRAW_FILL }
+            };
     };
 }

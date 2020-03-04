@@ -1,28 +1,187 @@
 #include "common/runtime.h"
 #include "modules/graphics/wrap_graphics.h"
 
+#include "common/backend/primitives.h"
+
 using namespace love;
 
 #define instance() (Module::GetInstance<Graphics>(Module::M_GRAPHICS))
 
-// int Wrap_Graphics::Rectangle(lua_State * L)
-// {
-//     const char * mode = luaL_checkstring(L, 1);
-//     DrawMode drawMode = DrawMode::FILL;
+int Wrap_Graphics::Rectangle(lua_State * L)
+{
+    const char * mode = luaL_checkstring(L, 1);
+    Graphics::DrawMode drawMode = Graphics::DRAW_FILL;
 
-//     if (!GetConstant(mode, drawMode))
-//         return luaL_error(L, "Invalid draw mode %s", mode);
+    if (!Graphics::GetConstant(mode, drawMode))
+        return luaL_error(L, "Invalid draw mode %s", mode);
 
-//     float x = luaL_optnumber(L, 2, 0);
-//     float y = luaL_optnumber(L, 3, 0);
+    float x = luaL_optnumber(L, 2, 0);
+    float y = luaL_optnumber(L, 3, 0);
 
-//     float width = luaL_checknumber(L, 4);
-//     float height = luaL_checknumber(L, 5);
+    float width = luaL_checknumber(L, 4);
+    float height = luaL_checknumber(L, 5);
 
-//     Render::Rectangle(mode, x, y, width, height, foreground);
+    float rx = luaL_optnumber(L, 6, 1);
+    float ry = luaL_optnumber(L, 7, 1);
 
-//     return 0;
-// }
+    Primitives::Rectangle(mode, x, y, width, height, rx, ry, instance()->GetColor());
+
+    return 0;
+}
+
+int Wrap_Graphics::Circle(lua_State * L)
+{
+    const char * mode = luaL_checkstring(L, 1);
+    Graphics::DrawMode drawMode = Graphics::DRAW_FILL;
+
+    if (!Graphics::GetConstant(mode, drawMode))
+        return luaL_error(L, "Invalid draw mode %s", mode);
+
+    float x = luaL_optnumber(L, 2, 0);
+    float y = luaL_optnumber(L, 3, 0);
+
+    float radius = luaL_optnumber(L, 4, 1);
+
+    Primitives::Circle(mode, x, y, radius, instance()->GetColor());
+
+    return 0;
+}
+
+int Wrap_Graphics::Line(lua_State * L)
+{
+    int argc = lua_gettop(L);
+    bool isTable = lua_istable(L, 1);
+    int tableLength = 0;
+
+    Graphics::Point start, end = Graphics::Point();
+
+    if (isTable)
+    {
+        tableLength= lua_objlen(L, 1);
+
+        if (tableLength == 0 || (tableLength > 0 && tableLength % 4) != 0)
+            return luaL_error(L, "Need at least two verticies to draw a line");
+
+        if ((tableLength % 4) == 0)
+        {
+            for (int outer = 0; outer < tableLength; outer += 4)
+            {
+                for (int inner = 1; inner <= 4; inner++)
+                {
+                    lua_rawgeti(L, 1, inner + outer);
+
+                    start.x = luaL_checknumber(L, -4);
+                    start.y = luaL_checknumber(L, -3);
+
+                    end.x = luaL_checknumber(L, -2);
+                    end.y = luaL_checknumber(L, -1);
+
+                    lua_pop(L, 4);
+
+                    Primitives::Line(start.x, start.y, end.x, end.y, instance()->GetColor());
+                }
+            }
+        }
+    }
+    else
+    {
+        if ((argc % 4) != 0)
+            return luaL_error(L, "Need at least two verticies to draw a line");
+
+        for (int index = 0; index < argc; index += 4)
+        {
+            start.x = luaL_checknumber(L, index + 1);
+            start.y = luaL_checknumber(L, index + 2);
+
+            end.x = luaL_checknumber(L, index + 3);
+            end.y = luaL_checknumber(L, index + 4);
+
+            Primitives::Line(start.x, start.y, end.x, end.y, instance()->GetColor());
+        }
+    }
+
+    return 0;
+}
+
+int Wrap_Graphics::Polygon(lua_State * L)
+{
+    int argc = lua_gettop(L) - 1;
+    const char * mode = luaL_checkstring(L, 1);
+    Graphics::DrawMode drawMode = Graphics::DRAW_FILL;
+
+    if (!Graphics::GetConstant(mode, drawMode))
+        return luaL_error(L, "Invalid draw mode %s", mode);
+
+    bool isTable = false;
+    if (argc == 1 && lua_istable(L, 2))
+    {
+        argc = (int)lua_objlen(L, 2);
+        isTable = true;
+    }
+
+    if (argc % 2 != 0)
+        return luaL_error(L, "Number of vertex components must be a multiple of two");
+    else if (argc < 6)
+        return luaL_error(L, "Need at least three vertices to draw a polygon");
+
+    const int numverticies = argc / 2;
+
+    std::vector<Graphics::Point> points(numverticies);
+
+    if (isTable)
+    {
+        float x = 0;
+        float y = 0;
+
+        for (int i = 0; i < numverticies; i++)
+        {
+            lua_rawgeti(L, 2, (i * 2) + 1);
+            lua_rawgeti(L, 2, (i * 2) + 2);
+
+            x = luaL_checkinteger(L, -2);
+            y = luaL_checkinteger(L, -1);
+
+            points[i] = {x, y};
+
+            lua_pop(L, 2);
+        }
+    }
+    else
+    {
+        float x = 0;
+        float y = 0;
+
+        for (int i = 0; i < numverticies; i++)
+        {
+            x = luaL_checkinteger(L, (i * 2) + 2);
+            y = luaL_checkinteger(L, (i * 2) + 3);
+
+            points[i] = {x, y};
+
+            lua_pop(L, 2);
+        }
+    }
+
+    Primitives::Polygon(mode, points, instance()->GetColor());
+
+    return 0;
+}
+
+int Wrap_Graphics::SetLineWidth(lua_State * L)
+{
+    float width = luaL_checknumber(L, 1);
+
+    instance()->SetLineWidth(width);
+
+    return 0;
+}
+
+int Wrap_Graphics::GetLineWidth(lua_State * L)
+{
+    lua_pushnumber(L, instance()->GetLineWidth());
+
+    return 1;
+}
 
 int Wrap_Graphics::Clear(lua_State * L)
 {
@@ -34,6 +193,7 @@ int Wrap_Graphics::Clear(lua_State * L)
     inputColor.b = luaL_checknumber(L, 3);
 
     instance()->AdjustColor(inputColor, &clearColor);
+    instance()->CURRENT_DEPTH = 0.0f;
 
     auto windowModule = Module::GetInstance<Window>(Module::M_WINDOW);
     windowModule->Clear(&clearColor);
@@ -45,6 +205,27 @@ int Wrap_Graphics::Present(lua_State * L)
 {
     auto windowModule = Module::GetInstance<Window>(Module::M_WINDOW);
     windowModule->Present();
+
+    return 0;
+}
+
+int Wrap_Graphics::SetScissor(lua_State * L)
+{
+    bool enabled = lua_gettop(L) == 0;
+
+    if (enabled)
+    {
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+
+        float width = luaL_checknumber(L, 3);
+        float height = luaL_checknumber(L, 4);
+
+        instance()->SetScissor(x, y, width, height);
+    }
+
+    Rect scissor = instance()->GetScissor();
+    Primitives::Scissor(enabled, scissor.x, scissor.y, scissor.width, scissor.height);
 
     return 0;
 }
@@ -241,19 +422,25 @@ int Wrap_Graphics::Register(lua_State * L)
 {
     luaL_Reg reg[] =
     {
+        { "circle",             Circle             },
         { "clear",              Clear              },
         { "draw",               Draw               },
         { "getBackgroundColor", GetBackgroundColor },
         { "getColor",           GetColor           },
+        { "getLineWidth",       GetLineWidth       },
+        { "line",               Line               },
+        { "newFont",            NewFont            },
         { "newImage",           NewImage           },
+        { "polygon",            Polygon            },
         { "present",            Present            },
-        // { "rectangle",          Rectangle          },
+        { "print",              Print              },
+        { "rectangle",          Rectangle          },
+        { "reset",              Reset              },
         { "setBackgroundColor", SetBackgroundColor },
         { "setColor",           SetColor           },
-        { "newFont",            NewFont            },
+        { "setLineWidth",       SetLineWidth       },
         { "setNewFont",         SetNewFont         },
-        { "print",              Print              },
-        { "reset",              Reset              },
+        { "setScissor",         SetScissor         },
         { 0,                    0                  }
     };
 

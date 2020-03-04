@@ -3,6 +3,8 @@
 ** @brief   : Logs shit when enabled
 */
 
+#pragma once
+
 class Logger
 {
     public:

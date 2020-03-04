@@ -32,6 +32,9 @@ enum DoneAction
 #include <filesystem>
 #include <limits>
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include <string>
 using namespace std::string_literals;
 

@@ -34,6 +34,27 @@ void Graphics::SetBackgroundColor(const Color & color)
     this->AdjustColor(color, &this->states.back().background);
 }
 
+float Graphics::GetLineWidth()
+{
+    return this->states.back().lineWidth;
+}
+
+void Graphics::SetLineWidth(float width)
+{
+    this->states.back().lineWidth = width;
+}
+
+
+Rect Graphics::GetScissor()
+{
+    return this->states.back().scissor;
+}
+
+void Graphics::SetScissor(float x, float y, float width, float height)
+{
+    this->states.back().scissor = {x, y, width, height};
+}
+
 /* Objects */
 
 Image * Graphics::NewImage(const std::string & path)

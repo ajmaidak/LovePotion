@@ -32,10 +32,16 @@ namespace love
 
             // End Löve2D Functions
 
+            int GetDisplay() {
+                return this->currentDisplay;
+            };
+
         private:
             std::vector<std::pair<int, int>> displaySizes;
             std::vector<Renderer *> targets;
             Frame * window;
             bool open;
+
+            int currentDisplay;
     };
 }

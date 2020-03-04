@@ -29,9 +29,13 @@ namespace Wrap_Graphics
 
     int Rectangle(lua_State * L);
 
+    int SetScissor(lua_State * L);
+
     int NewImage(lua_State * L);
 
     int NewFont(lua_State * L);
+
+    int SetLineWidth(lua_State * L);
 
     int SetNewFont(lua_State * L);
 

@@ -18,31 +18,34 @@ namespace love
 
             //Löve2D Functions
 
-            float GetAverageDelta();
+            double GetAverageDelta();
 
-            float GetDelta();
+            double GetDelta();
 
             int GetFPS();
 
-            static double GetTime();
+            double GetTime();
 
-            void Sleep(s64 ms);
+            void Sleep(float seconds);
 
             double Step();
 
             //End Löve2D Functions
 
         private:
-            float currentTime;
-            float lastTime;
-            float prevFPSUpdate;
+            double currentTime;
+            double lastTime;
+            double prevFPSUpdate;
 
             int fps;
-            float averageDelta;
+            double averageDelta;
 
-            float fpsUpdateFrequency;
+            double fpsUpdateFrequency;
             int frames;
 
-            float dt;
+            double dt;
+            u64 reference;
+
+            TickCounter counter;
     };
 }

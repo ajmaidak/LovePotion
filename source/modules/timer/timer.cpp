@@ -3,11 +3,9 @@
 
 using namespace love;
 
-#include <SDL.h>
-
 //Löve2D Functions
 
-#define SLEEP_ULL 1000000000ULL
+#define SLEEP_ULL 1000000ULL
 
 Timer::Timer() : currentTime(0),
                  prevFPSUpdate(0),
@@ -17,15 +15,21 @@ Timer::Timer() : currentTime(0),
                  frames(0),
                  dt(0)
 {
+    #if defined (_3DS)
+        osTickCounterStart(&this->counter);
+    #else if defined (__SWITCH__)
+        this->reference = armGetSystemTick();
+    #endif
+
     this->prevFPSUpdate = currentTime = this->GetTime();
 }
 
-float Timer::GetAverageDelta()
+double Timer::GetAverageDelta()
 {
     return this->averageDelta;
 }
 
-float Timer::GetDelta()
+double Timer::GetDelta()
 {
     return this->dt;
 }
@@ -35,38 +39,53 @@ int Timer::GetFPS()
     return this->fps;
 }
 
+/*
+** According to LÖVE docs:
+** "getTime should return seconds"
+** osTickCounterRead returns ms, so divide by 1000
+*/
 double Timer::GetTime()
 {
-    return SDL_GetTicks();
+    #if defined (_3DS)
+        this->counter.elapsed = svcGetSystemTick() - this->counter.reference;
+        return  osTickCounterRead(&this->counter) / 1000.0;
+    #else if defined (__SWITCH__)
+        return armTicksToNs(armGetSystemTick() - reference) / 1000000000.0;
+    #endif
 }
 
-void Timer::Sleep(s64 seconds)
+/*
+** According to LÖVE docs:
+** "sleep in seconds"
+*/
+void Timer::Sleep(float seconds)
 {
-    if (seconds >= 0)
-        svcSleepThread(seconds * SLEEP_ULL);
+    u32 milliseconds = seconds * 1000.0f;
+    u64 nanoSeconds = milliseconds * SLEEP_ULL;
+
+    svcSleepThread(nanoSeconds);
 }
 
 double Timer::Step()
 {
-    this->lastTime = this->currentTime;
-    this->currentTime = SDL_GetTicks();
+    this->frames++;
 
-    this->dt = (this->currentTime - this->lastTime) * 0.001;
+    this->lastTime = this->currentTime;
+    this->currentTime = this->GetTime();
+
+    this->dt = this->currentTime - this->lastTime;
 
     if (this->dt < 0)
         this->dt = 0;
 
-    this->frames++;
-    double timeSinceLast = this->currentTime - this->prevFPSUpdate;
+    double timeSinceLast = (this->currentTime - this->prevFPSUpdate);
 
-    if (timeSinceLast > 1000)
+    if (timeSinceLast > this->fpsUpdateFrequency)
     {
-        this->fps = int((this->frames / timeSinceLast) * 1000);
+        this->fps = int((this->frames / timeSinceLast) + 0.5);
         this->averageDelta = timeSinceLast / frames;
         this->prevFPSUpdate = this->currentTime;
         this->frames = 0;
-
-        LOG("FPS %d - Delta %.1f", fps, this->dt);
     }
 
     return this->dt;

@@ -37,3 +37,11 @@ struct Color
     float b;
     float a = 1.0f;
 };
+
+struct Rect
+{
+    float x;
+    float y;
+    float width;
+    float height;
+};

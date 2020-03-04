@@ -82,7 +82,7 @@ bool Window::IsOpen()
 
 void Window::SetScreen(size_t screen)
 {
-    screen = std::clamp((int)screen - 1, 0, 2);
+    this->currentDisplay = std::clamp((int)screen - 1, 0, 2);
 
-    C2D_SceneBegin(this->targets[screen]);
+    C2D_SceneBegin(this->targets[this->currentDisplay]);
 }
