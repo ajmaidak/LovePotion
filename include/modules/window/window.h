@@ -1,5 +1,7 @@
 #pragma once
 
+#include "modules/graphics/graphics.h"
+
 namespace love
 {
     class Window : public Module
@@ -22,13 +24,18 @@ namespace love
 
             bool IsOpen();
 
-            void SetMode() { };
+            bool SetMode();
 
             void SetScreen(size_t screen);
 
             void Clear(Color * color);
+            // void Clear(const Graphics::DisplayState & state);
 
             void Present();
+
+            void SetGraphics(Graphics * g) {
+                this->graphics.Set(g);
+            }
 
             // End Löve2D Functions
 
@@ -41,6 +48,7 @@ namespace love
             std::vector<Renderer *> targets;
             Frame * window;
             bool open;
+            StrongReference<Graphics> graphics;
 
             int currentDisplay;
     };

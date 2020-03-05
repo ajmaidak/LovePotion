@@ -56,9 +56,11 @@ int Wrap_Window::IsOpen(lua_State * L)
 
 int Wrap_Window::SetMode(lua_State * L)
 {
-    instance()->SetMode();
+    Luax::CatchException(L, [&]() {
+        lua_pushboolean(L, instance()->SetMode());
+    });
 
-    return 0;
+    return 1;
 }
 
 int Wrap_Window::SetScreen(lua_State * L)

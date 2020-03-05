@@ -5,9 +5,6 @@ using namespace love;
 
 Window::Window() : open(false)
 {
-    if (this->IsOpen())
-        return;
-
     gfxInitDefault();
     gfxSet3D(true);
 
@@ -25,21 +22,31 @@ Window::Window() : open(false)
         { 400, 240 },
         { 320, 240 }
     };
+}
 
-    this->targets = {
+Window::~Window()
+{
+    this->graphics.Set(nullptr);
+
+    C2D_Fini();
+    C3D_Fini();
+    gfxExit();
+
+    this->open = false;
+}
+
+bool Window::SetMode()
+{
+    this->targets =
+    {
         C2D_CreateScreenTarget(GFX_TOP,    GFX_LEFT),
         C2D_CreateScreenTarget(GFX_TOP,    GFX_RIGHT),
         C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT)
     };
 
     this->open = true;
-}
 
-Window::~Window()
-{
-    C2D_Fini();
-    C3D_Fini();
-    gfxExit();
+    return true;
 }
 
 void Window::Clear(Color * color)
@@ -47,12 +54,7 @@ void Window::Clear(Color * color)
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 
     for (size_t index = 0; index < targets.size(); index++)
-    {
-        if (!color)
-            (*color) = { 0, 0, 0, 1 };
-
-        C2D_TargetClear(targets[index], C2D_Color32f(color->r, color->g, color->b, 1.0));
-    }
+        C2D_TargetClear(targets[index], C2D_Color32f(color->r, color->g, color->b, color->a));
 }
 
 void Window::Present()

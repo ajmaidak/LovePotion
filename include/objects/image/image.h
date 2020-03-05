@@ -11,7 +11,8 @@ namespace love
 
             Image(const std::string & path);
 
-            void Draw(float x, float y, float r, float scalarX, float scalarY);
+            void Draw(float x, float y, float r, float scalarX, float scalarY, float shearX, float shearY, const Color & color);
+            void Draw(float x, float y, float r, float scalarX, float scalarY, const Color & color);
 
             int GetWidth() { return width; }
 

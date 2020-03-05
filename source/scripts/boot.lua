@@ -444,14 +444,19 @@ function love.boot()
         love.createhandlers()
     end
 
-    -- Take our first step.
-    if love.timer then
-        love.timer.step()
-    end
-
     -- Now we can throw any errors from `conf.lua`.
     if not confok and conferr then
         error(conferr)
+    end
+
+    -- Set up the window
+    if config.window and config.modules.window then
+        assert(love.window.setMode(), "Could not set window mode")
+    end
+
+    -- Take our first step.
+    if love.timer then
+        love.timer.step()
     end
 
     -- nogame is handled in romfs

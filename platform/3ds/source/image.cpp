@@ -21,19 +21,20 @@ Image::Image(const std::string & path)
     }
 }
 
-void Image::Draw(float x, float y, float r, float sx, float sy)
+void Image::Draw(float x, float y, float r, float scalarX, float scalarY, const Color & color)
 {
     C2D_DrawParams params;
 
     params.depth = 0.5f;
-    params.pos = {x, y, sx * this->width, sy * this->height};
+    params.pos =
+    {
+        x, y,
+        scalarX * this->width, scalarY * this->height
+    };
     params.angle = r;
 
-    // C2D_ImageTint tint;
-    // Color color = Display::GetBlendColor();
+    C2D_ImageTint tint;
+    C2D_AlphaImageTint(&tint, color.a);
 
-    // u32 blend = C2D_Color32f(color.r, color.g, color.b, color.a);
-    // C2D_PlainImageTint(&tint, blend, 1);
-
-    C2D_DrawImage(this->texture, &params, NULL);
+    C2D_DrawImage(this->texture, &params, &tint);
 }

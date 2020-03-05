@@ -102,7 +102,7 @@ int Love::Initialize(lua_State * L)
 */
 int Love::Boot(lua_State * L)
 {
-    if (Luax::DoBuffer(L, (char *)boot_lua, boot_lua_size, "boot.lua"))
+    if (Luax::DoBuffer(L, (const char *)boot_lua, boot_lua_size, "boot.lua"))
         LOG("boot.lua error: %s", lua_tostring(L, -1));
 
     return 1;

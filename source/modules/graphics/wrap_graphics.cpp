@@ -185,7 +185,7 @@ int Wrap_Graphics::GetLineWidth(lua_State * L)
 
 int Wrap_Graphics::Clear(lua_State * L)
 {
-    Color clearColor = { 0, 0, 0, 1 };
+    Color clearColor = { 0, 0, 0, 0 };
     Color inputColor = clearColor;
 
     inputColor.r = luaL_checknumber(L, 1);
@@ -286,7 +286,7 @@ int Wrap_Graphics::Draw(lua_State * L)
     x += ox;
     y += oy;
 
-    image->Draw(x, y, r, sx, sy);
+    image->Draw(x, y, r, sx, sy, instance()->GetColor());
 
     return 0;
 }

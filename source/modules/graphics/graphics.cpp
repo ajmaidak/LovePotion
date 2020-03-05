@@ -1,17 +1,25 @@
 #include "common/runtime.h"
 #include "modules/graphics/graphics.h"
 
+#include "modules/window/window.h"
+
 using namespace love;
 
 Graphics::Graphics()
 {
     this->states.reserve(10);
     this->states.push_back(DisplayState());
+
+    auto window = Module::GetInstance<Window>(M_WINDOW);
+
+    if (window != nullptr)
+        window->SetGraphics(this);
 }
 
 Graphics::~Graphics()
 {
     this->states.clear();
+    this->defaultFont.Set(nullptr);
 }
 
 Color Graphics::GetColor()

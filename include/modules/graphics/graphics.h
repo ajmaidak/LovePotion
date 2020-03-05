@@ -3,6 +3,8 @@
 ** @brief : handles graphical drawing
 */
 
+#pragma once
+
 #include "objects/image/wrap_image.h"
 #include "objects/image/image.h"
 
@@ -108,6 +110,8 @@ namespace love
         private:
             void RestoreState(const DisplayState & state);
             void CheckSetDefaultFont();
+
+            void SetMode();
 
             StrongReference<Font> defaultFont;
 
