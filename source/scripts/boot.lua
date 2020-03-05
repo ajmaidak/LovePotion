@@ -429,7 +429,8 @@ function love.boot()
         "event",
         "joystick",
         "window",
-        "graphics"
+        "graphics",
+        "math"
     }
 
     -- Load them all!

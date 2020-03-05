@@ -133,7 +133,7 @@ int Wrap_Graphics::Polygon(lua_State * L)
         float x = 0;
         float y = 0;
 
-        for (int i = 0; i < numverticies; i++)
+        for (int i = 0; i < numverticies; ++i)
         {
             lua_rawgeti(L, 2, (i * 2) + 1);
             lua_rawgeti(L, 2, (i * 2) + 2);
@@ -151,7 +151,7 @@ int Wrap_Graphics::Polygon(lua_State * L)
         float x = 0;
         float y = 0;
 
-        for (int i = 0; i < numverticies; i++)
+        for (int i = 0; i < numverticies; ++i)
         {
             x = luaL_checkinteger(L, (i * 2) + 2);
             y = luaL_checkinteger(L, (i * 2) + 3);
@@ -225,7 +225,7 @@ int Wrap_Graphics::SetScissor(lua_State * L)
     }
 
     Rect scissor = instance()->GetScissor();
-    Primitives::Scissor(enabled, scissor.x, scissor.y, scissor.width, scissor.height);
+    Primitives::Scissor(enabled, scissor.x, scissor.y, scissor.w, scissor.h);
 
     return 0;
 }

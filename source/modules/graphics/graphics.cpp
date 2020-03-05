@@ -50,7 +50,7 @@ Rect Graphics::GetScissor()
     return this->states.back().scissor;
 }
 
-void Graphics::SetScissor(float x, float y, float width, float height)
+void Graphics::SetScissor(int x, int y, int width, int height)
 {
     this->states.back().scissor = {x, y, width, height};
 }

@@ -17,7 +17,7 @@ Timer::Timer() : currentTime(0),
 {
     #if defined (_3DS)
         osTickCounterStart(&this->counter);
-    #else if defined (__SWITCH__)
+    #elif defined (__SWITCH__)
         this->reference = armGetSystemTick();
     #endif
 
@@ -49,7 +49,7 @@ double Timer::GetTime()
     #if defined (_3DS)
         this->counter.elapsed = svcGetSystemTick() - this->counter.reference;
         return  osTickCounterRead(&this->counter) / 1000.0;
-    #else if defined (__SWITCH__)
+    #elif defined (__SWITCH__)
         return armTicksToNs(armGetSystemTick() - reference) / 1000000000.0;
     #endif
 }

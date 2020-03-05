@@ -9,6 +9,8 @@
 #include "objects/font/wrap_font.h"
 #include "objects/font/font.h"
 
+#include "common/mmath.h"
+
 namespace love
 {
     class Graphics : public Module
@@ -63,7 +65,7 @@ namespace love
 
             void SetLineWidth(float width);
 
-            void SetScissor(float x, float y, float width, float height);
+            void SetScissor(int x, int y, int width, int height);
 
             Rect GetScissor();
 

@@ -11,6 +11,7 @@
 #include "modules/filesystem/wrap_filesystem.h"
 #include "modules/graphics/wrap_graphics.h"
 #include "modules/joystick/wrap_joystick.h"
+#include "modules/math/wrap_mathmodule.h"
 #include "modules/timer/wrap_timer.h"
 #include "modules/window/wrap_window.h"
 
@@ -74,6 +75,7 @@ int Love::Initialize(lua_State * L)
         { "love.graphics",    Wrap_Graphics::Register,   },
         { "love.filesystem",  Wrap_Filesystem::Register, },
         { "love.joystick",    Wrap_Joystick::Register,   },
+        { "love.math",        Wrap_Math::Register        },
         { "love.timer",       Wrap_Timer::Register,      },
         { "love.window",      Wrap_Window::Register,     },
         { "love.boot",        Boot                       },

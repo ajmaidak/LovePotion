@@ -109,7 +109,7 @@ int Wrap_Event::Register(lua_State * L)
 
     int ret = Luax::RegisterModule(L, module);
 
-    if (luaL_loadbuffer(L, (const char *)wrap_event_lua, wrap_event_lua_size, "wrap_Event.lua") == 0)
+    if (luaL_loadbuffer(L, (const char *)wrap_event_lua, wrap_event_lua_size, "wrap_event.lua") == 0)
         lua_call(L, 0, 0);
     else
         lua_error(L);

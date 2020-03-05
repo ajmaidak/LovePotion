@@ -57,6 +57,16 @@ namespace Luax
 
     love::Type * Type(lua_State *L, int idx);
 
+    inline lua_Number CheckNumberClamped01(lua_State *L, int index)
+    {
+        return std::min(std::max(luaL_checknumber(L, index), 0.0), 1.0);
+    }
+
+    inline lua_Number OptNumberClamped01(lua_State *L, int index, double def)
+    {
+        return std::min(std::max(luaL_optnumber(L, index, def), 0.0), 1.0);
+    }
+
     int Type(lua_State * L);
 
     int TypeOf(lua_State * L);
