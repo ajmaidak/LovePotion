@@ -540,6 +540,7 @@ int Wrap_Graphics::Register(lua_State * L)
         { "getBackgroundColor", GetBackgroundColor },
         { "getColor",           GetColor           },
         { "getDefaultFilter",   GetDefaultFilter   },
+        { "getFont",            GetFont            },
         { "getLineWidth",       GetLineWidth       },
         { "line",               Line               },
         { "newFont",            NewFont            },
