@@ -204,6 +204,9 @@ int Wrap_Graphics::Present(lua_State * L)
     auto windowModule = Module::GetInstance<Window>(Module::M_WINDOW);
     windowModule->Present();
 
+    Font * font = instance()->GetFont();
+    font->ClearBuffer();
+
     return 0;
 }
 
@@ -226,6 +229,43 @@ int Wrap_Graphics::SetScissor(lua_State * L)
     Primitives::Scissor(enabled, scissor.x, scissor.y, scissor.w, scissor.h);
 
     return 0;
+}
+
+int Wrap_Graphics::SetDefaultFilter(lua_State * L)
+{
+    Texture::Filter filter;
+
+    const char * min = luaL_checkstring(L, 1);
+    const char * mag = luaL_optstring(L, 2, min);
+
+    if (!Texture::GetConstant(min, filter.min))
+        return Luax::EnumError(L, "filter mode", Texture::GetConstants(filter.min), min);
+
+    if (!Texture::GetConstant(mag, filter.mag))
+        return Luax::EnumError(L, "filter mode", Texture::GetConstants(filter.mag), mag);
+
+    instance()->SetDefaultFilter(filter);
+
+    return 0;
+}
+
+int Wrap_Graphics::GetDefaultFilter(lua_State * L)
+{
+    const Texture::Filter & filter = instance()->GetDefaultFilter();
+
+    const char * min;
+    const char * mag;
+
+    if (!Texture::GetConstant(filter.min, min))
+        return luaL_error(L, "Unknown minification filter mode.");
+
+    if (!Texture::GetConstant(filter.mag, mag))
+        return luaL_error(L, "Unknown magnification filter mode.");
+
+    lua_pushstring(L, min);
+    lua_pushstring(L, mag);
+
+    return 2;
 }
 
 int Wrap_Graphics::NewImage(lua_State * L)
@@ -351,15 +391,28 @@ int Wrap_Graphics::Draw(lua_State * L)
 
 int Wrap_Graphics::Print(lua_State * L)
 {
-    const char * text = luaL_checkstring(L, 1);
+    std::vector<Font::ColoredString> string;
+    Wrap_Font::CheckColoredString(L, 1, string);
+
     DrawArgs args;
 
     args.x = luaL_optnumber(L, 2, 0);
     args.y = luaL_optnumber(L, 3, 0);
 
-    Luax::CatchException(L, [&]() {
-        instance()->Print(text, args);
-    });
+    if (Luax::IsType(L, 2, Font::type))
+    {
+        Font * font = Wrap_Font::CheckFont(L, 2);
+
+        Luax::CatchException(L, [&]() {
+            instance()->Print(string, font, args);
+        });
+    }
+    else
+    {
+        Luax::CatchException(L, [&]() {
+            instance()->Print(string, args);
+        });
+    }
 
     return 0;
 }
@@ -486,6 +539,7 @@ int Wrap_Graphics::Register(lua_State * L)
         { "draw",               Draw               },
         { "getBackgroundColor", GetBackgroundColor },
         { "getColor",           GetColor           },
+        { "getDefaultFilter",   GetDefaultFilter   },
         { "getLineWidth",       GetLineWidth       },
         { "line",               Line               },
         { "newFont",            NewFont            },
@@ -498,6 +552,7 @@ int Wrap_Graphics::Register(lua_State * L)
         { "reset",              Reset              },
         { "setBackgroundColor", SetBackgroundColor },
         { "setColor",           SetColor           },
+        { "setDefaultFilter",   SetDefaultFilter   },
         { "setLineWidth",       SetLineWidth       },
         { "setNewFont",         SetNewFont         },
         { "setScissor",         SetScissor         },

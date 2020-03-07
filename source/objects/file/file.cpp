@@ -22,7 +22,10 @@ File::~File()
 
 bool File::Close()
 {
-    if (this->file == nullptr || (!this->Flush() && fclose(this->file) != 0))
+    if (this->mode == MODE_WRITE && !this->Flush())
+        return false;
+
+    if (this->file == nullptr || (fclose(this->file) != 0))
         return false;
 
     this->mode = MODE_CLOSED;
@@ -58,16 +61,10 @@ File::Mode File::GetMode()
 
 int64_t File::GetSize()
 {
-    int64_t size = 0;
-
     if (this->file == nullptr)
         this->Open(MODE_READ);
 
-    fseek(this->file, 0, SEEK_END);
-    size = (int64_t)ftell(this->file);
-    rewind(this->file);
-
-    return size;
+    return std::filesystem::file_size(this->GetFilename());
 }
 
 bool File::IsEOF()
@@ -153,7 +150,7 @@ int64_t File::Read(void * destination, int64_t size)
 
 FileData * File::Read(int64_t size)
 {
-    if (!this->IsOpen() || this->Open(MODE_READ))
+    if (!this->IsOpen() || !this->Open(MODE_READ))
         throw love::Exception("Could not read file %s.", this->GetFilename().c_str());
 
     int64_t max = this->GetSize();

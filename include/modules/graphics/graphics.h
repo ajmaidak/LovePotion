@@ -32,14 +32,18 @@ namespace love
             struct DisplayState
             {
                 Color foreground = { 1, 1, 1, 1 };
-                Color background = { 0, 0, 0, 0 };
+                Color background = { 0, 0, 0, 1 };
 
-                float lineWidth = 2.0f;
-                float pointSize = 2.0f;
+                float lineWidth = 1.0f;
+                float pointSize = 1.0f;
 
                 StrongReference<Font> font;
 
-                Rect scissor;
+                Rect scissorRect;
+                bool scissor = false;
+
+                Texture::Filter defaultFilter = Texture::Filter();
+                Texture::FilterMode defaultMipmapFilter = Texture::FILTER_LINEAR;
             };
 
             struct Point
@@ -74,6 +78,10 @@ namespace love
 
             void SetScissor(int x, int y, int width, int height);
 
+            void SetDefaultFilter(const Texture::Filter & filter);
+
+            const Texture::Filter & GetDefaultFilter() const;
+
             Rect GetScissor();
 
             /* Objects */
@@ -90,8 +98,8 @@ namespace love
 
             Font * GetFont();
 
-            void Print(const char * text, const DrawArgs & args);
-            void Print(const char * string, Font * font, const DrawArgs & args);
+            void Print(const std::vector<Font::ColoredString> & strings, const DrawArgs & args);
+            void Print(const  std::vector<Font::ColoredString> & strings, Font * font, const DrawArgs & args);
 
             /* End Objects */
 

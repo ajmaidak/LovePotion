@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "common/exception.h"
 
+#include <iostream>
+
 using namespace love;
 
 Exception::Exception(const char * format, ...)
@@ -30,6 +32,7 @@ Exception::Exception(const char * format, ...)
         delete[] buffer;
     }
 
+    LOG("%s", buffer)
     this->message = std::string(buffer);
     delete[] buffer;
 }

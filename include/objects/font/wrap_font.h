@@ -11,5 +11,7 @@ namespace Wrap_Font
 
     love::Font * CheckFont(lua_State * L, int index);
 
+    void CheckColoredString(lua_State * L, int index, std::vector<love::Font::ColoredString> & strings);
+
     int Register(lua_State * L);
 }

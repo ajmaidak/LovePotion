@@ -44,13 +44,66 @@ FontHandle Font::LoadFromPath(const std::string & path)
     return NULL;
 }
 
-void Font::Print(const char * string, const DrawArgs & args, float * limit, const Color & color)
+void Font::Print(const std::vector<ColoredString> & strings, const DrawArgs & args, float * limit, const Color & color)
+{
+    std::pair<float, float> offset = {0.0f, 0.0f};
+    std::string line = "";
+
+    for (size_t i = 0; i < strings.size(); i++)
+    {
+        const std::string & str = strings[i].string;
+        auto currentChar = str.begin();
+        const Color & clr = strings[i].color;
+
+        while (currentChar != str.end())
+        {
+            if (*currentChar == '\n')
+            {
+                std::pair<float, float> size = this->GenerateVertices(line, offset, args, clr);
+
+                offset.first = 0.0f;
+                offset.second += size.second;
+
+                line = "";
+            }
+            else
+                line += *currentChar;
+
+            ++currentChar;
+        }
+
+        if (!line.empty())
+        {
+            std::pair<float, float> size = this->GenerateVertices(line, offset, args, clr);
+            offset.first += size.first;
+
+            line = "";
+        }
+    }
+}
+
+std::pair<float, float> Font::GenerateVertices(const std::string & line, const std::pair<float, float> & offset, const DrawArgs & args, const Color & color)
+{
+    C2D_Text text;
+    const char * str = line.c_str();
+
+    C2D_TextFontParse(&text, this->font, this->buffer, str);
+    C2D_TextOptimize(&text);
+
+    float width;
+    float height;
+
+    C2D_TextGetDimensions(&text, this->GetScale(), this->GetScale(), &width, &height);
+
+    u32 currentColor = C2D_Color32f(color.r, color.g, color.b, color.a);
+    C2D_DrawText(&text, C2D_WithColor, args.x + offset.first, args.y + offset.second, 0.5, this->GetScale() * args.scalarX, this->GetScale() * args.scalarY, currentColor);
+
+    return std::pair(width, height);
+}
+
+void Font::ClearBuffer()
 {
     C2D_TextBufClear(this->buffer);
-    C2D_TextFontParse(&this->text, this->font, this->buffer, string);
-    C2D_TextOptimize(&this->text);
-
-    C2D_DrawText(&this->text, C2D_WithColor, args.x, args.y, 0.5, this->GetScale() * args.scalarX, this->GetScale() * args.scalarY, C2D_Color32f(color.r, color.g, color.b, color.a));
 }
 
 float Font::GetWidth(const char * text)

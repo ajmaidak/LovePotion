@@ -54,12 +54,23 @@ void Graphics::SetLineWidth(float width)
 
 Rect Graphics::GetScissor()
 {
-    return this->states.back().scissor;
+    return this->states.back().scissorRect;
 }
 
 void Graphics::SetScissor(int x, int y, int width, int height)
 {
-    this->states.back().scissor = {x, y, width, height};
+    this->states.back().scissorRect = {x, y, width, height};
+}
+
+void Graphics::SetDefaultFilter(const Texture::Filter & filter)
+{
+    Texture::defaultFilter = filter;
+    this->states.back().defaultFilter = filter;
+}
+
+const Texture::Filter & Graphics::GetDefaultFilter() const
+{
+    return Texture::defaultFilter;
 }
 
 /* Objects */
@@ -84,17 +95,17 @@ Quad * Graphics::NewQuad(Quad::Viewport viewport, double sw, double sh)
     return new Quad(viewport, sw, sh);
 }
 
-void Graphics::Print(const char * string, const DrawArgs & args)
+void Graphics::Print(const std::vector<Font::ColoredString> & strings, const DrawArgs & args)
 {
     this->CheckSetDefaultFont();
 
     if (this->states.back().font.Get() != nullptr)
-        this->Print(string, this->states.back().font.Get(), args);
+        this->Print(strings, this->states.back().font.Get(), args);
 }
 
-void Graphics::Print(const char * string, Font * font, const DrawArgs & args)
+void Graphics::Print(const std::vector<Font::ColoredString> & strings, Font * font, const DrawArgs & args)
 {
-    font->Print(string, args, nullptr, this->states.back().foreground);
+    font->Print(strings, args, nullptr, this->states.back().foreground);
 }
 
 /* End Objects */

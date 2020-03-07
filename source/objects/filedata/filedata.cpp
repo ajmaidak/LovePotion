@@ -65,7 +65,7 @@ void * FileData::GetData() const
 size_t FileData::GetSize() const
 {
     size_t max = std::numeric_limits<size_t>::max();
-    return this->size > max ? max : (size_t) this->size;
+    return (this->size > max) ? max : (size_t)this->size;
 }
 
 const std::string & FileData::GetFilename() const

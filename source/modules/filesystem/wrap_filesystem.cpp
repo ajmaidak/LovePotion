@@ -342,8 +342,8 @@ int Wrap_Filesystem::Register(lua_State * L)
 
     lua_CFunction types[] =
     {
-        Wrap_File::Register,
         Wrap_FileData::Register,
+        Wrap_File::Register,
         0
     };
 
@@ -359,7 +359,7 @@ int Wrap_Filesystem::Register(lua_State * L)
     module.instance = instance;
     module.name = "filesystem";
     module.functions = reg;
-    module.type = &Filesystem::type;
+    module.type = &Module::type;
     module.types = types;
 
     return Luax::RegisterModule(L, module);
