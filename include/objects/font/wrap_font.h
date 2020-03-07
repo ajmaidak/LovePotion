@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/mmath.h"
 #include "objects/font/font.h"
 
 namespace Wrap_Font

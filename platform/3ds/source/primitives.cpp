@@ -10,11 +10,8 @@ using namespace love;
 #define MIN_DEPTH Graphics::MIN_DEPTH
 #define TRANSPARENCY C2D_Color32f(0, 1, 0, 0)
 
-void Primitives::Rectangle(const std::string & mode, float x, float y, float width, float height, float rx, float ry, const Color & color)
+void Primitives::Rectangle(const std::string & mode, float x, float y, float width, float height, float rx, float ry, float lineWidth, const Color & color)
 {
-    auto gModule = love::Module::GetInstance<love::Graphics>(Module::M_GRAPHICS);
-    float lineWidth = gModule->GetLineWidth();
-
     if (mode == "fill")
         C2D_DrawRectSolid(x, y, CUR_DEPTH, width, height, C2D_Color32f(color.r, color.g, color.b, color.a));
     else if (mode == "line")
@@ -26,7 +23,7 @@ void Primitives::Rectangle(const std::string & mode, float x, float y, float wid
     }
 }
 
-void Primitives::Circle(const std::string & mode, float x, float y, float radius, const Color & color)
+void Primitives::Circle(const std::string & mode, float x, float y, float radius, float lineWidth, const Color & color)
 {
     auto gModule = love::Module::GetInstance<love::Graphics>(Module::M_GRAPHICS);
     Color background = gModule->GetBackgroundColor();
@@ -44,13 +41,10 @@ void Primitives::Circle(const std::string & mode, float x, float y, float radius
     }
 }
 
-void Primitives::Line(float x1, float y1, float x2, float y2, const Color & color)
+void Primitives::Line(float x1, float y1, float x2, float y2, float lineWidth, const Color & color)
 {
     float angle = atan2f(x2 - x1, y2 - y1);
     angle = C3D_Angle(.25) + angle;
-
-    auto gModule = love::Module::GetInstance<love::Graphics>(Module::M_GRAPHICS);
-    float lineWidth = gModule->GetLineWidth();
 
     float dy = lineWidth / 2 * sinf(angle);
     float dx = lineWidth / 2 * cosf(angle);
@@ -61,17 +55,7 @@ void Primitives::Line(float x1, float y1, float x2, float y2, const Color & colo
     C2D_DrawTriangle(x2 - dx, y2 - dy, foreground, x2 + dx, y2 + dy, foreground, x1 + dx, y1 + dy, foreground, CUR_DEPTH);
 }
 
-void Primitives::Scissor(bool enable, float x, float y, float width, float height)
-{
-    GPU_SCISSORMODE mode = (enable) ? GPU_SCISSOR_NORMAL : GPU_SCISSOR_DISABLE;
-
-    auto windowModule = Module::GetInstance<Window>(Module::M_WINDOW);
-    float screenWidth = (windowModule->GetDisplay() < 2) ? 400 : 320;
-
-    C3D_SetScissor(mode, 240 - (y + height), screenWidth - (x + width), 240 - y, screenWidth - x);
-}
-
-void Primitives::Polygon(const std::string & mode, std::vector<Graphics::Point> points, const Color & color)
+void Primitives::Polygon(const std::string & mode, std::vector<Graphics::Point> points, float lineWidth, const Color & color)
 {
     u32 foreground = C2D_Color32f(color.r, color.g, color.b, color.a);
 
@@ -144,4 +128,14 @@ void Primitives::Polygon(const std::string & mode, std::vector<Graphics::Point> 
             }
         }
     }
+}
+
+void Primitives::Scissor(bool enable, float x, float y, float width, float height)
+{
+    GPU_SCISSORMODE mode = (enable) ? GPU_SCISSOR_NORMAL : GPU_SCISSOR_DISABLE;
+
+    auto windowModule = Module::GetInstance<Window>(Module::M_WINDOW);
+    float screenWidth = (windowModule->GetDisplay() < 2) ? 400 : 320;
+
+    C3D_SetScissor(mode, 240 - (y + height), screenWidth - (x + width), 240 - y, screenWidth - x);
 }

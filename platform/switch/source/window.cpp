@@ -6,8 +6,9 @@ using namespace love;
 #include <SDL.h>
 #include "common/exception.h"
 
-Window::Window() : open(false),
-                   window(nullptr)
+Window::Window() : window(nullptr),
+                   open(false)
+
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
         throw love::Exception("Could not initialize SDL video subsystem (%s)", SDL_GetError());
@@ -67,12 +68,12 @@ bool Window::SetMode()
 void Window::Clear(Color * color)
 {
     // clear the background to the specified color
-    SDL_SetRenderDrawColor(Display::GetRenderer(), color->r, color->g, color->b, color->a);
-    SDL_RenderClear(Display::GetRenderer());
+    SDL_SetRenderDrawColor(this->GetRenderer(), color->r, color->g, color->b, color->a);
+    SDL_RenderClear(this->GetRenderer());
 
     // set the blending color for textures n stuff
     auto foreground = this->graphics.Get()->GetColor();
-    SDL_SetRenderDrawColor(Display::GetRenderer(), foreground.r, foreground.g, foreground.b, foreground.a);
+    SDL_SetRenderDrawColor(this->GetRenderer(), foreground.r, foreground.g, foreground.b, foreground.a);
 }
 
 void Window::Present()

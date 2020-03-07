@@ -1,30 +1,24 @@
 #pragma once
 
-#include "common/backend/display.h"
+#include "common/mmath.h"
+#include "objects/texture/texture.h"
 
 namespace love
 {
-    class Image : public Object
+    class Image : public Texture
     {
         public:
             static love::Type type;
 
             Image(const std::string & path);
+            ~Image();
 
-            void Draw(float x, float y, float r, float scalarX, float scalarY, float shearX, float shearY, const Color & color);
-            void Draw(float x, float y, float r, float scalarX, float scalarY, const Color & color);
-
-            int GetWidth() { return width; }
-
-            int GetHeight() { return height; }
-
-            void SetFilter();
+            void Draw(const DrawArgs & args, const Color & color);
+            void Draw(const DrawArgs & args, Quad * quad, const Color & color);
 
         private:
-            int width;
-            int height;
-
-            Texture texture;
+            TextureType textureType;
+            TextureHandle texture;
 
     };
 }

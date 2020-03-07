@@ -1,6 +1,8 @@
 #include "common/runtime.h"
 #include "objects/random/wrap_randomgenerator.h"
 
+#include "wrap_randomgenerator_lua.h"
+
 using namespace love;
 
 template <typename T>
@@ -37,31 +39,11 @@ int Wrap_RandomGenerator::GetState(lua_State * L)
     return 1;
 }
 
-int Wrap_RandomGenerator::Random(lua_State * L)
+int Wrap_RandomGenerator::_Random(lua_State * L)
 {
     RandomGenerator * self = Wrap_RandomGenerator::CheckRandomGenerator(L, 1);
 
-    double number = 0.0;
-
-    // exclude object from the count
-    int argc = lua_gettop(L) - 1;
-
-    if (argc == 0)
-        number = self->Random();
-    else if (argc == 1)
-    {
-        double high = luaL_checknumber(L, 2);
-        number = self->Random(high);
-    }
-    else if (argc == 2)
-    {
-        double low = luaL_checknumber(L, 2);
-        double high = luaL_checknumber(L, 3);
-
-        number = self->Random(low, high);
-    }
-
-    lua_pushnumber(L, number);
+    lua_pushnumber(L, self->Random());
 
     return 1;
 }
@@ -128,12 +110,16 @@ int Wrap_RandomGenerator::Register(lua_State * L)
     {
         { "getSeed",      GetSeed      },
         { "getState",     GetState     },
-        { "random",       Random       },
+        { "_random",      _Random      },
         { "randomNormal", RandomNormal },
         { "setSeed",      SetSeed      },
         { "setState",     SetState     },
         { 0, 0 }
     };
 
-    return Luax::RegisterType(L, &RandomGenerator::type, reg, nullptr);
+    int ret = Luax::RegisterType(L, &RandomGenerator::type, reg, nullptr);
+
+    Luax::RunWrapper(L, (const char *)wrap_randomgenerator_lua, wrap_randomgenerator_lua_size, "wrap_randomgenerator.lua", RandomGenerator::type);
+
+    return ret;
 }

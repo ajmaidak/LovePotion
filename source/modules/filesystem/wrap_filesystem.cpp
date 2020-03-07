@@ -238,14 +238,11 @@ int Wrap_Filesystem::Read(lua_State * L)
     try
     {
         data = instance()->Read(filename, length);
-        LOG("Data (%d Bytes): %s", data->GetSize(), (const char *)data->GetData());
     }
     catch(love::Exception & e)
     {
         return Luax::IOError(L, "%s", e.what());
     }
-
-    LOG("Data is nullptr? %d", (data == nullptr));
 
     if (data == nullptr)
         return Luax::IOError(L, "File could not be read.");

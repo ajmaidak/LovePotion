@@ -3,6 +3,11 @@
 #include "modules/graphics/graphics.h"
 #include "modules/window/window.h"
 
+#include "objects/font/font.h"
+#include "objects/drawable/wrap_drawable.h"
+
+#include "common/backend/primitives.h"
+
 namespace Wrap_Graphics
 {
     int Arc(lua_State * L);
@@ -34,6 +39,8 @@ namespace Wrap_Graphics
     int NewImage(lua_State * L);
 
     int NewFont(lua_State * L);
+
+    int NewQuad(lua_State * L);
 
     int SetLineWidth(lua_State * L);
 

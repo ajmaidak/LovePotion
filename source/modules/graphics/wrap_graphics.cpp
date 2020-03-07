@@ -1,8 +1,6 @@
 #include "common/runtime.h"
 #include "modules/graphics/wrap_graphics.h"
 
-#include "common/backend/primitives.h"
-
 using namespace love;
 
 #define instance() (Module::GetInstance<Graphics>(Module::M_GRAPHICS))
@@ -24,7 +22,7 @@ int Wrap_Graphics::Rectangle(lua_State * L)
     float rx = luaL_optnumber(L, 6, 1);
     float ry = luaL_optnumber(L, 7, 1);
 
-    Primitives::Rectangle(mode, x, y, width, height, rx, ry, instance()->GetColor());
+    Primitives::Rectangle(mode, x, y, width, height, rx, ry, instance()->GetLineWidth(), instance()->GetColor());
 
     return 0;
 }
@@ -42,7 +40,7 @@ int Wrap_Graphics::Circle(lua_State * L)
 
     float radius = luaL_optnumber(L, 4, 1);
 
-    Primitives::Circle(mode, x, y, radius, instance()->GetColor());
+    Primitives::Circle(mode, x, y, radius, instance()->GetLineWidth(), instance()->GetColor());
 
     return 0;
 }
@@ -78,7 +76,7 @@ int Wrap_Graphics::Line(lua_State * L)
 
                     lua_pop(L, 4);
 
-                    Primitives::Line(start.x, start.y, end.x, end.y, instance()->GetColor());
+                    Primitives::Line(start.x, start.y, end.x, end.y, instance()->GetLineWidth(), instance()->GetColor());
                 }
             }
         }
@@ -96,7 +94,7 @@ int Wrap_Graphics::Line(lua_State * L)
             end.x = luaL_checknumber(L, index + 3);
             end.y = luaL_checknumber(L, index + 4);
 
-            Primitives::Line(start.x, start.y, end.x, end.y, instance()->GetColor());
+            Primitives::Line(start.x, start.y, end.x, end.y, instance()->GetLineWidth(), instance()->GetColor());
         }
     }
 
@@ -162,7 +160,7 @@ int Wrap_Graphics::Polygon(lua_State * L)
         }
     }
 
-    Primitives::Polygon(mode, points, instance()->GetColor());
+    Primitives::Polygon(mode, points, instance()->GetLineWidth(), instance()->GetColor());
 
     return 0;
 }
@@ -267,26 +265,86 @@ int Wrap_Graphics::NewFont(lua_State * L)
     return 1;
 }
 
+int Wrap_Graphics::NewQuad(lua_State * L)
+{
+    Quad::Viewport v;
+
+    v.x = luaL_checknumber(L, 1);
+    v.y = luaL_checknumber(L, 2);
+
+    v.w = luaL_checknumber(L, 3);
+    v.h = luaL_checknumber(L, 4);
+
+    double sw = 0.0;
+    double sh = 0.0;
+
+    // TOO DO: use a Texture superclass
+    if (Luax::IsType(L, 5, Texture::type))
+    {
+        Texture * texture = Wrap_Texture::CheckTexture(L, 5);
+
+        sw = texture->GetWidth();
+        sh = texture->GetHeight();
+    }
+    else
+    {
+        sw = luaL_checknumber(L, 5);
+        sh = luaL_checknumber(L, 6);
+    }
+
+    Quad * quad = instance()->NewQuad(v, sw, sh);
+
+    Luax::PushType(L, quad);
+    quad->Release();
+
+    return 1;
+}
+
 int Wrap_Graphics::Draw(lua_State * L)
 {
-    Image * image = Luax::CheckType<Image>(L, 1);
+    Drawable * drawable = nullptr;
+    Texture * texture = nullptr;
+    Quad * quad = nullptr;
+
     int start = 2;
 
-    float x = luaL_optnumber(L, start, 0);
-    float y = luaL_optnumber(L, start + 1, 0);
+    if (Luax::IsType(L, 2, Quad::type))
+    {
+        texture = Wrap_Texture::CheckTexture(L, 1);
+        quad = Luax::ToType<Quad>(L, 2);
 
-    float r = luaL_optnumber(L, start + 2, 0);
+        start = 3;
+    }
+    else if (lua_isnil(L, 2) && !lua_isnoneornil(L, 3))
+        return Luax::TypeErrror(L, 2, "Quad");
+    else
+    {
+        drawable = Luax::CheckType<Drawable>(L, 1);
+        start = 2;
+    }
 
-    float sx = luaL_optnumber(L, start + 3, 1);
-    float sy = luaL_optnumber(L, start + 4, 1);
+    DrawArgs args;
 
-    float ox = luaL_optnumber(L, start + 5, 0);
-    float oy = luaL_optnumber(L, start + 6, 0);
+    args.x = luaL_optnumber(L, start, 0);
+    args.y = luaL_optnumber(L, start + 1, 0);
 
-    x += ox;
-    y += oy;
+    args.r = luaL_optnumber(L, start + 2, 0);
 
-    image->Draw(x, y, r, sx, sy, instance()->GetColor());
+    args.scalarX = luaL_optnumber(L, start + 3, 1);
+    args.scalarY = luaL_optnumber(L, start + 4, 1);
+
+    args.offsetX = luaL_optnumber(L, start + 5, 0);
+    args.offsetY = luaL_optnumber(L, start + 6, 0);
+
+    args.x += args.offsetX;
+    args.y += args.offsetY;
+
+    Luax::CatchException(L, [&]() {
+        if (texture && quad)
+            texture->Draw(args, quad, instance()->GetColor());
+        else
+            drawable->Draw(args, instance()->GetColor());
+    });
 
     return 0;
 }
@@ -294,12 +352,13 @@ int Wrap_Graphics::Draw(lua_State * L)
 int Wrap_Graphics::Print(lua_State * L)
 {
     const char * text = luaL_checkstring(L, 1);
+    DrawArgs args;
 
-    float x = luaL_optnumber(L, 2, 0);
-    float y = luaL_optnumber(L, 3, 0);
+    args.x = luaL_optnumber(L, 2, 0);
+    args.y = luaL_optnumber(L, 3, 0);
 
     Luax::CatchException(L, [&]() {
-        instance()->Print(text, x, y);
+        instance()->Print(text, args);
     });
 
     return 0;
@@ -431,6 +490,7 @@ int Wrap_Graphics::Register(lua_State * L)
         { "line",               Line               },
         { "newFont",            NewFont            },
         { "newImage",           NewImage           },
+        { "newQuad",            NewQuad            },
         { "polygon",            Polygon            },
         { "present",            Present            },
         { "print",              Print              },
@@ -446,8 +506,11 @@ int Wrap_Graphics::Register(lua_State * L)
 
     lua_CFunction types[] =
     {
-        Wrap_Image::Register,
+        Wrap_Drawable::Register,
+        Wrap_Texture::Register,
         Wrap_Font::Register,
+        Wrap_Image::Register,
+        Wrap_Quad::Register,
         0
     };
 

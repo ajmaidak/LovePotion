@@ -5,11 +5,16 @@
 
 #pragma once
 
+#include "objects/texture/texture.h"
+
 #include "objects/image/wrap_image.h"
 #include "objects/image/image.h"
 
 #include "objects/font/wrap_font.h"
 #include "objects/font/font.h"
+
+#include "objects/quad/wrap_quad.h"
+#include "objects/quad/quad.h"
 
 #include "common/mmath.h"
 
@@ -79,17 +84,18 @@ namespace love
 
             Font * NewFont(float size = Font::DEFAULT_SIZE);
 
+            Quad * NewQuad(Quad::Viewport v, double sw, double sh);
+
             void SetFont(Font * font);
 
             Font * GetFont();
 
-            void Print(const char * text, float x, float y);
-            void Print(const char * string, Font * font, float x, float y);
+            void Print(const char * text, const DrawArgs & args);
+            void Print(const char * string, Font * font, const DrawArgs & args);
 
             /* End Objects */
 
             void Reset();
-
 
             void Present();
 

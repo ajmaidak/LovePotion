@@ -22,7 +22,7 @@ typedef circlePosition StickPosition;
 
 typedef C3D_RenderTarget Renderer;
 
-typedef C2D_Image Texture;
+typedef C2D_Image TextureHandle;
 
 typedef struct _Frame Frame;
 

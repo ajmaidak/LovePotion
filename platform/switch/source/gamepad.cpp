@@ -1,11 +1,11 @@
 #include "common/runtime.h"
 #include "objects/gamepad/gamepad.h"
 
+using namespace love;
+
 Gamepad::Gamepad(size_t id)
 {
     this->id = id;
-
-    // hidInitializeVibrationDevices(this->vibrationHandles[0], 2, CONTROLLER_HANDHELD, TYPE_HANDHELD);
 }
 
 float Gamepad::GetAxis(size_t axis)
@@ -44,7 +44,7 @@ size_t Gamepad::GetAxisCount()
 
 size_t Gamepad::GetButtonCount()
 {
-    auto buttons = Input::GetButtons();
+    auto buttons = Input::buttons;
 
     return buttons.size();
 }
@@ -75,6 +75,11 @@ float Gamepad::GetGamepadAxis(const std::string & axis)
     value = value / JOYSTICK_MAX;
 
     return std::clamp(value, -1.0f, 1.0f);
+}
+
+size_t Gamepad::GetID()
+{
+    return this->id;
 }
 
 std::string Gamepad::GetName()
@@ -117,7 +122,7 @@ bool Gamepad::IsConnected()
 
 bool Gamepad::IsDown(size_t button)
 {
-    auto buttons = Input::GetButtons();
+    auto buttons = Input::buttons;
 
     for (auto it = buttons.begin(); it != buttons.end(); it++)
     {
@@ -140,7 +145,7 @@ bool Gamepad::IsGamepad()
 
 bool Gamepad::IsGamepadDown(const std::string & button)
 {
-    auto buttons = Input::GetButtons();
+    auto buttons = Input::buttons;
 
     for (auto it = buttons.begin(); it != buttons.end(); it++)
     {

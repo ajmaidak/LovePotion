@@ -67,6 +67,10 @@ namespace Luax
         return std::min(std::max(luaL_optnumber(L, index, def), 0.0), 1.0);
     }
 
+    void GetTypeMetaTable(lua_State * L, const love::Type & type);
+
+    void RunWrapper(lua_State * L, const char * filedata, size_t length, const char * filename, const love::Type & type);
+
     int Type(lua_State * L);
 
     int TypeOf(lua_State * L);
@@ -94,7 +98,7 @@ namespace Luax
     }
 
     template <typename T>
-    void PushType(lua_State * L, StrongReference<T> & object)
+    void PushType(lua_State * L, love::StrongReference<T> & object)
     {
         PushType(L, T::type, object);
     }

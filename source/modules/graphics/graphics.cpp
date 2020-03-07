@@ -52,7 +52,6 @@ void Graphics::SetLineWidth(float width)
     this->states.back().lineWidth = width;
 }
 
-
 Rect Graphics::GetScissor()
 {
     return this->states.back().scissor;
@@ -80,17 +79,22 @@ Font * Graphics::NewFont(const std::string & path, float size)
     return new Font(path, size);
 }
 
-void Graphics::Print(const char * string, float x, float y)
+Quad * Graphics::NewQuad(Quad::Viewport viewport, double sw, double sh)
+{
+    return new Quad(viewport, sw, sh);
+}
+
+void Graphics::Print(const char * string, const DrawArgs & args)
 {
     this->CheckSetDefaultFont();
 
     if (this->states.back().font.Get() != nullptr)
-        this->Print(string, this->states.back().font.Get(), x, y);
+        this->Print(string, this->states.back().font.Get(), args);
 }
 
-void Graphics::Print(const char * string, Font * font, float x, float y)
+void Graphics::Print(const char * string, Font * font, const DrawArgs & args)
 {
-    font->Print(string, x, y, this->states.back().foreground);
+    font->Print(string, args, nullptr, this->states.back().foreground);
 }
 
 /* End Objects */

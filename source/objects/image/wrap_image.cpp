@@ -3,35 +3,7 @@
 
 using namespace love;
 
-love::Type Image::type("Image", &Object::type);
-
-int Wrap_Image::GetDimensions(lua_State * L)
-{
-    Image * self = Wrap_Image::CheckImage(L, 1);
-
-    lua_pushnumber(L, self->GetWidth());
-    lua_pushnumber(L, self->GetHeight());
-
-    return 2;
-}
-
-int Wrap_Image::GetHeight(lua_State * L)
-{
-    Image * self = Wrap_Image::CheckImage(L, 1);
-
-    lua_pushnumber(L, self->GetHeight());
-
-    return 1;
-}
-
-int Wrap_Image::GetWidth(lua_State * L)
-{
-    Image * self = Wrap_Image::CheckImage(L, 1);
-
-    lua_pushnumber(L, self->GetWidth());
-
-    return 1;
-}
+love::Type Image::type("Image", &Texture::type);
 
 Image * Wrap_Image::CheckImage(lua_State * L, int index)
 {
@@ -40,12 +12,5 @@ Image * Wrap_Image::CheckImage(lua_State * L, int index)
 
 int Wrap_Image::Register(lua_State * L)
 {
-    luaL_Reg reg[] = {
-        { "getDimensions", GetDimensions },
-        { "getHeight",     GetHeight     },
-        { "getWidth",      GetWidth      },
-        { 0, 0 }
-    };
-
-    return Luax::RegisterType(L, &Image::type, reg, nullptr);
+    return Luax::RegisterType(L, &Image::type, Wrap_Texture::functions, nullptr);
 }

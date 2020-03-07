@@ -8,7 +8,7 @@ namespace Wrap_RandomGenerator
 
     int GetState(lua_State * L);
 
-    int Random(lua_State * L);
+    int _Random(lua_State * L);
 
     int RandomNormal(lua_State * L);
 

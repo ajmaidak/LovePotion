@@ -1,5 +1,6 @@
 #pragma once
 
+#include "objects/texture/wrap_texture.h"
 #include "objects/image/image.h"
 
 namespace Wrap_Image

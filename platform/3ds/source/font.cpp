@@ -44,13 +44,13 @@ FontHandle Font::LoadFromPath(const std::string & path)
     return NULL;
 }
 
-void Font::Print(const char * string, float x, float y, const Color & color)
+void Font::Print(const char * string, const DrawArgs & args, float * limit, const Color & color)
 {
     C2D_TextBufClear(this->buffer);
     C2D_TextFontParse(&this->text, this->font, this->buffer, string);
     C2D_TextOptimize(&this->text);
 
-    C2D_DrawText(&this->text, C2D_WithColor, x, y, 0.5, this->GetScale(), this->GetScale(), C2D_Color32f(color.r, color.g, color.b, color.a));
+    C2D_DrawText(&this->text, C2D_WithColor, args.x, args.y, 0.5, this->GetScale() * args.scalarX, this->GetScale() * args.scalarY, C2D_Color32f(color.r, color.g, color.b, color.a));
 }
 
 float Font::GetWidth(const char * text)
