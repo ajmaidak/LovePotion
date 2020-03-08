@@ -3,6 +3,8 @@
 
 #include <unistd.h>
 
+#define GAME_FOLDER "game"
+
 void Assets::Initialize(const std::string & path)
 {
     char current[PATH_MAX];
@@ -13,7 +15,7 @@ void Assets::Initialize(const std::string & path)
     switch(location)
     {
         case LOCATION_SDMC:
-            directory = "game";
+            directory = GAME_FOLDER;
             break;
         case LOCATION_EXTERNAL:
             romfsMountFromFsdev(path.c_str(), 0, "romfs");
@@ -23,7 +25,7 @@ void Assets::Initialize(const std::string & path)
             break;
     }
 
-    chdir(directory.c_str());
+    std::filesystem::current_path(directory);
 }
 
 std::string Assets::GetWritePath()
@@ -33,9 +35,6 @@ std::string Assets::GetWritePath()
 
 Location Assets::GetLocation(const std::string & path)
 {
-    if (path.empty())
-        return LOCATION_SDMC;
-
     size_t extPosition = path.find_last_of(".");
     bool isROMFSGame = false;
 
@@ -44,17 +43,18 @@ Location Assets::GetLocation(const std::string & path)
 
     if (!isROMFSGame)
     {
-        if (std::filesystem::is_directory("game"))
+        if (std::filesystem::is_directory(GAME_FOLDER))
             return LOCATION_SDMC;
     }
 
-    // couldn't grab game folder
+    LOG("Unable to enter game folder. Initializing ROMFS.")
     Result rc = romfsInit();
 
     // load our external ROMFS game
     if (rc == 0 && isROMFSGame)
         return LOCATION_EXTERNAL;
 
+    LOG("Not a ROMFS embedded game. Running fused.")
     // load no game / fused
     return LOCATION_ROMFS;
 }

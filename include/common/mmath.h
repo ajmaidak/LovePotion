@@ -27,6 +27,8 @@ namespace love
 
         float offsetX = 0;
         float offsetY = 0;
+
+        float depth = 0;
     };
 
     inline int NextPO2(unsigned int in)

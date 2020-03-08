@@ -1,28 +1,30 @@
+require 'libraries.nest'.init('ctr', {no_override=true})
+
 local function load_assets(path)
     local ret = {}
 
     local abs_path = string.format("graphics/%s", path)
     local files = love.filesystem.getDirectoryItems(abs_path)
 
-    local extension = ".png"
+    local ext = ".png"
     if path == "ctr" then
-        extension = ".t3x"
+        ext = ".t3x"
     end
 
     for i = 1, #files do
-        local index = files[i]:gsub(extension, "")
+        local index = files[i]:gsub(ext, "")
         ret[index] = love.graphics.newImage(abs_path .. "/" .. index .. ".png")
     end
 
     ret.eye_quads = {}
     for i = 1, 4 do
-        ret.eye_quads[i] = love.graphics.newQuad((i - 1) * 37, 0, 37, 37, ret.eye:getWidth(), ret.eye:getHeight())
+        ret.eye_quads[i] = love.graphics.newQuad((i - 1) * 37, 0, 37, 37, ret.eye)
     end
 
     return ret
 end
 
-local EYE_WAIT = math.random() * 2
+local EYE_WAIT = love.math.random(3, 5)
 local function create_eye(x, y)
     local eye = {}
 
@@ -93,7 +95,7 @@ function love.update(dt)
     end
 
     if blink == 2 then
-        EYE_WAIT = math.random() * 2
+        EYE_WAIT = love.math.random(3, 5)
     end
 end
 
@@ -104,8 +106,8 @@ function love.draw(screen)
         return
     end
 
-    for _, eye in ipairs(eyes) do
-        eye:draw()
+    for _, v in ipairs(eyes) do
+        v:draw()
     end
 end
 

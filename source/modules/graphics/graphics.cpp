@@ -1,6 +1,6 @@
 #include "common/runtime.h"
 #include "modules/graphics/graphics.h"
-
+#include "common/backend/primitives.h"
 #include "modules/window/window.h"
 
 using namespace love;
@@ -95,6 +95,16 @@ Quad * Graphics::NewQuad(Quad::Viewport viewport, double sw, double sh)
     return new Quad(viewport, sw, sh);
 }
 
+void Graphics::Draw(Drawable * drawable, const DrawArgs & args)
+{
+    drawable->Draw(args, this->states.back().foreground);
+}
+
+void Graphics::Draw(Texture * texture, Quad * quad, const DrawArgs & args)
+{
+    texture->Draw(args, quad, this->states.back().foreground);
+}
+
 void Graphics::Print(const std::vector<Font::ColoredString> & strings, const DrawArgs & args)
 {
     this->CheckSetDefaultFont();
@@ -109,6 +119,11 @@ void Graphics::Print(const std::vector<Font::ColoredString> & strings, Font * fo
 }
 
 /* End Objects */
+
+void Graphics::Rectangle(const std::string & mode, float x, float y, float width, float height)
+{
+    Primitives::Rectangle(mode, x, y, width, height, 0, 0, this->GetLineWidth(), this->GetColor());
+}
 
 void Graphics::Reset()
 {

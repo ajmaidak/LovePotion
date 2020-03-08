@@ -8,7 +8,7 @@ using namespace love;
 
 #define CUR_DEPTH Graphics::CURRENT_DEPTH
 #define MIN_DEPTH Graphics::MIN_DEPTH
-#define TRANSPARENCY C2D_Color32f(0, 1, 0, 0)
+#define TRANSPARENCY C2D_Color32f(0, 0, 0, 0)
 
 void Primitives::Rectangle(const std::string & mode, float x, float y, float width, float height, float rx, float ry, float lineWidth, const Color & color)
 {
@@ -69,9 +69,6 @@ void Primitives::Polygon(const std::string & mode, std::vector<Graphics::Point> 
     }
     else
     {
-        auto gModule = love::Module::GetInstance<love::Graphics>(Module::M_GRAPHICS);
-        float lineWidth = gModule->GetLineWidth();
-
         if (points.size() > 2)
         {
             for (size_t startPoint = 0; startPoint < points.size(); startPoint++)

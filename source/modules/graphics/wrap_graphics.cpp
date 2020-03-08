@@ -22,7 +22,9 @@ int Wrap_Graphics::Rectangle(lua_State * L)
     float rx = luaL_optnumber(L, 6, 1);
     float ry = luaL_optnumber(L, 7, 1);
 
-    Primitives::Rectangle(mode, x, y, width, height, rx, ry, instance()->GetLineWidth(), instance()->GetColor());
+    Luax::CatchException(L, [&]() {
+        instance()->Rectangle(mode, x, y, width, height);
+    });
 
     return 0;
 }
@@ -204,8 +206,8 @@ int Wrap_Graphics::Present(lua_State * L)
     auto windowModule = Module::GetInstance<Window>(Module::M_WINDOW);
     windowModule->Present();
 
-    Font * font = instance()->GetFont();
-    font->ClearBuffer();
+    // Font * font = instance()->GetFont();
+    // font->ClearBuffer();
 
     return 0;
 }
@@ -379,11 +381,13 @@ int Wrap_Graphics::Draw(lua_State * L)
     args.x += args.offsetX;
     args.y += args.offsetY;
 
+    args.depth = instance()->CURRENT_DEPTH;
+
     Luax::CatchException(L, [&]() {
         if (texture && quad)
-            texture->Draw(args, quad, instance()->GetColor());
+            instance()->Draw(texture, quad, args);
         else
-            drawable->Draw(args, instance()->GetColor());
+            instance()->Draw(drawable, args);
     });
 
     return 0;
@@ -398,6 +402,8 @@ int Wrap_Graphics::Print(lua_State * L)
 
     args.x = luaL_optnumber(L, 2, 0);
     args.y = luaL_optnumber(L, 3, 0);
+
+    args.depth = Graphics::CURRENT_DEPTH;
 
     if (Luax::IsType(L, 2, Font::type))
     {

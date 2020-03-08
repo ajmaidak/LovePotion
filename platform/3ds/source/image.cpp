@@ -16,8 +16,16 @@ Image::Image(const std::string & path) : Texture(Texture::TEXTURE_2D)
         C2D_SpriteSheet sheet = C2D_SpriteSheetLoad(translation.c_str());
         this->texture = C2D_SpriteSheetGetImage(sheet, 0);
 
-        this->width = this->texture.subtex->width;
-        this->height = this->texture.subtex->height;
+        if (!this->texture.subtex)
+        {
+            this->width = this->texture.tex->width;
+            this->height = this->texture.tex->height;
+        }
+        else
+        {
+            this->width  = this->texture.subtex->width;
+            this->height = this->texture.subtex->height;
+        }
     }
 
     this->InitQuad();
@@ -40,7 +48,7 @@ void Image::Draw(const DrawArgs & args, love::Quad * quad, const Color & color)
     Quad::Viewport v = quad->GetViewport();
     Tex3DS_SubTexture sub;
 
-    params.depth = 0.5f;
+    params.depth = args.depth;
     params.pos =
     {
         args.x, args.y,

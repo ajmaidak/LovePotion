@@ -98,10 +98,15 @@ namespace love
 
             Font * GetFont();
 
+            void Draw(Drawable * drawable, const DrawArgs & args);
+            void Draw(Texture * texture, Quad * quad, const DrawArgs & args);
+
             void Print(const std::vector<Font::ColoredString> & strings, const DrawArgs & args);
             void Print(const  std::vector<Font::ColoredString> & strings, Font * font, const DrawArgs & args);
 
             /* End Objects */
+
+            void Rectangle(const std::string & mode, float x, float y, float width, float height);
 
             void Reset();
 

@@ -32,78 +32,6 @@ package.cpath = "./?.lua;./?/init.lua"
 -- make sure love exists
 local love = require("love")
 
-local config =
-{
-    identity = "SuperGame",
-    appendidentity = false,
-    version = "2.0.0",
-    console = false,
-
-    modules =
-    {
-        audio = true,
-        data = true,
-        event = true,
-        font = true,
-        graphics = true,
-        image = true,
-        joystick = true,
-        keyboard = true,
-        math = true,
-        mouse = true,
-        physics = true,
-        sound = true,
-        system = true,
-        thread = true,
-        timer = true,
-        touch = true,
-        video = true,
-        window = true
-    },
-
-    -- Anything from here after in the config
-    -- is only included for legacy purposes
-
-    accelerometerjoystick = true,
-    externalstorage = false,
-
-    gammacorrect = true,
-
-    audio =
-    {
-        mixwithsystem = true
-    },
-
-    window =
-    {
-        title = "Untitled",
-        icon = nil,
-
-        width = 1280,
-        height = 720,
-
-        borderless = false,
-        resizable = false,
-
-        minwidth = 1,
-        minheight = 1,
-
-        fullscreen = false,
-        fullscreentype = "desktop",
-
-        vsync = 1,
-        msaa = 0,
-
-        depth = nil,
-        stencil = nil,
-
-        highdpi = false,
-
-        x = nil,
-        y = nil,
-    }
-}
-
 function love.createhandlers()
     love.handlers = setmetatable({
         keypressed = function (key)
@@ -221,65 +149,6 @@ function love.createhandlers()
             error('Unknown event: ' .. tostring(name))
         end,
     })
-end
-
-local screens = {
-    ["Switch"] = {nil},
-    ["3DS"] = {"top", "top", "bottom"}
-}
-
-function love.run()
-    if love.load then
-        love.load()
-    end
-
-    if love.timer then
-        love.timer.step()
-    end
-
-    local delta = 0
-
-    return function()
-        if love.event and love.event.pump then
-            love.event.pump()
-
-            for name, a, b, c, d, e, f in love.event.poll() do
-                if name == "quit" then
-                    if not love.quit or not love.quit() then
-                        return a or 0
-                    end
-                end
-                love.handlers[name](a, b, c, d, e, f)
-            end
-        end
-
-        if love.timer then
-            delta = love.timer.step()
-        end
-
-        if love.update then
-            love.update(delta)
-        end
-
-        if love.graphics then
-            love.graphics.clear(love.graphics.getBackgroundColor())
-
-            for display = 1, love.window.getDisplayCount() do
-                love.window.setScreen(display)
-
-                if love.draw then
-                    local screen = screens[love._console_name][display]
-                    love.draw(screen)
-                end
-            end
-
-            love.graphics.present()
-        end
-
-        if love.timer then
-            love.timer.sleep(0.001)
-        end
-    end
 end
 
 local utf8 = require("utf8")
@@ -401,9 +270,90 @@ end
 
 love.errhand = love.errorhandler
 
+local no_game_code = false
+
 function love.boot()
     -- Load the LOVE filesystem module, its absolutely needed
     require("love.filesystem")
+    no_game_code = false
+
+    if not (love.filesystem.getInfo("main.lua") or love.filesystem.getInfo("conf.lua")) then
+        no_game_code = true -- likely useless
+    end
+end
+
+function love.init()
+    local config =
+    {
+        identity = "SuperGame",
+        appendidentity = false,
+        version = love._version,
+        console = false,
+
+        modules =
+        {
+            audio = true,
+            data = true,
+            event = true,
+            font = true,
+            graphics = true,
+            image = true,
+            joystick = true,
+            keyboard = true,
+            math = true,
+            mouse = true,
+            physics = true,
+            sound = true,
+            system = true,
+            thread = true,
+            timer = true,
+            touch = true,
+            video = true,
+            window = true
+        },
+
+        -- Anything from here after in the config
+        -- is only included for legacy purposes
+
+        accelerometerjoystick = true,
+        externalstorage = false,
+
+        gammacorrect = true,
+
+        audio =
+        {
+            mixwithsystem = true
+        },
+
+        window =
+        {
+            title = "Untitled",
+            icon = nil,
+
+            width = 1280,
+            height = 720,
+
+            borderless = false,
+            resizable = false,
+
+            minwidth = 1,
+            minheight = 1,
+
+            fullscreen = false,
+            fullscreentype = "desktop",
+
+            vsync = 1,
+            msaa = 0,
+
+            depth = nil,
+            stencil = nil,
+
+            highdpi = false,
+
+            x = nil,
+            y = nil,
+        }
+    }
 
     -- We can't throw any errors just yet because we want to see if we can
     -- load and use conf.lua in case the user doesn't want to use certain
@@ -417,9 +367,6 @@ function love.boot()
             confok, conferr = pcall(love.conf, config)
         end
     end
-
-    -- Set the game identity for saving.
-    love.filesystem.setIdentity(config.identity)
 
     -- Modules to load
     local modules =
@@ -455,13 +402,83 @@ function love.boot()
     end
 
     -- Take our first step.
+    -- Window creation can take some time™
     if love.timer then
         love.timer.step()
     end
 
-    -- nogame is handled in romfs
-    -- for non-fused games
-    require("main")
+    if love.filesystem then
+        love.filesystem.setIdentity(config.identity)
+
+        if love.filesystem.getInfo("main.lua") then
+            require("main")
+        end
+    end
+
+    local nogame = "No code to run.\nYour  game might be packaged incorrectly.\nMake sure main.lua is at the top level of the ROMFS."
+
+    if no_game_code then
+        error(nogame)
+    end
+end
+
+local screens = {
+    ["Switch"] = {nil},
+    ["3DS"] = {"top", "top", "bottom"}
+}
+
+function love.run()
+    if love.load then
+        love.load()
+    end
+
+    if love.timer then
+        love.timer.step()
+    end
+
+    local delta = 0
+
+    return function()
+        if love.event and love.event.pump then
+            love.event.pump()
+
+            for name, a, b, c, d, e, f in love.event.poll() do
+                if name == "quit" then
+                    if not love.quit or not love.quit() then
+                        return a or 0
+                    end
+                end
+                love.handlers[name](a, b, c, d, e, f)
+            end
+        end
+
+        if love.timer then
+            delta = love.timer.step()
+        end
+
+        if love.update then
+            love.update(delta)
+        end
+
+        if love.graphics then
+            love.graphics.clear(love.graphics.getBackgroundColor())
+
+            for display = 1, love.window.getDisplayCount() do
+                love.window.setScreen(display)
+
+                if love.draw then
+                    local screen = screens[love._console_name][display]
+                    love.draw(screen)
+                end
+            end
+
+            love.graphics.present()
+        end
+
+        if love.timer then
+            love.timer.sleep(0.001)
+        end
+    end
 end
 
 return function()
@@ -482,6 +499,14 @@ return function()
         -- quit immediately
         if not result then
             return 1
+        end
+
+        result = xpcall(love.init, deferErrhand)
+
+        -- If love.init or love.run fails, don't return a value,
+        -- as we want the error handler to take over
+        if not result then
+            return
         end
 
         result = xpcall(love._ensureApplicationType, deferErrhand)

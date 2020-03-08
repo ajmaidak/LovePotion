@@ -45,9 +45,9 @@ namespace love
 
             struct Wrap
             {
-                WrapMode s = WRAP_CLAMP;
-                WrapMode t = WRAP_CLAMP;
-                WrapMode r = WRAP_CLAMP;
+                WrapMode s = WRAP_CLAMP_ZERO;
+                WrapMode t = WRAP_CLAMP_ZERO;
+                WrapMode r = WRAP_CLAMP_ZERO;
             };
 
             static love::Type type;

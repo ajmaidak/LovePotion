@@ -150,7 +150,7 @@ int64_t File::Read(void * destination, int64_t size)
 
 FileData * File::Read(int64_t size)
 {
-    if (!this->IsOpen() || !this->Open(MODE_READ))
+    if (!this->IsOpen() && !this->Open(MODE_READ))
         throw love::Exception("Could not read file %s.", this->GetFilename().c_str());
 
     int64_t max = this->GetSize();
