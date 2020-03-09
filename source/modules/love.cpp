@@ -6,12 +6,14 @@
 #include "common/backend/display.h"
 #include "common/backend/input.h"
 
+#include "modules/audio/wrap_audio.h"
 #include "modules/data/wrap_datamodule.h"
 #include "modules/event/wrap_event.h"
 #include "modules/filesystem/wrap_filesystem.h"
 #include "modules/graphics/wrap_graphics.h"
 #include "modules/joystick/wrap_joystick.h"
 #include "modules/math/wrap_mathmodule.h"
+#include "modules/sound/wrap_sound.h"
 #include "modules/timer/wrap_timer.h"
 #include "modules/window/wrap_window.h"
 
@@ -70,12 +72,14 @@ int Love::Initialize(lua_State * L)
 
     Love::modules =
     {{
+        { "love.audio",       Wrap_Audio::Register       },
         { "love.data",        Wrap_Data::Register,       },
         { "love.event",       Wrap_Event::Register,      },
         { "love.graphics",    Wrap_Graphics::Register,   },
         { "love.filesystem",  Wrap_Filesystem::Register, },
         { "love.joystick",    Wrap_Joystick::Register,   },
         { "love.math",        Wrap_Math::Register        },
+        { "love.sound",       Wrap_Sound::Register       },
         { "love.timer",       Wrap_Timer::Register,      },
         { "love.window",      Wrap_Window::Register,     },
         { "love.boot",        Boot                       },

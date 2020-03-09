@@ -141,7 +141,7 @@ int64_t File::Read(void * destination, int64_t size)
 
     int64_t read = 0;
     if (this->bufferMode == BUFFER_NONE)
-        read = fread(destination, size, 1, this->file);
+        read = fread(destination, 1, size, this->file);
     else
         read = this->BufferedRead(destination, size);
 
@@ -178,7 +178,7 @@ FileData * File::Read(int64_t size)
         delete fileData;
         throw love::Exception("Could not read from file.");
     }
-
+    LOG("Read: %lld Size: %lld", bytesRead, size)
     if (bytesRead < size)
     {
         FileData * tmp = new FileData(bytesRead, this->GetFilename());

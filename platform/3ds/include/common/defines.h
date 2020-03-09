@@ -9,6 +9,8 @@
 
 #define MAX_GAMEPADS 1
 
+#define AUDIO_RATE 44100
+
 #define JOYSTICK_MAX 150.0f
 
 typedef struct _vibe {

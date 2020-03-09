@@ -69,7 +69,7 @@ std::string Filesystem::GetSaveDirectory()
 
 File * Filesystem::NewFile(const char * filename)
 {
-    return new File(this->GetSaveDirectory() + filename);
+    return new File(filename);
 }
 
 FileData * Filesystem::NewFileData(const void * data, size_t size, const char * filename)

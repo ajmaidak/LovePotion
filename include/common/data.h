@@ -1,7 +1,5 @@
 #pragma once
 
-#include "common/strongref.h"
-
 namespace love
 {
     class Data : public Object

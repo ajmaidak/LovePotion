@@ -23,7 +23,7 @@ int Luax::Require(lua_State * L, const char * name)
     return 1;
 }
 
-int Luax::ConvertObject(lua_State *L, int idx, const char  *mod, const char * fn)
+int Luax::ConvertObject(lua_State * L, int idx, const char * mod, const char * fn)
 {
     // Convert to absolute index if necessary.
     if (idx < 0 && idx > LUA_REGISTRYINDEX)

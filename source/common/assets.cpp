@@ -25,7 +25,7 @@ void Assets::Initialize(const std::string & path)
             break;
     }
 
-    std::filesystem::current_path(directory);
+    chdir(directory.c_str());
 }
 
 std::string Assets::GetWritePath()
@@ -47,14 +47,12 @@ Location Assets::GetLocation(const std::string & path)
             return LOCATION_SDMC;
     }
 
-    LOG("Unable to enter game folder. Initializing ROMFS.")
     Result rc = romfsInit();
 
     // load our external ROMFS game
     if (rc == 0 && isROMFSGame)
         return LOCATION_EXTERNAL;
 
-    LOG("Not a ROMFS embedded game. Running fused.")
     // load no game / fused
     return LOCATION_ROMFS;
 }

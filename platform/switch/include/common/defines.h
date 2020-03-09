@@ -9,6 +9,8 @@
 
 using love::Rect;
 
+#define AUDIO_RATE 48000
+
 #define MAX_GAMEPADS 4
 
 typedef SDL_Renderer Renderer;

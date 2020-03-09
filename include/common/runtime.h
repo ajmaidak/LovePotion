@@ -31,6 +31,7 @@ enum DoneAction
 #include <sys/time.h>
 #include <filesystem>
 #include <limits>
+#include <stack>
 
 #define _USE_MATH_DEFINES
 #include <cmath>

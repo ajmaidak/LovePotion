@@ -371,13 +371,15 @@ function love.init()
     -- Modules to load
     local modules =
     {
+        "audio",
         "data",
         "timer",
         "event",
         "joystick",
         "window",
         "graphics",
-        "math"
+        "math",
+        "sound"
     }
 
     -- Load them all!

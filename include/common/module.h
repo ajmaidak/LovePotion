@@ -18,6 +18,7 @@ namespace love
                 M_KEYBOARD,
                 M_MATH,
                 M_SYSTEM,
+                M_SOUND,
                 M_TIMER,
                 M_TOUCH,
                 M_WINDOW,

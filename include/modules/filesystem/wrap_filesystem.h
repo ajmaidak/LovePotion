@@ -37,5 +37,9 @@ namespace Wrap_Filesystem
 
     int WriteOrAppend(lua_State * L, love::File::Mode mode);
 
+    love::File * GetFile(lua_State * L, int index);
+
+    love::FileData * GetFileData(lua_State * L, int index);
+
     int Write(lua_State * L);
 }

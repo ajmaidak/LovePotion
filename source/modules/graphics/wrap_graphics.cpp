@@ -206,8 +206,8 @@ int Wrap_Graphics::Present(lua_State * L)
     auto windowModule = Module::GetInstance<Window>(Module::M_WINDOW);
     windowModule->Present();
 
-    // Font * font = instance()->GetFont();
-    // font->ClearBuffer();
+    Font * font = instance()->GetFont();
+    font->ClearBuffer();
 
     return 0;
 }

@@ -321,6 +321,56 @@ int Wrap_Filesystem::Write(lua_State * L)
     return Wrap_Filesystem::WriteOrAppend(L, File::MODE_WRITE);
 }
 
+File * Wrap_Filesystem::GetFile(lua_State * L, int index)
+{
+    File * file = nullptr;
+
+    if (lua_isstring(L, index))
+    {
+        const char * filename = luaL_checkstring(L, index);
+        file = instance()->NewFile(filename);
+    }
+    else
+    {
+        file = Wrap_File::CheckFile(L, index);
+        file->Retain();
+    }
+
+    return file;
+}
+
+FileData * Wrap_Filesystem::GetFileData(lua_State * L, int index)
+{
+    FileData * data = nullptr;
+    File * file = nullptr;
+
+    if (lua_isstring(L, index) || Luax::IsType(L, index, File::type))
+        file = Wrap_Filesystem::GetFile(L, index);
+    else if (Luax::IsType(L, index, FileData::type))
+    {
+        data = Wrap_FileData::CheckFileData(L, index);
+        data->Retain();
+    }
+
+    if (!data && !file)
+    {
+        luaL_argerror(L, index, "filename, File, or FileData expected.");
+        return nullptr;
+    }
+
+    if (file)
+    {
+        LOG("Reading file")
+        Luax::CatchException(L,
+            [&]() { data = file->Read(); },
+            [&](bool) { file->Release(); }
+        );
+        LOG("Done")
+    }
+    LOG("Returning FileData")
+    return data;
+}
+
 int Wrap_Filesystem::Register(lua_State * L)
 {
     luaL_reg reg[] =

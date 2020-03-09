@@ -60,7 +60,7 @@ ICON			:= icon.png
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:=	-g -Wall -O2 -mword-relocations `sdl-config --cflags` \
+CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-fomit-frame-pointer -ffunction-sections -DLOVE_POTION_CONSOLE="\"3DS\"" \
 			$(ARCH)
 
@@ -71,7 +71,7 @@ CXXFLAGS	:= $(CFLAGS) -Wno-psabi -fno-rtti -fexceptions -std=gnu++17
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= `curl-config --libs` `arm-none-eabi-pkg-config SDL_mixer` -lSDL -lcitro2d -lcitro3d -lctru -lm
+LIBS	:= `curl-config --libs` -lvorbisidec -logg -lcitro2d -lcitro3d -lctru -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

@@ -13,5 +13,7 @@ namespace Wrap_FileData
 
     love::FileData * CheckFileData(lua_State * L, int index);
 
+    love::FileData * GetFileData(lua_State * L, int index);
+
     int Register(lua_State * L);
 }

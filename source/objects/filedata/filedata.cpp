@@ -12,6 +12,7 @@ FileData::FileData(uint64_t size, const std::string & filename) : data(nullptr),
     try
     {
         this->data = new char[(size_t)size];
+        LOG("%llu", size);
     }
     catch(std::bad_alloc &)
     {
@@ -44,7 +45,7 @@ FileData::FileData(const FileData & content) : data(nullptr),
         throw love::Exception("Out of memory.");
     }
 
-    memcpy(this->data, content.data, size);
+    memcpy(this->data, content.data, this->size);
 }
 
 FileData::~FileData()
