@@ -10,6 +10,8 @@ namespace Wrap_Audio
 {
     int NewSource(lua_State * L);
 
+    int Play(lua_State * L);
+
     int Stop(lua_State * L);
 
     int Register(lua_State * L);

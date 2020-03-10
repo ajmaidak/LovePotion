@@ -360,14 +360,12 @@ FileData * Wrap_Filesystem::GetFileData(lua_State * L, int index)
 
     if (file)
     {
-        LOG("Reading file")
         Luax::CatchException(L,
             [&]() { data = file->Read(); },
             [&](bool) { file->Release(); }
         );
-        LOG("Done")
     }
-    LOG("Returning FileData")
+
     return data;
 }
 

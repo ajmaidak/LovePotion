@@ -13,7 +13,8 @@ int Wrap_Audio::NewSource(lua_State * L)
     {
         const char * typeString = luaL_checkstring(L, 2);
 
-        // TO DO: check type
+        if (typeString && !Source::GetConstant(typeString, type))
+            return Luax::EnumError(L, "source type", Source::GetConstants(type), typeString);
 
         if (type == Source::TYPE_QUEUE)
             return luaL_error(L, "Cannot create queueable sources using newSource. Use newQueueableSource instead.");
@@ -22,11 +23,16 @@ int Wrap_Audio::NewSource(lua_State * L)
     if (lua_isstring(L, 1) || Luax::IsType(L, 1, File::type) || Luax::IsType(L, 1, FileData::type))
         Luax::ConvertObject(L, 1, "sound", "newDecoder");
 
+    if (type == Source::TYPE_STATIC && Luax::IsType(L, 1, Decoder::type))
+		Luax::ConvertObject(L, 1, "sound", "newSoundData");
+
     Source * source = nullptr;
 
     Luax::CatchException(L, [&]() {
-        if (Luax::IsType(L, 1, Decoder::type))
-            source = instance()->NewSource(Luax::ToType<Decoder>(L, 1));
+        if (Luax::IsType(L, 1, SoundData::type))
+            source = instance()->NewSource(Luax::ToType<SoundData>(L, 1));
+        else if (Luax::IsType(L, 1, Decoder::type))
+			source = instance()->NewSource(Luax::ToType<Decoder>(L, 1));
     });
 
     if (source != nullptr)
@@ -38,6 +44,15 @@ int Wrap_Audio::NewSource(lua_State * L)
     }
     else
         return Luax::TypeErrror(L, 1, "Decoder or SoundData");
+}
+
+int Wrap_Audio::Play(lua_State * L)
+{
+    Source * source = Wrap_Source::CheckSource(L, 1);
+
+    lua_pushboolean(L, instance()->Play(source));
+
+    return 1;
 }
 
 int Wrap_Audio::Stop(lua_State * L)
@@ -55,14 +70,12 @@ int Wrap_Audio::Stop(lua_State * L)
 
 int Wrap_Audio::Register(lua_State * L)
 {
-    Result res = ndspInit();
-
-    if (res != 0)
-        luaL_error(L, "Failed to initialize audio");
+    ndspInit();
 
     luaL_Reg reg[] =
     {
         { "newSource", NewSource },
+        { "play",      Play      },
         { "stop",      Stop      },
         { 0,           0         }
     };

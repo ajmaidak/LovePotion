@@ -26,12 +26,47 @@ int Wrap_Sound::NewDecoder(lua_State * L)
     return 1;
 }
 
+int Wrap_Sound::NewSoundData(lua_State * L)
+{
+    SoundData * data = nullptr;
+
+    if (lua_isnumber(L, 1))
+    {
+        // int samples = (int)luaL_checkinteger(L, 1);
+        // int sampleRate = (int)luaL_checkinteger(L, 2);
+        // int bitDepth = (int)luaL_checkinteger(L, 3);
+        // int channels = (int)luaL_checkinteger(L, 4);
+
+        // Luax::CatchException(L, [&]() {
+        //     data = instance()->NewSoundData(samples, sampleRate, bitDepth, channels);
+        // });
+    }
+    else
+    {
+        if (!Luax::IsType(L, 1, Decoder::type))
+        {
+            Wrap_Sound::NewDecoder(L);
+            lua_replace(L, 1);
+        }
+
+        Luax::CatchException(L, [&]() {
+            data = instance()->NewSoundData(Wrap_Decoder::CheckDecoder(L, 1));
+        });
+    }
+
+    Luax::PushType(L, data);
+    data->Release();
+
+    return 1;
+}
+
 int Wrap_Sound::Register(lua_State * L)
 {
     luaL_Reg reg[] =
     {
-        { "newDecoder", NewDecoder },
-        { 0,            0          }
+        { "newDecoder",   NewDecoder   },
+        { "newSoundData", NewSoundData },
+        { 0,              0            }
     };
 
     lua_CFunction types[] =

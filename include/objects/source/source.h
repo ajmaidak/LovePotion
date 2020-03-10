@@ -2,9 +2,31 @@
 
 #include "objects/decoder/decoder.h"
 #include "objects/sounddata/sounddata.h"
+#include "common/stringmap.h"
 
 namespace love
 {
+    class StaticDataBuffer : public Object
+    {
+        public:
+            StaticDataBuffer(void * data, size_t size);
+            ~StaticDataBuffer();
+
+            inline s16 * GetBuffer() const
+            {
+                return this->buffer;
+            }
+
+            inline size_t GetSize() const
+            {
+                return this->size;
+            }
+
+        private:
+            s16 * buffer;
+            size_t size;
+    };
+
     class Source : public Object
     {
         public:
@@ -49,13 +71,20 @@ namespace love
 
             Type GetType() const;
 
+            static bool GetConstant(const char * in, Type & out);
+            static bool GetConstant(Type in, const char  *& out);
+            static std::vector<std::string> GetConstants(Type);
+
         protected:
             Type sourceType;
 
         private:
             void Reset();
 
+            void PrepareAtomic();
             int StreamAtomic(void * buffer, Decoder * decoder);
+            bool PlayAtomic();
+            void ResumeAtomic();
 
             bool valid = false;
 
@@ -74,8 +103,16 @@ namespace love
             int bitDepth = 0;
 
             StrongReference<Decoder> decoder;
+            StrongReference<StaticDataBuffer> staticBuffer;
 
             int buffers = 0;
-            ndspWaveBuf waveBuffer;
+
+            std::stack<s16 *> unusedBuffers;
+            std::queue<s16 *> streamBuffers;
+
+            ndspWaveBuf source;
+
+            static StringMap<Type, TYPE_MAX_ENUM>::Entry typeEntries[];
+            static StringMap<Type, TYPE_MAX_ENUM> types;
     };
 }

@@ -12,7 +12,6 @@ FileData::FileData(uint64_t size, const std::string & filename) : data(nullptr),
     try
     {
         this->data = new char[(size_t)size];
-        LOG("%llu", size);
     }
     catch(std::bad_alloc &)
     {

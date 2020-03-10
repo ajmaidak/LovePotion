@@ -3,6 +3,11 @@
 
 using namespace love;
 
+Source * Wrap_Source::CheckSource(lua_State * L, int index)
+{
+    return Luax::CheckType<Source>(L, index);
+}
+
 int Wrap_Source::Register(lua_State * L)
 {
     luaL_Reg reg[] =
